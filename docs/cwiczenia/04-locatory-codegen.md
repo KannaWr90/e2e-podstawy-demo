@@ -73,7 +73,7 @@ await page.getByRole('button', { name: 'Dodaj do koszyka: Pasta do zębów' }).c
 ```
 Wynik kroku 5 (fragment, czasy będą inne):
 ```
-  9 passed (6.1s)
+  9 passed (3.3s)
 ```
 
 ## Kryterium „gotowe”

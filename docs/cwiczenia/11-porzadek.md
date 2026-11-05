@@ -54,13 +54,14 @@ Przeniesiesz powtarzane logowanie do jednej funkcji, a login i hasło z kodu tes
 
 ## Przykład wyniku
 
+Numery linii i czasy u Ciebie mogą być inne.
 ```
 PS C:\e2e\e2e-podstawy-demo> npx playwright test --grep "@zamowienia"
 
 Running 2 tests using 2 workers
 
-  ✓  1 [chromium] › tests/czytanie/02-moje-zamowienia.spec.ts:8:7 › Moje zamówienia › klient nie widzi zamówienia innej osoby @zamowienia (1.6s)
-  ✓  2 [chromium] › tests/czytanie/02-moje-zamowienia.spec.ts:8:7 › Moje zamówienia › lista pokazuje zamówienia klienta z ich statusem @zamowienia (1.7s)
+  ✓  2 [chromium] › tests/czytanie/02-moje-zamowienia.spec.ts:8:7 › Moje zamówienia › lista pokazuje zamówienia klienta z ich statusem @zamowienia (1.5s)
+  ✓  1 [chromium] › tests/czytanie/02-moje-zamowienia.spec.ts:25:7 › Moje zamówienia › klient nie widzi zamówienia innej osoby @zamowienia (2.5s)
 
   2 passed (2.9s)
 ```
