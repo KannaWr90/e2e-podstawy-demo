@@ -8,5 +8,7 @@ test('wyszukiwarka znajduje szampon nawilżający', async ({ page }) => {
   await page.getByLabel('Szukaj produktu').fill('szampon');
   await page.getByRole('button', { name: 'Filtruj' }).click();
 
-  await expect(page.getByRole('cell', { name: 'Szampon' })).toBeVisible();
+  // „Szampon” pasował do 4 komórek (dwa szampony i dwie komórki z przyciskiem).
+  // Dokładna nazwa produktu wskazuje jedną komórkę.
+  await expect(page.getByRole('cell', { name: 'Szampon nawilżający', exact: true })).toBeVisible();
 });
