@@ -1,6 +1,6 @@
 # Ćwiczenie 09. Testy API i dane przygotowane przez API
 
-Blok 2.5 · 40 min · w parach, klawiaturę ma jedna osoba, zmiana ról co blok
+Blok 2.5 · 40 min · w parach, zmiana ról co blok
 
 ## Cel
 

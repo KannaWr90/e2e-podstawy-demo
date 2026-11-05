@@ -1,6 +1,6 @@
 # Ćwiczenie 07. Trzy czerwone testy: najpierw diagnoza, potem poprawka
 
-Blok 2.3 · 25 min · w parach, klawiaturę ma jedna osoba, zmiana ról co blok
+Blok 2.3 · 25 min · w parach, zmiana ról co blok
 
 ## Cel
 

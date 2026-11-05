@@ -1,6 +1,6 @@
 # Ćwiczenie 10. Zasady review w CLAUDE.md i pierwszy skill „test E2E”
 
-Blok 2.6 · 25 min · w parach, klawiaturę ma jedna osoba, zmiana ról co blok
+Blok 2.6 · 25 min · w parach, zmiana ról co blok
 
 ## Cel
 

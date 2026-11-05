@@ -1,6 +1,6 @@
 # Ćwiczenie 05. Review pięciu testów napisanych przez Claude
 
-Blok 2.1 · 50 min · w parach: jedna osoba czyta kod, druga trzyma listę kontrolną, zmiana ról po każdym teście
+Blok 2.1 · 50 min · w parach, zmiana ról co blok
 
 ## Cel
 

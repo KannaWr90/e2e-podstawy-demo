@@ -1,6 +1,6 @@
 # Ćwiczenie 08. Z przypadku testowego do testu: plan, review planu, test
 
-Blok 2.4 · 40 min · w parach, klawiaturę ma jedna osoba, zmiana ról co blok
+Blok 2.4 · 40 min · w parach, zmiana ról co blok
 
 ## Cel
 

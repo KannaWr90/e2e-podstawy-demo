@@ -1,6 +1,6 @@
 # Ćwiczenie 06. Wiersz tabeli, który zmienia id przy każdym odświeżeniu
 
-Blok 2.2 · 35 min · w parach, klawiaturę ma jedna osoba, zmiana ról co blok
+Blok 2.2 · 35 min · w parach, zmiana ról co blok
 
 ## Cel
 
