@@ -20,7 +20,12 @@ test('błędny kod pocztowy blokuje zapis adresu', async ({ page }) => {
   await page.getByLabel('Telefon').fill('500 100 200');
   await page.getByRole('button', { name: 'Zapisz adres' }).click();
 
-  // Formularz zgłasza błąd w ramce w stylu błędu
-  await expect(page.getByRole('alert')).toContainText('Popraw błędy');
-  await expect(page.getByRole('alert')).toHaveClass('error');
+  // Dokładny komunikat przy polu z wymagania. Formularz zgłasza jeden błąd.
+  await expect(page.getByText('Kod pocztowy musi mieć format 00-000')).toBeVisible();
+  await expect(page.getByRole('alert')).toHaveText('Popraw błędy w formularzu (1).');
+  await expect(page.getByTestId('success')).toHaveCount(0);
+
+  // Adres nie został zapisany: po ponownym otwarciu strony nie ma błędnego kodu
+  await page.goto('/konto/adres');
+  await expect(page.getByLabel('Kod pocztowy')).not.toHaveValue('00000');
 });

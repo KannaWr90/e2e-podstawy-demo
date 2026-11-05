@@ -14,6 +14,9 @@ test('wyszukiwarka zamówień znajduje ZAM-1005', async ({ page }) => {
   await page.getByLabel('Szukaj zamówienia').fill('ZAM-1005');
   await page.getByRole('button', { name: 'Szukaj' }).click();
 
-  // Pierwsza komórka pierwszego wiersza to numer zamówienia
-  await expect(page.locator('table tbody tr:nth-child(1) td:nth-child(1)')).toHaveText('ZAM-1005');
+  // Wiersze z danymi mają numer zamówienia; wiersz nagłówka go nie ma
+  const wiersze = page.getByRole('row').filter({ hasText: 'ZAM-' });
+  await expect(page.getByText('Znaleziono: 1')).toBeVisible();
+  await expect(wiersze).toHaveCount(1);
+  await expect(wiersze.getByRole('cell').first()).toHaveText('ZAM-1005');
 });
