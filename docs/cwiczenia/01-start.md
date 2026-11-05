@@ -44,8 +44,8 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
    ```
    Oczekiwany wynik na końcu:
    ```
-     4 skipped
-     12 passed (2.2s)
+     12 skipped
+     18 passed (4.0s)
    ```
    Czas będzie inny. `skipped` to szkielety ćwiczeń, które wypełnisz później. Słowa `failed` być nie może.
 

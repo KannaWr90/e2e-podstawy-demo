@@ -61,6 +61,10 @@ Testy nie wymagają ręcznego uruchamiania aplikacji: Playwright sam ją włącz
 
 Po nieudanym teście w folderze `test-results` zostaje nagranie przebiegu (trace). Otworzysz je z raportu HTML.
 
+## Ćwiczenia
+
+Karty ćwiczeń i lista gałęzi z rozwiązaniami: [docs/cwiczenia/README.md](docs/cwiczenia/README.md). Lista kontrolna review testu: [docs/lista-kontrolna-review.md](docs/lista-kontrolna-review.md).
+
 ## Dane i konta demo
 
 Konta są fikcyjne i istnieją tylko w lokalnej bazie:
@@ -165,6 +169,6 @@ Get-NetTCPConnection -LocalPort 4100
 - W tabeli `/admin/zamowienia` wiersze nie mają `data-testid`, a `id="row-…"` jest losowe przy każdym renderze. Przyciski mają tylko tekst „Anuluj”, bez numeru w `aria-label`. Wiersz znajdziemy przez `getByRole('row').filter({ hasText: 'ZAM-1003' })`.
 - Firefox i WebKit są w konfiguracji z `default: false`: `npx playwright install firefox`, potem `npx playwright test --project=firefox`.
 - `.mcp.json` dodaje Playwright MCP (`@playwright/mcp@latest`) dla Claude Code. Jeśli na Windows serwer MCP się nie uruchamia, zamień `"command": "npx"` na `"command": "cmd"` i dodaj `"/c", "npx"` na początku `args`.
-- Gałęzie z rozwiązaniami i karty ćwiczeń dojdą w kolejnym kroku przygotowań.
+- Gałęzie `solution/NN` mają po jednym commicie na `main`; po zmianie `main`: `git rebase main solution/NN`. Dokumentacja (`docs/`, README) musi być taka sama na wszystkich gałęziach: `python3 <plugin teaching>/skills/repo-demo/scripts/sprawdz_docs_sync.py .` (celowe różnice w `scripts/docs-sync.json`).
 
 - Testy bezpieczeństwa aplikacji (zepsute ciasteczko, przekierowanie po logowaniu) są w `tests/bezpieczenstwo/` i nie biegną domyślnie: `npx playwright test --project=bezpieczenstwo`.

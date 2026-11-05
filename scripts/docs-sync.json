@@ -1,0 +1,11 @@
+{
+  "baza": "main",
+  "galezie": ["solution/*", "extra/*"],
+  "sciezki": ["docs", "README.md"],
+  "dozwolone": {
+    "solution/03": ["docs/odpowiedzi/03.md"],
+    "solution/05": ["docs/odpowiedzi/05.md"],
+    "solution/07": ["docs/odpowiedzi/07.md"],
+    "solution/08": ["docs/odpowiedzi/08.md"]
+  }
+}
