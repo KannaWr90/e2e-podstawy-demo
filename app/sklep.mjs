@@ -2,8 +2,17 @@
 import { layout, escapeHtml, cena, flash } from './widoki.mjs';
 import { koszyk, zamowKoszyk, walidujAdres } from './logika.mjs';
 
-// Dozwolone są tylko ścieżki wewnątrz aplikacji (bez przekierowań na inne strony).
-const bezpiecznyCel = (next) => (typeof next === 'string' && next.startsWith('/') && !next.startsWith('//') ? next : '/');
+// Po logowaniu wracamy tylko na stronę tej aplikacji. Wszystko inne (inna domena,
+// `//evil.com`, `/\evil.com`, znaki sterujące) daje stronę główną.
+function bezpiecznyCel(next) {
+  if (typeof next !== 'string' || !next.startsWith('/') || /[\\\u0000-\u001f\u007f]/.test(next)) return '/';
+  try {
+    const url = new URL(next, 'http://localhost');
+    return url.origin === 'http://localhost' ? url.pathname + url.search : '/';
+  } catch {
+    return '/';
+  }
+}
 
 export function wymagajLogowania(ctx, h) {
   if (ctx.user) return true;

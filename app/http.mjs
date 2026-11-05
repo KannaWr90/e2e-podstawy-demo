@@ -9,7 +9,12 @@ function parseCookies(req) {
   const out = {};
   for (const part of (req.headers.cookie ?? '').split(';')) {
     const [k, ...v] = part.trim().split('=');
-    if (k) out[k] = decodeURIComponent(v.join('='));
+    if (!k) continue;
+    try {
+      out[k] = decodeURIComponent(v.join('='));
+    } catch {
+      // Zepsute ciasteczko (np. niepełne kodowanie %): pomijamy je, zamiast przerywać obsługę żądania.
+    }
   }
   return out;
 }
@@ -56,17 +61,30 @@ export function createApp({ db, before }) {
     put: (p, fn) => app.route('PUT', p, fn),
     server() {
       return http.createServer(async (req, res) => {
-        const url = new URL(req.url, 'http://localhost');
-        const ctx = { req, res, url, db, query: Object.fromEntries(url.searchParams), params: {}, body: {}, user: null };
-        ctx.user = currentUser(ctx);
+        const ctx = { req, res, url: null, db, query: {}, params: {}, body: {}, user: null };
         const h = helpers(ctx);
-        const isApi = url.pathname.startsWith('/api/');
+        const isApi = (req.url ?? '').startsWith('/api/');
+        // Wszystko, co zależy od danych z żądania (adres, ciasteczka), jest w try:
+        // błędne żądanie dostaje odpowiedź 400/500, a serwer działa dalej.
         try {
+          let url;
+          try {
+            url = new URL(req.url ?? '/', 'http://localhost');
+          } catch {
+            throw new BadRequest('Nieprawidłowy adres żądania');
+          }
+          ctx.url = url;
+          ctx.query = Object.fromEntries(url.searchParams);
+          ctx.user = currentUser(ctx);
           for (const r of routes) {
             if (r.method !== req.method) continue;
             const m = url.pathname.match(r.re);
             if (!m) continue;
-            r.keys.forEach((k, i) => (ctx.params[k] = decodeURIComponent(m[i + 1])));
+            try {
+              r.keys.forEach((k, i) => (ctx.params[k] = decodeURIComponent(m[i + 1])));
+            } catch {
+              throw new BadRequest('Nieprawidłowy adres żądania');
+            }
             if (before?.(ctx, h)) return;
             if (req.method !== 'GET') ctx.body = await readBody(req);
             return await r.handler(ctx, h);
@@ -80,6 +98,7 @@ export function createApp({ db, before }) {
           }
           console.error(e);
           if (!res.headersSent) h.json({ error: 'Błąd serwera' }, 500);
+          else res.end();
         }
       });
     },
