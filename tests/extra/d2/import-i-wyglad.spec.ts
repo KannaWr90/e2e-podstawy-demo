@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // Zadanie dodatkowe dnia 2, zadanie 2: wysyłanie pliku, miękkie asercje, porównanie zrzutów (kroki 3 i 4 karty).
 // Karta: docs/cwiczenia/extra-d2-iframe-dialog-pliki.md
 
-test.fixme('import pliku CSV z błędami pokazuje wszystkie błędne wiersze', async ({ page }) => {
+test('import pliku CSV z błędami pokazuje wszystkie błędne wiersze', async ({ page }) => {
   await page.goto('/logowanie');
   await page.getByLabel('Login').fill('admin');
   await page.getByLabel('Hasło').fill('admin123');
@@ -11,17 +11,28 @@ test.fixme('import pliku CSV z błędami pokazuje wszystkie błędne wiersze', a
   await expect(page.getByText('Zalogowano jako admin')).toBeVisible();
   await page.goto('/admin/produkty');
 
-  // Plik z błędami. Import niczego nie zapisze, więc test nie zmienia danych.
+  // Plik powstaje w pamięci, nie na dysku. Ma błędy, więc import niczego nie zapisze.
   const csv = ['nazwa;kategoria;cena;stan', 'Krem testowy;Ciało;abc;5', ';Twarz;12,99;-1'].join('\n');
+  await page.getByLabel('Plik CSV z produktami').setInputFiles({
+    name: 'produkty-z-bledami.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv, 'utf8'),
+  });
+  await page.getByRole('button', { name: 'Importuj' }).click();
 
-  // TODO 1: wyślij plik z pamięci do pola „Plik CSV z produktami”:
-  //   setInputFiles({ name: 'produkty-z-bledami.csv', mimeType: 'text/csv', buffer: Buffer.from(csv, 'utf8') })
-  // TODO 2: kliknij „Importuj” i sprawdź, że komunikat (rola alert) zawiera „Nie zaimportowano pliku”.
-  // TODO 3: miękkimi asercjami (expect.soft) sprawdź: 3 pozycje listy w komunikacie
-  //   oraz każdy z trzech komunikatów o błędnych wierszach.
+  const bledy = page.getByRole('alert');
+  await expect(bledy).toContainText('Nie zaimportowano pliku');
+  // Miękkie asercje: test sprawdza wszystkie trzy komunikaty, nawet gdy pierwszy się nie zgadza.
+  await expect.soft(bledy.getByRole('listitem')).toHaveCount(3);
+  await expect.soft(bledy).toContainText('Wiersz 2: cena musi być liczbą większą od zera');
+  await expect.soft(bledy).toContainText('Wiersz 3: brak nazwy');
+  await expect.soft(bledy).toContainText('Wiersz 3: stan musi być liczbą całkowitą, co najmniej 0');
 });
 
-test.fixme('strona logowania wygląda tak jak na zrzucie wzorcowym', async ({ page }) => {
-  // TODO 1: otwórz /logowanie i poczekaj na nagłówek „Logowanie”.
-  // TODO 2: porównaj całą stronę ze zrzutem wzorcowym: await expect(page).toHaveScreenshot('logowanie.png');
+test('strona logowania wygląda tak jak na zrzucie wzorcowym', async ({ page }) => {
+  await page.goto('/logowanie');
+  await expect(page.getByRole('heading', { name: 'Logowanie' })).toBeVisible();
+
+  // Pierwsze uruchomienie zapisuje zrzut wzorcowy. Kolejne porównują z nim stronę.
+  await expect(page).toHaveScreenshot('logowanie.png');
 });
