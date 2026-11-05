@@ -1,4 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import { existsSync } from 'node:fs';
+
+// Dane logowania do testów są w pliku .env (wzór: .env.example, plik .env jest w .gitignore).
+// Playwright sam nie czyta .env, więc wczytujemy go tutaj, o ile istnieje.
+if (existsSync('.env')) {
+  process.loadEnvFile('.env');
+}
 
 // Konfiguracja Playwright. Dokumentacja: https://playwright.dev/docs/test-configuration
 export default defineConfig({
