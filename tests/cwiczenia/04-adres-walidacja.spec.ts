@@ -2,13 +2,21 @@ import { test, expect } from '@playwright/test';
 
 // Ćwiczenie 04, scenariusz C: adres dostawy z błędnym kodem pocztowym.
 // Karta: docs/cwiczenia/04-locatory-codegen.md
-// Kod nagraj Codegenem, wklej tutaj i popraw. Potem zamień `test.fixme` na `test`.
 
-test.fixme('błędny kod pocztowy blokuje zapis adresu', async ({ page }) => {
-  // TODO 1: zaloguj się jako user / user123.
-  // TODO 2: otwórz „Adres dostawy” z menu.
-  // TODO 3: w polu „Kod pocztowy” wpisz 00000 (bez myślnika) i kliknij „Zapisz adres”.
-  // TODO 4: sprawdź komunikat „Popraw błędy w formularzu (1).”
-  // TODO 5: sprawdź komunikat przy polu: „Kod pocztowy musi mieć format 00-000”.
-  // TODO 6: sprawdź, że NIE pojawił się komunikat „Zapisano adres dostawy.”
+test('błędny kod pocztowy blokuje zapis adresu', async ({ page }) => {
+  await page.goto('/logowanie');
+  await page.getByLabel('Login').fill('user');
+  await page.getByLabel('Hasło').fill('user123');
+  await page.getByRole('button', { name: 'Zaloguj' }).click();
+
+  await page.getByRole('link', { name: 'Adres dostawy' }).click();
+
+  // Pozostałe pola są już wypełnione poprawnym adresem. Zmieniamy tylko kod pocztowy.
+  await page.getByLabel('Kod pocztowy').fill('00000');
+  await page.getByRole('button', { name: 'Zapisz adres' }).click();
+
+  await expect(page.getByRole('alert')).toHaveText('Popraw błędy w formularzu (1).');
+  await expect(page.getByText('Kod pocztowy musi mieć format 00-000')).toBeVisible();
+  // Adres nie został zapisany.
+  await expect(page.getByText('Zapisano adres dostawy.')).toHaveCount(0);
 });
