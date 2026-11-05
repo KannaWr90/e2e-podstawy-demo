@@ -1,0 +1,284 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Namssor API",
+    "version": "1.0.0",
+    "description": "REST API fikcyjnej drogerii Namssor (aplikacja szkoleniowa). Logowanie: POST /api/login zwraca token; wysyłaj go w nagłówku Authorization: Bearer <token>. Działa też ciasteczko sid ustawiane przy logowaniu. Błędy: 400 { error, errors: [{ field, message }] }, 401/403/404/409/503 { error }."
+  },
+  "servers": [{ "url": "http://localhost:4100" }],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Czy aplikacja działa",
+        "security": [],
+        "responses": {
+          "200": { "description": "Aplikacja działa", "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } } } } }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "summary": "Logowanie, zwraca token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "Zalogowano", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginResponse" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "summary": "Dane zalogowanego użytkownika",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Użytkownik", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "Lista produktów",
+        "security": [],
+        "parameters": [
+          { "name": "q", "in": "query", "description": "Fragment nazwy", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "description": "Dokładna nazwa kategorii, np. Włosy", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Produkty", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Product" } } } } }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "summary": "Jeden produkt",
+        "security": [],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "Produkt", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Product" } } } },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "summary": "Zamówienia zalogowanego klienta",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [
+          { "name": "opoznienie", "in": "query", "description": "Dowolna wartość: odpowiedź przychodzi po 0,5–2 s (symulacja wolnego serwera)", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Zamówienia, od najnowszego", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "post": {
+        "summary": "Złóż zamówienie na jeden produkt",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderRequest" } } }
+        },
+        "responses": {
+          "201": { "description": "Zamówienie złożone", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Order" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "description": "Brak towaru na stanie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "$ref": "#/components/responses/Maintenance" }
+        }
+      }
+    },
+    "/api/orders/{number}": {
+      "get": {
+        "summary": "Jedno zamówienie (własne; admin widzi wszystkie)",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "number", "in": "path", "required": true, "schema": { "type": "string", "examples": ["ZAM-1001"] } }],
+        "responses": {
+          "200": { "description": "Zamówienie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Order" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/account/address": {
+      "get": {
+        "summary": "Adres dostawy zalogowanego klienta",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Adres", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Address" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "post": {
+        "summary": "Zmień adres dostawy",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Address" } } }
+        },
+        "responses": {
+          "200": { "description": "Zapisany adres", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Address" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/admin/orders": {
+      "get": {
+        "summary": "Wszystkie zamówienia (admin)",
+        "x-role": "admin",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "q", "in": "query", "description": "Fragment numeru, loginu klienta albo nazwy produktu", "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Zamówienia", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Order" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/api/admin/orders/{number}/cancel": {
+      "post": {
+        "summary": "Anuluj zamówienie (admin)",
+        "x-role": "admin",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "number", "in": "path", "required": true, "schema": { "type": "string", "examples": ["ZAM-1003"] } }],
+        "responses": {
+          "200": { "description": "Anulowane zamówienie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Order" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "description": "Zamówienie jest już anulowane", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/settings/maintenance": {
+      "get": {
+        "summary": "Czy sklep jest w trybie konserwacji",
+        "security": [],
+        "responses": {
+          "200": { "description": "Stan", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Maintenance" } } } }
+        }
+      },
+      "put": {
+        "summary": "Włącz albo wyłącz tryb konserwacji (admin)",
+        "x-role": "admin",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Maintenance" } } }
+        },
+        "responses": {
+          "200": { "description": "Nowy stan", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Maintenance" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/api/openapi.json": {
+      "get": {
+        "summary": "Ten dokument (OpenAPI 3.1)",
+        "security": [],
+        "responses": { "200": { "description": "Opis API", "content": { "application/json": {} } } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "description": "Token z POST /api/login" },
+      "cookieAuth": { "type": "apiKey", "in": "cookie", "name": "sid", "description": "Ciasteczko ustawiane przy logowaniu" }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": ["login", "password"],
+        "properties": { "login": { "type": "string", "examples": ["user"] }, "password": { "type": "string", "examples": ["user123"] } }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": { "token": { "type": "string" }, "user": { "$ref": "#/components/schemas/User" } }
+      },
+      "User": {
+        "type": "object",
+        "properties": { "id": { "type": "integer" }, "login": { "type": "string" }, "role": { "type": "string", "enum": ["user", "admin"] } }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "price_cents": { "type": "integer", "description": "Cena w groszach" },
+          "stock": { "type": "integer", "description": "Stan magazynu; 0 = niedostępny" }
+        }
+      },
+      "OrderRequest": {
+        "type": "object",
+        "required": ["product_id"],
+        "properties": {
+          "product_id": { "type": "integer", "minimum": 1 },
+          "qty": { "type": "integer", "minimum": 1, "maximum": 10, "default": 1 }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "number": { "type": "string", "examples": ["ZAM-1001"] },
+          "qty": { "type": "integer" },
+          "status": { "type": "string", "enum": ["new", "cancelled"] },
+          "created_at": { "type": "string", "examples": ["2026-10-01 10:15"] },
+          "product_id": { "type": "integer" },
+          "product": { "type": "string" },
+          "total_cents": { "type": "integer" },
+          "customer": { "type": "string", "description": "Login klienta" }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "required": ["street", "postal_code", "city", "phone"],
+        "properties": {
+          "street": { "type": "string", "maxLength": 100 },
+          "postal_code": { "type": "string", "pattern": "^\\d{2}-\\d{3}$", "examples": ["00-001"] },
+          "city": { "type": "string" },
+          "phone": { "type": "string", "description": "9 cyfr, opcjonalnie z +48; spacje dozwolone", "examples": ["500 100 200"] }
+        }
+      },
+      "Maintenance": {
+        "type": "object",
+        "required": ["enabled"],
+        "properties": { "enabled": { "type": "boolean" } }
+      },
+      "Error": {
+        "type": "object",
+        "properties": { "error": { "type": "string" } }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "examples": ["Błędne dane"] },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": { "field": { "type": "string" }, "message": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "ValidationError": { "description": "Błędne dane", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ValidationError" } } } },
+      "Unauthorized": { "description": "Wymagane logowanie albo złe dane logowania", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Forbidden": { "description": "Brak uprawnień (zła rola)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound": { "description": "Nie znaleziono", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Maintenance": { "description": "Sklep w trybie konserwacji", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    }
+  }
+}
