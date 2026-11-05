@@ -26,6 +26,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      // Testy bezpieczeństwa aplikacji (dla trenera) biegną tylko w projekcie „bezpieczenstwo”.
+      testIgnore: '**/bezpieczenstwo/**',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'bezpieczenstwo',
+      default: false,
+      testMatch: '**/bezpieczenstwo/**/*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
     },
     // Inne przeglądarki nie biegną domyślnie. Uruchomienie (po `npx playwright install firefox`):

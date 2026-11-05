@@ -166,3 +166,5 @@ Get-NetTCPConnection -LocalPort 4100
 - Firefox i WebKit są w konfiguracji z `default: false`: `npx playwright install firefox`, potem `npx playwright test --project=firefox`.
 - `.mcp.json` dodaje Playwright MCP (`@playwright/mcp@latest`) dla Claude Code. Jeśli na Windows serwer MCP się nie uruchamia, zamień `"command": "npx"` na `"command": "cmd"` i dodaj `"/c", "npx"` na początku `args`.
 - Gałęzie z rozwiązaniami i karty ćwiczeń dojdą w kolejnym kroku przygotowań.
+
+- Testy bezpieczeństwa aplikacji (zepsute ciasteczko, przekierowanie po logowaniu) są w `tests/bezpieczenstwo/` i nie biegną domyślnie: `npx playwright test --project=bezpieczenstwo`.
