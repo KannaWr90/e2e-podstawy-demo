@@ -76,6 +76,14 @@ export default defineConfig({
       default: false,
       use: { ...devices['Desktop Safari'] },
     },
+    // Zadanie dodatkowe dnia 1: ekran telefonu. Uruchomienie:
+    //   npx playwright test tests/extra/d1 --project=telefon
+    {
+      name: 'telefon',
+      default: false,
+      testIgnore: ['**/bezpieczenstwo/**', '**/zepsute/**'],
+      use: { ...devices['Pixel 7'] },
+    },
   ],
 
   // Playwright sam uruchamia aplikację przed testami i zamyka ją po nich.
