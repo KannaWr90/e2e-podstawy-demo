@@ -1,14 +1,15 @@
 import { test as base, expect, type Page } from '@playwright/test';
+import { StronaKoszyka } from './strony/koszyk';
+import { PanelZamowien } from './strony/panel-zamowien';
 
 // Własne fixtures. Test prosi o nie po nazwie, tak jak o `page` albo `request`:
-//   test('...', async ({ stronaKlienta }) => { ... });
+//   test('...', async ({ koszyk }) => { ... });
 // Playwright przygotowuje tylko te, o które test poprosi.
 type MojeFixtures = {
   stronaKlienta: Page;
-  // TODO 1: koszyk: StronaKoszyka;            (import z './strony/koszyk')
-  // TODO 2: panelZamowien: PanelZamowien;     (import z './strony/panel-zamowien')
-  // TODO 3: noweZamowienie: string;
-  // TODO 4: zamowienieFirmowe: string;
+  koszyk: StronaKoszyka;
+  panelZamowien: PanelZamowien;
+  noweZamowienie: string;
 };
 
 async function zaloguj(page: Page, login: string, haslo: string) {
@@ -20,24 +21,46 @@ async function zaloguj(page: Page, login: string, haslo: string) {
 }
 
 export const test = base.extend<MojeFixtures>({
-  // Gotowa fixture, wzór dla pozostałych: strona przeglądarki z zalogowanym klientem user.
-  // Wszystko przed `use` dzieje się przed testem, wszystko po `use` po teście.
+  // Strona przeglądarki z zalogowanym klientem user.
   stronaKlienta: async ({ page }, use) => {
     await zaloguj(page, 'user', 'user123');
     await use(page);
   },
 
-  // TODO 1: koszyk – korzysta ze stronaKlienta i przekazuje testowi new StronaKoszyka(stronaKlienta).
+  // Koszyk zalogowanego klienta.
+  koszyk: async ({ stronaKlienta }, use) => {
+    await use(new StronaKoszyka(stronaKlienta));
+  },
 
-  // TODO 2: panelZamowien – loguje admina na `page`, otwiera panel zamówień, przekazuje PanelZamowien.
+  // Panel zamówień zalogowanego admina, już otwarty.
+  panelZamowien: async ({ page }, use) => {
+    await zaloguj(page, 'admin', 'admin123');
+    const panel = new PanelZamowien(page);
+    await panel.otworz();
+    await use(panel);
+  },
 
-  // TODO 3: noweZamowienie – przed testem tworzy zamówienie przez API (user, product_id 17, qty 1)
-  //   i przekazuje jego numer. Po teście anuluje je przez API jako admin; status 200 albo 409.
+  // Numer nowego zamówienia klienta user. Przed testem: utworzenie przez API.
+  // Po teście: anulowanie przez API (409 = test już je anulował).
+  noweZamowienie: async ({ request }, use) => {
+    const klient = await request.post('/api/login', { data: { login: 'user', password: 'user123' } });
+    const tokenKlienta = (await klient.json()).token;
+    const odpowiedz = await request.post('/api/orders', {
+      headers: { Authorization: `Bearer ${tokenKlienta}` },
+      data: { product_id: 17, qty: 1 },
+    });
+    expect(odpowiedz.status()).toBe(201);
+    const numer: string = (await odpowiedz.json()).number;
 
-  // TODO 4: zamowienieFirmowe – przed testem loguje Biuro Mikołaja przez API (biuro / biuro123)
-  //   i składa POST /api/business-orders z treścią
-  //   { product_id: 21, qty: 5, nip: '101-202-30-36', company: 'Biuro Mikołaja' }; oczekiwany status 201.
-  //   Przekazuje numer zamówienia. Po teście anuluje je przez API jako admin; status 200 albo 409.
+    await use(numer);
+
+    const admin = await request.post('/api/login', { data: { login: 'admin', password: 'admin123' } });
+    const tokenAdmina = (await admin.json()).token;
+    const anulowanie = await request.post(`/api/admin/orders/${numer}/cancel`, {
+      headers: { Authorization: `Bearer ${tokenAdmina}` },
+    });
+    expect([200, 409]).toContain(anulowanie.status());
+  },
 });
 
 export { expect };

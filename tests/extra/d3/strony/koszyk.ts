@@ -4,24 +4,37 @@ import { expect, type Locator, type Page } from '@playwright/test';
 // Test mówi, CO robi klient. Ta klasa wie, JAK to zrobić na stronie.
 export class StronaKoszyka {
   readonly naglowek: Locator;
+  readonly suma: Locator;
 
   constructor(private readonly page: Page) {
     this.naglowek = page.getByRole('heading', { name: 'Koszyk' });
+    this.suma = page.getByTestId('cart-total');
   }
 
-  // Gotowa metoda, wzór dla pozostałych: dodaje produkt z listy produktów i czeka na komunikat.
+  // Dodaje produkt z listy produktów i czeka na komunikat.
   async dodajProdukt(nazwa: string) {
     await this.page.goto('/');
     await this.page.getByRole('button', { name: `Dodaj do koszyka: ${nazwa}` }).click();
     await expect(this.page.getByText(`Dodano do koszyka: ${nazwa}`)).toBeVisible();
   }
 
-  // TODO 1: async otworz() – przejdź na /koszyk i poczekaj na nagłówek.
+  async otworz() {
+    await this.page.goto('/koszyk');
+    await expect(this.naglowek).toBeVisible();
+  }
 
-  // TODO 2: pozycja(nazwa: string): Locator – wiersz produktu w koszyku.
-  //   Wiersze koszyka mają data-testid="cart-item". Zawęź je filtrem po nazwie produktu.
+  // Wiersz produktu w koszyku, znaleziony po nazwie.
+  pozycja(nazwa: string): Locator {
+    return this.page.getByTestId('cart-item').filter({ hasText: nazwa });
+  }
 
-  // TODO 3: ilosc(nazwa: string): Locator – komórka z ilością w tym wierszu (data-testid="cart-item-qty").
+  // Komórka z ilością w wierszu produktu.
+  ilosc(nazwa: string): Locator {
+    return this.pozycja(nazwa).getByTestId('cart-item-qty');
+  }
 
-  // TODO 4: async usun(nazwa: string) – kliknij „Usuń: <nazwa>” i poczekaj, aż wiersz zniknie.
+  async usun(nazwa: string) {
+    await this.page.getByRole('button', { name: `Usuń: ${nazwa}` }).click();
+    await expect(this.pozycja(nazwa)).toHaveCount(0);
+  }
 }

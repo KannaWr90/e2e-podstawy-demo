@@ -17,14 +17,54 @@ interface PrzypadekNegatywny {
 }
 
 const przypadki: PrzypadekNegatywny[] = [
+  // 400: błędne dane
+  {
+    opis: 'zamówienie bez product_id', kto: 'user', metoda: 'POST', sciezka: '/api/orders', dane: { qty: 1 },
+    status: 400, odpowiedz: { error: 'Błędne dane', errors: [{ field: 'product_id', message: 'Pole jest wymagane' }] },
+  },
+  {
+    opis: 'zamówienie z product_id jako tekst', kto: 'user', metoda: 'POST', sciezka: '/api/orders', dane: { product_id: 'abc', qty: 1 },
+    status: 400, odpowiedz: { error: 'Błędne dane', errors: [{ field: 'product_id', message: 'Musi być dodatnią liczbą całkowitą' }] },
+  },
+  {
+    opis: 'zamówienie z ilością 11', kto: 'user', metoda: 'POST', sciezka: '/api/orders', dane: { product_id: 1, qty: 11 },
+    status: 400, odpowiedz: { error: 'Błędne dane', errors: [{ field: 'qty', message: 'Ilość musi być liczbą całkowitą od 1 do 10' }] },
+  },
+  // 401: brak logowania
   {
     opis: 'lista zamówień bez logowania', kto: 'nikt', metoda: 'GET', sciezka: '/api/orders',
     status: 401, odpowiedz: { error: 'Wymagane logowanie' },
   },
-  // TODO: dopisz co najmniej 10 kolejnych przypadków dla endpointów zamówień:
-  //   400 (trzy różne błędy pól product_id i qty), 401 (jeszcze jeden endpoint),
-  //   403 (dwa endpointy admina wywołane przez klienta), 404 (cztery różne przyczyny).
-  // Status i treść odpowiedzi przepisz z tego, co API naprawdę zwraca, i porównaj z app/openapi.json.
+  {
+    opis: 'anulowanie bez logowania', kto: 'nikt', metoda: 'POST', sciezka: '/api/admin/orders/ZAM-1001/cancel',
+    status: 401, odpowiedz: { error: 'Wymagane logowanie' },
+  },
+  // 403: zalogowany, ale bez roli admin
+  {
+    opis: 'klient pobiera listę wszystkich zamówień', kto: 'user', metoda: 'GET', sciezka: '/api/admin/orders',
+    status: 403, odpowiedz: { error: 'Brak uprawnień' },
+  },
+  {
+    opis: 'klient anuluje zamówienie', kto: 'user', metoda: 'POST', sciezka: '/api/admin/orders/ZAM-1001/cancel',
+    status: 403, odpowiedz: { error: 'Brak uprawnień' },
+  },
+  // 404: nie ma zasobu (albo klient nie może go zobaczyć)
+  {
+    opis: 'zamówienie, którego nie ma', kto: 'user', metoda: 'GET', sciezka: '/api/orders/ZAM-9999',
+    status: 404, odpowiedz: { error: 'Nie ma takiego zamówienia' },
+  },
+  {
+    opis: 'cudze zamówienie', kto: 'user', metoda: 'GET', sciezka: '/api/orders/ZAM-1005',
+    status: 404, odpowiedz: { error: 'Nie ma takiego zamówienia' },
+  },
+  {
+    opis: 'zamówienie produktu, którego nie ma', kto: 'user', metoda: 'POST', sciezka: '/api/orders', dane: { product_id: 999, qty: 1 },
+    status: 404, odpowiedz: { error: 'Nie ma takiego produktu' },
+  },
+  {
+    opis: 'admin anuluje zamówienie, którego nie ma', kto: 'admin', metoda: 'POST', sciezka: '/api/admin/orders/ZAM-9999/cancel',
+    status: 404, odpowiedz: { error: 'Nie ma takiego zamówienia' },
+  },
 ];
 
 const HASLA = { user: 'user123', admin: 'admin123' };
