@@ -8,7 +8,11 @@ function bezpiecznyCel(next) {
   if (typeof next !== 'string' || !next.startsWith('/') || /[\\\u0000-\u001f\u007f]/.test(next)) return '/';
   try {
     const url = new URL(next, 'http://localhost');
-    return url.origin === 'http://localhost' ? url.pathname + url.search : '/';
+    if (url.origin !== 'http://localhost') return '/';
+    // Sprawdzamy wartość, którą naprawdę zwracamy: `/.//evil.com` po normalizacji daje `//evil.com`.
+    const cel = url.pathname + url.search;
+    if (!cel.startsWith('/') || cel.startsWith('//') || cel.includes('\\')) return '/';
+    return cel;
   } catch {
     return '/';
   }
