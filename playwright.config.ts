@@ -27,13 +27,21 @@ export default defineConfig({
     {
       name: 'chromium',
       // Testy bezpieczeństwa aplikacji (dla trenera) biegną tylko w projekcie „bezpieczenstwo”.
-      testIgnore: '**/bezpieczenstwo/**',
+      // Testy z tests/zepsute (ćwiczenie 07) mają padać, więc biegną tylko w projekcie „zepsute”.
+      testIgnore: ['**/bezpieczenstwo/**', '**/zepsute/**'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'bezpieczenstwo',
       default: false,
       testMatch: '**/bezpieczenstwo/**/*.spec.ts',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Ćwiczenie 07: npx playwright test --project=zepsute
+    {
+      name: 'zepsute',
+      default: false,
+      testMatch: '**/zepsute/**/*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
     },
     // Inne przeglądarki nie biegną domyślnie. Uruchomienie (po `npx playwright install firefox`):
