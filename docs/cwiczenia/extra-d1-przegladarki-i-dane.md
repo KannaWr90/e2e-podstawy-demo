@@ -1,0 +1,137 @@
+# Zadanie dodatkowe D1. Te same testy w trzech przeglądarkach, na telefonie i dla kilku zestawów danych
+
+Zadanie dodatkowe · dzień 1 · ok. 60 min · w parach
+
+## Cel
+
+Uruchomisz istniejące testy w Firefoksie, WebKicie i na emulowanym telefonie bez zmiany kodu testu. Znajdziesz zrzut ekranu z nieudanego testu i dołączysz własny zrzut do raportu. Zamienisz jeden test na pętlę po zestawach danych opisanych typem TypeScript, tak że każdy zestaw jest osobnym testem w raporcie.
+
+## Materiał wejściowy
+
+Gałąź `extra/d1-przegladarki-i-dane`. Nowe pliki są w `tests/extra/d1/`:
+
+| Plik | Co w nim jest |
+|---|---|
+| `telefon.spec.ts` | test z `test.fixme` i TODO: przejście do koszyka na ekranie telefonu |
+| `zrzuty.spec.ts` | test „Moje zamówienia” z `test.fixme` i TODO: zrzut ekranu do raportu |
+| `dane-adresu.spec.ts` | gotowy test jednego błędnego adresu i TODO: pętla po zestawach danych |
+
+`playwright.config.ts` ma już projekty `firefox` i `webkit` z `default: false`: nie biegną przy `npm test`, tylko gdy wskażesz je przez `--project`.
+
+## Kroki
+
+PowerShell, z katalogu głównego repo.
+
+1. **Przełącz się na gałąź zadania i uruchom pliki startowe.** Najpierw zrób commit swoich zmian, potem:
+   ```powershell
+   git fetch origin
+   git switch extra/d1-przegladarki-i-dane
+   npx playwright test tests/extra/d1
+   ```
+   Oczekiwany wynik: `1 passed` i `2 skipped`.
+
+2. **Uruchom gotowe testy w Firefoksie i WebKicie.** WebKit to silnik przeglądarki Safari. Każda przeglądarka to osobne pobranie, kilkadziesiąt MB.
+   ```powershell
+   npx playwright install firefox webkit
+   npx playwright test tests/przyklady --project=firefox
+   npx playwright test tests/przyklady --project=webkit
+   npx playwright test tests/przyklady --project=chromium --project=firefox --project=webkit
+   ```
+   Oczekiwany wynik: `3 passed`, `3 passed`, a w ostatnim poleceniu `9 passed`. W liście wyników nazwa przeglądarki stoi w nawiasie: `[firefox]`, `[webkit]`.
+
+3. **Dodaj projekt „telefon” i uruchom w nim test.** W `playwright.config.ts` dopisz w tablicy `projects` nowy projekt: nazwa `telefon`, `default: false`, te same `testIgnore` co w projekcie `chromium`, a w `use` urządzenie `devices['Pixel 7']`. Potem w `tests/extra/d1/telefon.spec.ts` zrób TODO i zamień `test.fixme` na `test`.
+   ```powershell
+   npx playwright test tests/extra/d1/telefon.spec.ts --project=telefon
+   npx playwright test tests/extra/d1/telefon.spec.ts
+   ```
+   Oczekiwany wynik: najpierw `1 passed`, potem `1 skipped`. Drugie polecenie biegnie w projekcie `chromium`, gdzie `isMobile` jest `false`, więc test się pomija.
+
+> **Jeśli utknąłeś po 10 minutach**
+> Skopiuj projekt `firefox` z konfiguracji i zmień w kopii trzy rzeczy: nazwę, urządzenie w `use` i dopisz `testIgnore`. Komunikat `Project(s) "telefn" not found. Available projects: ...` oznacza literówkę w nazwie projektu w poleceniu albo w konfiguracji.
+
+4. **Obejrzyj zrzut z nieudanego testu, potem zrób zrzut sam.** W `tests/extra/d1/zrzuty.spec.ts` zamień `test.fixme` na `test`, a w asercji na chwilę zmień `ZAM-1001` na `ZAM-9999`. Uruchom plik:
+   ```powershell
+   npx playwright test tests/extra/d1/zrzuty.spec.ts
+   ```
+   Oczekiwany wynik: `1 failed` po ok. 5 s, a w opisie błędu `attachment #1: screenshot (image/png)` i ścieżka kończąca się na `test-failed-1.png`. Ten zrzut powstaje sam, bo konfiguracja ma `screenshot: 'only-on-failure'`. Przywróć `ZAM-1001`, zrób TODO 1 i 2 (ręczny zrzut całej strony i załącznik w raporcie), uruchom plik jeszcze raz i otwórz raport:
+   ```powershell
+   npx playwright test tests/extra/d1/zrzuty.spec.ts
+   npx playwright show-report
+   ```
+   Oczekiwany wynik: `1 passed`. W raporcie, w szczegółach testu, sekcja „Attachments” z pozycją `moje-zamowienia` i podglądem strony.
+
+5. **Zamień test adresu na pętlę po zestawach danych.** W `tests/extra/d1/dane-adresu.spec.ts` zrób TODO 1–3: `interface` z polami zestawu, tablica co najmniej czterech zestawów (w każdym błędne dokładnie jedno pole: kod pocztowy, telefon, miasto, ulica), pętla `for (const zestaw of zestawy)` wokół testu. Komunikaty przy polach sprawdzisz ręcznie na http://localhost:4100/konto/adres (w drugim oknie `npm start`).
+   ```powershell
+   npx playwright test tests/extra/d1/dane-adresu.spec.ts
+   ```
+   Oczekiwany wynik: `4 passed`, każdy test z innym opisem w nazwie.
+
+> **Jeśli utknąłeś po 10 minutach**
+> Błąd `duplicate test title` oznacza, że wszystkie testy z pętli mają tę samą nazwę. Nazwa musi zawierać pole zestawu, np. `` test(`błędny adres nie zapisuje się: ${zestaw.opis}`, ...) ``. Zwróć uwagę na odwrócone apostrofy `` ` `` zamiast `'`.
+
+6. **Uruchom cały zestaw na komputerze i na telefonie.**
+   ```powershell
+   npx playwright test tests/extra/d1
+   npx playwright test tests/extra/d1 --project=telefon
+   ```
+   Oczekiwany wynik: `5 passed` i `1 skipped`, potem `6 passed`.
+
+## Przykład wyniku
+
+Zestaw danych i pętla dla innego formularza (logowanie), nie dla adresu:
+```ts
+interface ZestawLogowania {
+  opis: string;
+  login: string;
+  haslo: string;
+}
+
+const zestawy: ZestawLogowania[] = [
+  { opis: 'złe hasło', login: 'user', haslo: 'zle-haslo' },
+  { opis: 'nieznany login', login: 'nikt', haslo: 'user123' },
+];
+
+for (const zestaw of zestawy) {
+  test(`logowanie się nie udaje: ${zestaw.opis}`, async ({ page }) => {
+    // ...
+  });
+}
+```
+
+Wynik kroku 6 (czasy i kolejność u ciebie będą inne):
+```
+Running 6 tests using 6 workers
+  -  4 [chromium] › tests/extra/d1/telefon.spec.ts:7:5 › na telefonie klient przechodzi z listy produktów do koszyka
+  ✓  5 [chromium] › tests/extra/d1/dane-adresu.spec.ts:42:7 › błędny adres nie zapisuje się: cyfra w nazwie miasta (356ms)
+  ✓  3 [chromium] › tests/extra/d1/dane-adresu.spec.ts:42:7 › błędny adres nie zapisuje się: pusta ulica (360ms)
+  ✓  1 [chromium] › tests/extra/d1/dane-adresu.spec.ts:42:7 › błędny adres nie zapisuje się: kod pocztowy bez myślnika (361ms)
+  ✓  2 [chromium] › tests/extra/d1/dane-adresu.spec.ts:42:7 › błędny adres nie zapisuje się: telefon z 5 cyframi (361ms)
+  ✓  6 [chromium] › tests/extra/d1/zrzuty.spec.ts:6:5 › strona „Moje zamówienia” pokazuje ZAM-1001 (2.7s)
+
+  1 skipped
+  5 passed (3.1s)
+```
+
+## Kryterium „gotowe”
+
+- [ ] `npx playwright test tests/extra/d1` daje `5 passed` i `1 skipped`, a z `--project=telefon` daje `6 passed`.
+- [ ] `npm test` przechodzi i nie uruchamia projektu `telefon` (w liście wyników nie ma `[telefon]`).
+- [ ] Zmieniasz `oczekiwanyBlad` w jednym zestawie na inny tekst: pada dokładnie jeden z czterech testów, a jego nazwa mówi, który zestaw. Potem przywracasz tekst.
+- [ ] Pokazujesz drugiej osobie w raporcie HTML załącznik `moje-zamowienia` i plik `test-failed-1.png` z kroku 4.
+
+## Dla szybszych
+
+> **Skończyłeś wcześniej**
+> Dodaj do interfejsu pole `liczbaBledow: number` i piąty zestaw z dwoma błędnymi polami naraz. Asercja komunikatu ma używać tego pola: `Popraw błędy w formularzu (2).` Potem dodaj drugi projekt telefonu, `telefon-iphone`, z `devices['iPhone 15']`, i uruchom w nim `tests/extra/d1`. Sprawdź w wyniku, w jakiej przeglądarce biegnie ten projekt i dlaczego (podpowiedź: `defaultBrowserType` w opisie urządzenia).
+
+## Artefakt do zabrania
+
+Projekt `telefon` w `playwright.config.ts` i wzorzec testu sterowanego danymi: `interface`, tablica zestawów, pętla z nazwą testu zawierającą opis zestawu.
+
+## Rozwiązanie wzorcowe
+
+Gałąź `solution/extra-d1`:
+```powershell
+git fetch origin
+git diff origin/extra/d1-przegladarki-i-dane origin/solution/extra-d1 -- tests/extra/d1 playwright.config.ts
+```

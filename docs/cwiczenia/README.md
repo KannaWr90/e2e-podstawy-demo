@@ -24,8 +24,8 @@ git diff main origin/solution/NN
 
 Zadania dodatkowe, gdy skończysz wcześniej:
 
-| Gałąź | Dzień | Temat |
-|---|---|---|
-| `extra/d1-przegladarki-i-dane` | D1 | inne przeglądarki i ekran telefonu, zrzuty przy błędzie, jeden test dla kilku zestawów danych |
-| `extra/d2-iframe-dialog-pliki` | D2 | płatność w ramce, okno potwierdzenia, regulamin w nowej karcie, pobieranie i wysyłanie plików |
-| `extra/d3-page-object-fixtures` | D3 | Page Object, fixture „zalogowany użytkownik”, komplet ścieżek negatywnych API |
+| Gałąź | Dzień | Karta | Temat | Rozwiązanie |
+|---|---|---|---|---|
+| `extra/d1-przegladarki-i-dane` | D1 | [extra-d1-przegladarki-i-dane.md](extra-d1-przegladarki-i-dane.md) | inne przeglądarki i ekran telefonu, zrzuty przy błędzie, jeden test dla kilku zestawów danych | `solution/extra-d1` |
+| `extra/d2-iframe-dialog-pliki` | D2 | [extra-d2-iframe-dialog-pliki.md](extra-d2-iframe-dialog-pliki.md) | płatność w ramce, okno potwierdzenia, regulamin w nowej karcie, pobieranie i wysyłanie plików, porównanie zrzutów | `solution/extra-d2` |
+| `extra/d3-page-object-fixtures` | D3 | [extra-d3-page-object-fixtures.md](extra-d3-page-object-fixtures.md) | Page Object, fixture „zalogowany użytkownik”, komplet ścieżek negatywnych API, skill dla Page Object | `solution/extra-d3` |
