@@ -34,8 +34,8 @@ label{font-weight:500}
 .pole{display:flex;flex-direction:column;gap:.3rem;max-width:24rem}
 .podpowiedz{color:var(--muted);font-size:.85rem;font-weight:400}
 .blad-pola{color:var(--danger);font-size:.85rem;font-weight:500}
-input[aria-invalid="true"]{border-color:var(--danger);background:#fff7f6}
 input:not([type=checkbox]):not([type=file]),select{font:inherit;padding:.45rem .65rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:12rem}
+input[aria-invalid="true"]:not([type=checkbox]):not([type=file]){border-color:var(--danger);background:#fff7f6}
 input:focus,select:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
 input[type=checkbox]{accent-color:var(--brand);width:1.05rem;height:1.05rem;vertical-align:-2px;margin-right:.35rem}
 button,.przycisk{font:inherit;font-weight:600;background:var(--brand);color:#fff;border:0;border-radius:8px;padding:.45rem 1rem;cursor:pointer;text-decoration:none;display:inline-block}
