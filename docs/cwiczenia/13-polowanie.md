@@ -25,7 +25,7 @@ Bożena, 10:57:
 | Tablica wyników (rzutnik) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica` |
 | Zgłoszenia (błędy i flagi) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica/zglos` |
 
-W przeglÄdarce wystarczÄ krÃ³tkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowujÄ na adresy z tabeli). Do `BASE_URL` wpisuj peÅne adresy z tabeli: skopiuj je z tego pliku w repo.
+W przeglądarce wystarczą krótkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowują na adresy z tabeli). Do `BASE_URL` wpisuj pełne adresy z tabeli: skopiuj je z tego pliku w repo.
 
 ## Zasady gry
 
