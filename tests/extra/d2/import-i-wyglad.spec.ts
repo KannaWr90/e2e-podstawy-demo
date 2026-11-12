@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// Zadanie dodatkowe dnia 2, zadanie 4: wysyłanie pliku, miękkie asercje, porównanie zrzutów.
+// Zadanie dodatkowe dnia 2, zadanie 2: wysyłanie pliku, miękkie asercje, porównanie zrzutów (kroki 3 i 4 karty).
 // Karta: docs/cwiczenia/extra-d2-iframe-dialog-pliki.md
 
 test.fixme('import pliku CSV z błędami pokazuje wszystkie błędne wiersze', async ({ page }) => {

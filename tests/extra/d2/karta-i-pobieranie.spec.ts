@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { test, expect } from '@playwright/test';
 
-// Zadanie dodatkowe dnia 2, zadanie 3: nowa karta przeglądarki i pobieranie pliku.
+// Zadanie dodatkowe dnia 2, zadanie 1: nowa karta przeglądarki i pobieranie pliku (krok 2 karty).
 // Karta: docs/cwiczenia/extra-d2-iframe-dialog-pliki.md
 //
 // Wzorzec dla obu przypadków: najpierw zacznij czekać na zdarzenie, potem kliknij.
