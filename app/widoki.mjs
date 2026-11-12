@@ -84,6 +84,7 @@ iframe{width:100%;max-width:30rem;height:22rem;border:1px solid var(--line);bord
 fieldset{border:1px solid var(--line);border-radius:12px;padding:.5rem 1rem;margin:.75rem 0;max-width:30rem}
 .klaudiusz{background:#fff4d6;border:1px dashed #d9a400;border-radius:8px;padding:.6rem 1rem;margin-bottom:1rem}
 .mirek{font-style:italic;color:var(--muted)}
+.flaga{display:inline-block;background:#111;color:#ffd84d;font-family:ui-monospace,Consolas,monospace;border-radius:8px;padding:.3rem .8rem;margin:.3rem 0}
 footer{max-width:1100px;margin:2.5rem auto 1.5rem;padding:0 1.25rem;color:var(--muted);font-size:.8rem;display:flex;gap:1rem;flex-wrap:wrap}`;
 
 // Menu zależy od roli: „Panel admina” widzi tylko administrator.
@@ -126,6 +127,13 @@ if (flash) setTimeout(() => flash.remove(), 3000 + Math.random() * 2000);
     p.setAttribute('role', 'status');
     p.textContent = 'Tryb Klaudiusza: wszystkie testy są zielone. Jestem pewien, że to działa.';
     document.querySelector('main').prepend(p);
+    fetch('/tryb-klaudiusza').then((r) => r.json()).then((d) => {
+      const f = document.createElement('p');
+      f.className = 'flaga';
+      f.dataset.testid = 'egg-flag';
+      f.textContent = 'Flaga: ' + d.flaga;
+      p.after(f);
+    }).catch(() => {});
   };
   try {
     pokaz();

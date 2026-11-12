@@ -4,9 +4,10 @@ import http from 'node:http';
 import crypto from 'node:crypto';
 import { all, get, run } from './db.mjs';
 import { layout } from './widoki.mjs';
+import { flagaHtml } from './flagi.mjs';
 import { uruchomWarstwy } from './rozszerzenia.mjs';
 
-function parseCookies(req) {
+export function parseCookies(req) {
   const out = {};
   for (const part of (req.headers.cookie ?? '').split(';')) {
     const [k, ...v] = part.trim().split('=');
@@ -22,12 +23,14 @@ function parseCookies(req) {
 
 class BadRequest extends Error {}
 
-async function readBody(req) {
+const LIMIT_CIALA = 2 * 1024 * 1024;
+
+async function readBody(req, limit = LIMIT_CIALA) {
   const chunks = [];
   let size = 0;
   for await (const c of req) {
     size += c.length;
-    if (size > 2 * 1024 * 1024) throw new BadRequest('Za duże żądanie (limit 2 MB)');
+    if (size > limit) throw new BadRequest(`Za duże żądanie (limit ${limit >= 1024 * 1024 ? `${limit / 1024 / 1024} MB` : `${Math.round(limit / 1024)} kB`})`);
     chunks.push(c);
   }
   const buf = Buffer.concat(chunks);
@@ -52,13 +55,14 @@ async function readBody(req) {
 export function createApp({ db, before }) {
   const routes = [];
   const app = {
-    route(method, pattern, handler) {
+    // opcje.limit: największy rozmiar treści żądania w bajtach (domyślnie 2 MB).
+    route(method, pattern, handler, opcje = {}) {
       const keys = [];
       const re = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/:(\w+)/g, (_, k) => (keys.push(k), '([^/]+)')) + '$');
-      routes.push({ method, re, keys, handler });
+      routes.push({ method, re, keys, handler, limit: opcje.limit });
     },
-    get: (p, fn) => app.route('GET', p, fn),
-    post: (p, fn) => app.route('POST', p, fn),
+    get: (p, fn, o) => app.route('GET', p, fn, o),
+    post: (p, fn, o) => app.route('POST', p, fn, o),
     put: (p, fn) => app.route('PUT', p, fn),
     delete: (p, fn) => app.route('DELETE', p, fn),
     server() {
@@ -89,7 +93,7 @@ export function createApp({ db, before }) {
               throw new BadRequest('Nieprawidłowy adres żądania');
             }
             if (before?.(ctx, h)) return;
-            if (req.method !== 'GET') ctx.body = await readBody(req);
+            if (req.method !== 'GET') ctx.body = await readBody(req, r.limit);
             return await r.handler(ctx, h);
           }
           if (isApi) return h.json({ error: 'Nie znaleziono' }, 404);
@@ -132,7 +136,7 @@ function helpers(ctx) {
     // Strona 404 (HTML). Pod spodem podpis dewelopera.
     notFound() {
       res.writeHead(404, { 'content-type': 'text/html; charset=utf-8' }).end(layout({ title: 'Nie znaleziono', user: ctx.user, body:
-        '<h1>Nie znaleziono strony</h1><p><a href="/">Wróć do sklepu</a></p><p class="mirek" data-testid="dev-note">Mirek: „U mnie działa”.</p>' }));
+        `<h1>Nie znaleziono strony</h1><p><a href="/">Wróć do sklepu</a></p><p class="mirek" data-testid="dev-note">Mirek: „U mnie działa”.</p>${flagaHtml(2)}` }));
     },
     redirect(to) {
       res.writeHead(303, { location: to }).end();

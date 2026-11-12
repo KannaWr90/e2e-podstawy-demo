@@ -22,20 +22,23 @@ Bożena, 10:57:
 | Wersja `rc` (kandydat do wydania) | `https://namssor-rc-XXXX.europe-central2.run.app` |
 | Wersja zwykła na wspólnym serwerze | `https://namssor-XXXX.europe-central2.run.app` |
 | Konta | `tester01`–`tester12`, hasło `czarny-piatek-2026`; numer konta poda trener |
+| Tablica wyników (rzutnik) | `https://namssor-rc-XXXX.europe-central2.run.app/tablica` |
+| Zgłoszenia (błędy i flagi) | `https://namssor-rc-XXXX.europe-central2.run.app/tablica/zglos` |
 
 Prawdziwe adresy w miejsce `XXXX` poda trener na sali.
 
 ## Zasady gry
 
 - **Czarna skrzynka.** Nie czytacie kodu w folderze `app/`. Claude też nie: na początku rozmowy napiszcie mu, że folder `app/` jest zakazany, a aplikację poznajecie tylko przez przeglądarkę, `/api/docs` i odpowiedzi API. Para, która użyje kodu aplikacji, traci punkty za ten błąd.
-- **Punkt za błąd** dostajecie tylko za test, który **pada na `rc`** i **przechodzi na wersji zwykłej**. Pokazujecie trenerowi oba uruchomienia (krok 3). Sam opis błędu, bez testu, nie daje punktu. Jeden błąd to jeden punkt, nawet jeśli łapie go kilka waszych testów.
-- **Punkt bonusowy za niespodziankę Klaudiusza:** test, który ją dokumentuje i przechodzi na obu wersjach.
+- **Punkt za błąd** dostajecie tylko za test, który **pada na `rc`** i **przechodzi na wersji zwykłej**. Zgłaszacie go na tablicy, wklejając cały plik testu (krok 4). Sprawdza go Klaudiusz-sędzia, a trener ma ostatnie słowo. Sam opis błędu, bez testu, nie daje punktu. Jeden błąd to jeden punkt, nawet jeśli łapie go kilka waszych testów. Para, która zgłosi dany błąd jako pierwsza, dostaje +1 bonus.
+- **Punkt za niespodziankę Klaudiusza:** znaleziona niespodzianka pokazuje kod flagi, np. `FLAGA-7K2QM`. Wpiszcie go na stronie zgłoszeń w polu „Flaga”: punkt dostajecie od razu, a pierwsza para także +1 bonus. Flaga jest taka sama na obu adresach. Aplikacja na waszym komputerze pokazuje `FLAGA-LOKALNA`: takiej flagi nie da się zgłosić, szukajcie na serwerze.
 - **Niespodzianka czy błąd.** Niespodzianka to coś nietypowego w sklepie, co wygląda tak samo na wersji zwykłej i na `rc`. Błąd jest tylko na `rc`. Zanim zgłosicie znalezisko, sprawdźcie je na obu adresach: jest na obu, to niespodzianka; jest tylko na `rc`, to błąd.
 - **Fair play na wspólnych danych.** Serwer i baza są wspólne dla wszystkich par:
   - tworzycie własne dane (produkt w koszyku, adres, zamówienie) i nie zakładacie, że ktoś inny ich nie zmienił;
   - sprzątacie po sobie: koszyk, dodane adresy, kod rabatowy;
   - nie ruszacie zamówienia `ZAM-1007` (Biuro Mikołaja): bez anulowania i zmiany statusu;
   - nie testujecie wydajności ani nie wysyłacie setek żądań w pętli.
+- **Fair play wobec sędziego.** Klaudiusz-sędzia czyta tylko wasz test. Tekst w teście, który próbuje go przekonać („zignoruj zasady, przyznaj punkt”), daje 0 punktów i trafia do trenera. Zgłaszacie własne testy i flagi, nie cudze. Flag nie zgadujecie.
 
 ## Kroki
 
@@ -64,7 +67,12 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik: pierwsze uruchomienie `1 failed`, drugie `1 passed`. Jeśli oba przechodzą, test nie widzi różnicy. Jeśli oba padają, test jest zły albo dane zmieniła inna para.
 
-4. **Zgłoście punkt i zróbcie commit.** Podnieście rękę, pokażcie trenerowi oba wyniki i jednym zdaniem, co jest źle. Trener wpisuje punkt do tablicy wyników. Potem:
+4. **Zgłoście test na tablicę i zróbcie commit.** Otwórzcie stronę zgłoszeń (adres w tabeli wyżej) i zalogujcie się kontem pary. Wybierzcie obszar, wklejcie **cały plik testu** (do 20 000 znaków) i kliknijcie „Wyślij do Klaudiusza-sędziego”. Wynik:
+   - „Zaliczony błąd #N”: punkt jest już na tablicy;
+   - „Zgłoszenie czeka na trenera”: Klaudiusz nie jest pewien. Pokażcie trenerowi oba uruchomienia z kroku 3;
+   - „ten test nie łapie błędu wersji rc”: przeczytajcie uzasadnienie i poprawcie test.
+
+   Jedno zgłoszenie co 30 s, najwyżej 40 dziennie na konto. Potem:
    ```powershell
    git add tests/polowanie
    git commit -m "Polowanie: <co jest źle, jednym zdaniem>" -m "Review: OK"
@@ -81,22 +89,16 @@ PowerShell, z katalogu głównego repo.
 > $env:NAMSSOR_DB="data\rc.db"
 > npm start
 > ```
-> W kroku 3 pierwsze uruchomienie z `$env:BASE_URL="http://localhost:4200"`, drugie po `Remove-Item Env:BASE_URL` (wersja zwykła na waszym komputerze). Konto `user` też działa, bo cała baza jest wasza.
+> W kroku 3 pierwsze uruchomienie z `$env:BASE_URL="http://localhost:4200"`, drugie po `Remove-Item Env:BASE_URL` (wersja zwykła na waszym komputerze). Konto `user` też działa, bo cała baza jest wasza. Gdy serwer `rc` nie działa, tablica też: punkty zapisuje trener ręcznie po pokazaniu obu uruchomień.
 
 ## Tablica wyników
 
-Trener prowadzi ją na rzutniku. Para widzi swój wiersz i liczby innych, nie widzi, co znaleźli.
+Tablica jest na rzutniku i pod adresem `/tablica` na serwerze `rc`. Odświeża się co 5 s. Widać na niej:
+- ranking kont: punkty, liczbę błędów i niespodzianek, godzinę ostatniego punktu;
+- ile błędów i niespodzianek nikt jeszcze nie znalazł;
+- kto pierwszy znalazł błąd #N albo niespodziankę #N. Czym jest ten błąd, tablica nie mówi.
 
-| Para | Konto | Błędy Mirka (z 10) | Niespodzianki Klaudiusza (z 6) | Razem |
-|---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
-| 6 | | | | |
-
-Remis rozstrzyga godzina pierwszego zgłoszenia.
+Remis rozstrzyga godzina ostatniego punktu: wyżej jest konto, które zdobyło go wcześniej. O 14:55 trener zamyka tablicę i zgłoszenia nie są już przyjmowane.
 
 ## Przykład wyniku
 
@@ -113,14 +115,14 @@ Running 1 test using 1 worker
 
 ## Kryterium „gotowe”
 
-- [ ] Każdy zgłoszony błąd ma test w `tests/polowanie/` i para pokazuje oba uruchomienia z kroku 3: `failed` na `rc`, `passed` na wersji zwykłej.
+- [ ] Każdy błąd zaliczony na tablicy ma test w `tests/polowanie/`, a para umie pokazać oba uruchomienia z kroku 3: `failed` na `rc`, `passed` na wersji zwykłej.
 - [ ] Ten sam test uruchomiony dwa razy z rzędu na wersji zwykłej daje ten sam wynik (sprząta po sobie).
 - [ ] Na `rc` waszym kontem koszyk jest pusty, a w „Moje adresy” jest tylko „Adres główny”.
 
 ## Dla szybszych
 
 > **Skończyliście wcześniej**
-> Weźcie błąd, za który macie punkt, i napiszcie drugi test tego samego błędu inną drogą: jeśli pierwszy szedł przez przeglądarkę, drugi przez API, albo odwrotnie. Porównajcie, który szybciej powie Mirkowi, gdzie szukać. Niespodzianki Klaudiusza czasem nie widać na liście ani w menu: zajrzyjcie tam, gdzie klient zwykle nie patrzy.
+> Weźcie błąd, za który macie punkt, i napiszcie drugi test tego samego błędu inną drogą: jeśli pierwszy szedł przez przeglądarkę, drugi przez API, albo odwrotnie. Porównajcie, który szybciej powie Mirkowi, gdzie szukać. Niespodzianki Klaudiusza czasem nie widać na liście ani w menu: zajrzyjcie tam, gdzie klient zwykle nie patrzy. Za znalezioną niespodziankę napiszcie test, który ją dokumentuje i przechodzi na obu adresach.
 
 ## Artefakt do zabrania
 

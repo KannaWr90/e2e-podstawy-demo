@@ -11,6 +11,8 @@ import { trasyApi } from './api.mjs';
 import { trasyDlaSzybszych } from './dla-szybszych.mjs';
 import { trasyZamowienia } from './zamowienie.mjs';
 import { trasyProfilu } from './profil.mjs';
+import { trasyTablicy, przygotujTablice } from './tablica.mjs';
+import { ustawOpisyBledow, wczytajOpisyZPliku } from './sedzia.mjs';
 import { rozszerzenia } from './rozszerzenia.mjs';
 import { wersja } from './wersja.mjs';
 import * as logika from './logika.mjs';
@@ -30,7 +32,10 @@ if (wersja() !== '' && wersja() !== 'hotfix') {
   }
   const modul = await import(pathToFileURL(plik).href);
   modul.default(rozszerzenia, { logika, promocje });
+  // Moduł wydania może dostarczyć opisy swoich błędów dla sędziego tablicy wyników.
+  if (modul.OPISY_BLEDOW) ustawOpisyBledow(modul.OPISY_BLEDOW);
 }
+wczytajOpisyZPliku();
 
 // Port: PORT (ustawia np. Cloud Run) albo APP_PORT, domyślnie 4100.
 // Gdy port albo HOST przychodzi z zewnątrz, nasłuchujemy na HOST (domyślnie 0.0.0.0, wszystkie interfejsy).
@@ -39,7 +44,7 @@ const HOST = process.env.HOST || (process.env.PORT ? '0.0.0.0' : undefined);
 
 // Tryb konserwacji (włączany w /admin/ustawienia) blokuje sklep dla wszystkich poza adminem.
 // Logowanie, panel admina, regulamin i dokumentacja API działają zawsze.
-const ZAWSZE_DOSTEPNE = [/^\/logowanie$/, /^\/wyloguj$/, /^\/admin/, /^\/regulamin$/, /^\/health$/,
+const ZAWSZE_DOSTEPNE = [/^\/logowanie$/, /^\/wyloguj$/, /^\/admin/, /^\/regulamin$/, /^\/health$/, /^\/tablica/,
   /^\/api\/(login|me|docs|openapi\.json|settings\/maintenance|version|admin\/reset|admin\/wersja)$/];
 
 function blokadaKonserwacji(ctx, h) {
@@ -52,6 +57,7 @@ function blokadaKonserwacji(ctx, h) {
 
 const db = openDb();
 ensureSchema(db);
+przygotujTablice(db);
 const app = createApp({ db, before: blokadaKonserwacji });
 trasySklepu(app);
 trasyAdmina(app);
@@ -59,6 +65,7 @@ trasyApi(app);
 trasyDlaSzybszych(app);
 trasyZamowienia(app);
 trasyProfilu(app);
+trasyTablicy(app);
 
 const server = app.server();
 server.on('error', (e) => {

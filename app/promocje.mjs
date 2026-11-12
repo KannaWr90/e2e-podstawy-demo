@@ -2,6 +2,7 @@
 import { escapeHtml } from './widoki.mjs';
 import { dzisiaj, dniDo, dataPl } from './wersja.mjs';
 import { usluga } from './rozszerzenia.mjs';
+import { flagaHtml } from './flagi.mjs';
 
 export const START_PROMOCJI = '2026-11-27';
 
@@ -63,5 +64,5 @@ export function banerTekst(dzis = dzisiaj()) {
 }
 
 export function banerHtml() {
-  return `<p class="baner" data-testid="countdown">${escapeHtml(banerTekst())}</p>`;
+  return `<p class="baner" data-testid="countdown">${escapeHtml(banerTekst())}</p>${dniDo(START_PROMOCJI) < 0 ? flagaHtml(4) : ''}`;
 }

@@ -3,6 +3,7 @@ import { layout, escapeHtml, cena, flash, statusZamowienia } from './widoki.mjs'
 import { koszyk, zamowKoszyk, walidujAdres, walidujFakture, katalog, produktKatalogu } from './logika.mjs';
 import { cenaHtml, banerHtml, ocenKod } from './promocje.mjs';
 import { tekstWersji } from './wersja.mjs';
+import { flagaHtml } from './flagi.mjs';
 
 // Po logowaniu wracamy tylko na stronę tej aplikacji. Wszystko inne (inna domena,
 // `//evil.com`, `/\evil.com`, znaki sterujące) daje stronę główną.
@@ -22,6 +23,9 @@ function bezpiecznyCel(next) {
 
 // Najwięcej sztuk jednego produktu w koszyku (karta produktu i API koszyka).
 export const MAKS_ILOSC = 1000;
+
+// Zeszłoroczny kalendarz adwentowy (produkt archiwalny z db.mjs).
+const ID_KALENDARZA_2025 = 22;
 
 export function wymagajLogowania(ctx, h) {
   if (ctx.user) return true;
@@ -53,7 +57,7 @@ export function trasySklepu(app) {
         <h3 id="kafelek-${p.id}"><a href="/produkt/${p.id}">${escapeHtml(p.name)}</a></h3>
         <p class="podpowiedz">${escapeHtml(p.category)}</p>
         <p>${cenaHtml(p, 'tile')}</p>
-        <p data-testid="tile-availability">${p.stock > 0 ? 'Dostępny' : '<span class="niedostepny">Niedostępny</span>'}</p></article>`,
+        <p data-testid="tile-availability">${p.stock > 0 ? 'Dostępny' : '<span class="niedostepny">Niedostępny</span>'}</p>${p.id === ID_KALENDARZA_2025 ? flagaHtml(3) : ''}</article>`,
       )
       .join('');
     const opcje = ['<option value="">Wszystkie</option>']
@@ -98,6 +102,7 @@ export function trasySklepu(app) {
         <p data-testid="product-description">${escapeHtml(p.description || 'Brak opisu.')}</p>
         <p class="cena">${cenaHtml(p, 'product')}</p>
         <p data-testid="product-availability">${dostepnosc}</p>
+        ${p.id === ID_KALENDARZA_2025 ? flagaHtml(3) : ''}
         ${bladIlosci}
         <form method="post" action="/koszyk/dodaj" class="filtry" novalidate><input type="hidden" name="product_id" value="${p.id}">
           <input type="hidden" name="wroc" value="/produkt/${p.id}">
@@ -297,7 +302,7 @@ function stronaKoszyka(ctx, h, opcje = {}) {
   // Kod rabatowy
   let komunikatKodu = '';
   if (opcje.bladKodu) komunikatKodu = `<p class="error" role="alert" data-testid="discount-message">${escapeHtml(opcje.bladKodu)}</p>`;
-  else if (kod?.ok) komunikatKodu = `<p class="sukces" role="status" data-testid="discount-message">${escapeHtml(kod.komunikat)}</p>`;
+  else if (kod?.ok) komunikatKodu = `<p class="sukces" role="status" data-testid="discount-message">${escapeHtml(kod.komunikat)}</p>${kod.kod === 'KLAUDIUSZ' ? flagaHtml(1) : ''}`;
   else if (kod) komunikatKodu = `<p class="error" role="alert" data-testid="discount-message">${escapeHtml(kod.komunikat)}</p>`;
   const formularzKodu = pusty ? '' : `<form method="post" action="/koszyk/kod" class="filtry" novalidate>
       <label>Kod rabatowy <input name="kod" autocomplete="off" value="${escapeHtml(opcje.kod ?? (kod?.ok ? kod.kod : ''))}"></label>

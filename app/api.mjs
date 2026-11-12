@@ -16,6 +16,7 @@ import { ocenKod, banerTekst, START_PROMOCJI } from './promocje.mjs';
 import { resetujBaze } from './db.mjs';
 import { wersja, ustawWersje, czytajDate, dataWPolsce, dzisiaj, dniDo } from './wersja.mjs';
 import { MAKS_ILOSC } from './sklep.mjs';
+import { flaga } from './flagi.mjs';
 import { wlasneZamowienie } from './zamowienie.mjs';
 
 const OPENAPI_FILE = path.join(import.meta.dirname, 'openapi.json');
@@ -122,7 +123,9 @@ export function trasyApi(app) {
         unit_price_cents: i.cena_cents, total_cents: i.cena_cents * i.qty,
       })),
       subtotal_cents: k.sumaPrzedRabatem,
-      discount: k.kod ? { code: k.kod.kod ?? null, valid: k.kod.ok, message: k.kod.komunikat, amount_cents: k.rabat } : null,
+      discount: k.kod
+        ? { code: k.kod.kod ?? null, valid: k.kod.ok, message: k.kod.komunikat, amount_cents: k.rabat, ...(k.kod.ok && k.kod.kod === 'KLAUDIUSZ' ? { flag: flaga(1) } : {}) }
+        : null,
       total_cents: k.suma,
     };
   };
@@ -301,13 +304,17 @@ export function trasyApi(app) {
       if (!d) return bladWalidacji(h, [{ field: 'X-Namssor-Teraz', message: 'Data w formacie RRRR-MM-DD' }]);
       dzis = dataWPolsce(d);
     }
-    h.json({ start: START_PROMOCJI, today: dzis, days_left: Math.max(0, dniDo(START_PROMOCJI, dzis)), message: banerTekst(dzis) });
+    const dni = dniDo(START_PROMOCJI, dzis);
+    h.json({ start: START_PROMOCJI, today: dzis, days_left: Math.max(0, dni), message: banerTekst(dzis), ...(dni < 0 ? { flag: flaga(4) } : {}) });
   });
 
   app.get('/api/bozena/wymagania', (ctx, h) => {
     const n = /^\d+$/.test(ctx.query.seed ?? '') ? Number(ctx.query.seed) : Math.floor(Math.random() * 1e9);
-    h.json({ wymaganie: WYMAGANIA[n % WYMAGANIA.length], status: 'ostatnia zmiana, obiecuję', autor: 'Bożena' });
+    h.json({ wymaganie: WYMAGANIA[n % WYMAGANIA.length], status: 'ostatnia zmiana, obiecuję', autor: 'Bożena', flaga: flaga(5) });
   });
+
+  // Flaga trybu Klaudiusza (pobiera ją skrypt strony po 5 kliknięciach w logo). Celowo bez opisu w /api/docs.
+  app.get('/tryb-klaudiusza', (_c, h) => h.json({ flaga: flaga(6) }));
 
   app.get('/api/settings/maintenance', (_c, h) => h.json({ enabled: trybKonserwacji(h) }));
 
