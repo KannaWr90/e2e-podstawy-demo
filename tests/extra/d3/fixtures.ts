@@ -10,6 +10,7 @@ type MojeFixtures = {
   koszyk: StronaKoszyka;
   panelZamowien: PanelZamowien;
   noweZamowienie: string;
+  zamowienieFirmowe: string;
 };
 
 async function zaloguj(page: Page, login: string, haslo: string) {
@@ -48,6 +49,28 @@ export const test = base.extend<MojeFixtures>({
     const odpowiedz = await request.post('/api/orders', {
       headers: { Authorization: `Bearer ${tokenKlienta}` },
       data: { product_id: 17, qty: 1 },
+    });
+    expect(odpowiedz.status()).toBe(201);
+    const numer: string = (await odpowiedz.json()).number;
+
+    await use(numer);
+
+    const admin = await request.post('/api/login', { data: { login: 'admin', password: 'admin123' } });
+    const tokenAdmina = (await admin.json()).token;
+    const anulowanie = await request.post(`/api/admin/orders/${numer}/cancel`, {
+      headers: { Authorization: `Bearer ${tokenAdmina}` },
+    });
+    expect([200, 409]).toContain(anulowanie.status());
+  },
+
+  // Numer nowego zamówienia firmowego Biura Mikołaja (5 kalendarzy, z fakturą).
+  // Przed testem: złożenie przez API. Po teście: anulowanie przez API jako admin.
+  zamowienieFirmowe: async ({ request }, use) => {
+    const biuro = await request.post('/api/login', { data: { login: 'biuro', password: 'biuro123' } });
+    const tokenBiura = (await biuro.json()).token;
+    const odpowiedz = await request.post('/api/business-orders', {
+      headers: { Authorization: `Bearer ${tokenBiura}` },
+      data: { product_id: 21, qty: 5, nip: '101-202-30-36', company: 'Biuro Mikołaja' },
     });
     expect(odpowiedz.status()).toBe(201);
     const numer: string = (await odpowiedz.json()).number;
