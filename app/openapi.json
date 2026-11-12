@@ -181,6 +181,209 @@
         }
       }
     },
+    "/api/orders/{number}/invoice": {
+      "get": {
+        "summary": "Faktura do zamówienia na firmę (własnego; admin widzi wszystkie)",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "number", "in": "path", "required": true, "schema": { "type": "string", "examples": ["ZAM-1007"] } }],
+        "responses": {
+          "200": { "description": "Dane faktury", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InvoiceDocument" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/catalog": {
+      "get": {
+        "summary": "Katalog: produkty z ceną promocyjną (jak kafelki na stronie głównej)",
+        "security": [],
+        "parameters": [
+          { "name": "q", "in": "query", "description": "Fragment nazwy", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "description": "Dokładna nazwa kategorii", "schema": { "type": "string" } },
+          { "name": "sort", "in": "query", "description": "Kolejność; bez parametru: kategoria i nazwa", "schema": { "type": "string", "enum": ["cena", "cena-malejaco", "nazwa"] } }
+        ],
+        "responses": {
+          "200": { "description": "Produkty", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CatalogProduct" } } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/api/catalog/{id}": {
+      "get": {
+        "summary": "Karta produktu: cena promocyjna, opis, dostępność",
+        "security": [],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "Produkt", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CatalogProduct" } } } },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/cart": {
+      "get": {
+        "summary": "Koszyk zalogowanego klienta (ceny po promocji i po kodzie rabatowym)",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Koszyk", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "delete": {
+        "summary": "Opróżnij koszyk (także kod rabatowy)",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Pusty koszyk", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/cart/items": {
+      "post": {
+        "summary": "Dodaj produkt do koszyka",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CartItemRequest" } } } },
+        "responses": {
+          "201": { "description": "Koszyk po dodaniu", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "description": "Brak towaru na stanie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/cart/discount": {
+      "post": {
+        "summary": "Zastosuj kod rabatowy",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DiscountRequest" } } } },
+        "responses": {
+          "200": { "description": "Koszyk z rabatem", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "delete": {
+        "summary": "Usuń kod rabatowy",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Koszyk bez rabatu", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/cart/checkout": {
+      "post": {
+        "summary": "Złóż zamówienie z koszyka (jedno zamówienie na pozycję); z polem invoice na firmę",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CheckoutRequest" } } } },
+        "responses": {
+          "201": { "description": "Złożone zamówienia", "content": { "application/json": { "schema": { "type": "object", "properties": { "orders": { "type": "array", "items": { "$ref": "#/components/schemas/OrderDetails" } } } } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "409": { "description": "Koszyk jest pusty", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/business-orders": {
+      "post": {
+        "summary": "Zamówienie na firmę na jeden produkt (do 1000 sztuk), z fakturą",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BusinessOrderRequest" } } } },
+        "responses": {
+          "201": { "description": "Zamówienie złożone", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderDetails" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "description": "Brak towaru na stanie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/account/addresses": {
+      "get": {
+        "summary": "Adresy w profilu (id 0 = adres główny z /api/account/address)",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "responses": {
+          "200": { "description": "Adresy", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ProfileAddress" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "post": {
+        "summary": "Dodaj adres do profilu",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewProfileAddress" } } } },
+        "responses": {
+          "201": { "description": "Dodany adres", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProfileAddress" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/api/account/addresses/{id}": {
+      "delete": {
+        "summary": "Usuń dodatkowy adres (adresu głównego, id 0, nie można)",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "Adresy po usunięciu", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ProfileAddress" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "description": "Adresu głównego nie można usunąć", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/account/addresses/{id}/default": {
+      "put": {
+        "summary": "Ustaw adres domyślny",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "description": "Adresy po zmianie", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ProfileAddress" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/admin/orders/{number}/status": {
+      "put": {
+        "summary": "Zmień status zamówienia (admin): Nowe → Opłacone → Wysłane, o jeden krok",
+        "x-role": "admin",
+        "security": [{ "bearerAuth": [] }, { "cookieAuth": [] }],
+        "parameters": [{ "name": "number", "in": "path", "required": true, "schema": { "type": "string", "examples": ["ZAM-1007"] } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StatusRequest" } } } },
+        "responses": {
+          "200": { "description": "Zamówienie po zmianie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Order" } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": { "description": "Niedozwolona zmiana statusu", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/promocja": {
+      "get": {
+        "summary": "Promocja Czarny Piątek: data startu, odliczanie i tekst banera",
+        "security": [],
+        "parameters": [
+          { "name": "X-Namssor-Teraz", "in": "header", "description": "Data RRRR-MM-DD, którą aplikacja uzna za dzisiejszą tylko w tym żądaniu (do testów)", "schema": { "type": "string", "examples": ["2026-11-20"] } }
+        ],
+        "responses": {
+          "200": { "description": "Stan promocji", "content": { "application/json": { "schema": { "type": "object", "properties": {
+            "start": { "type": "string", "examples": ["2026-11-27"] }, "today": { "type": "string" },
+            "days_left": { "type": "integer" }, "message": { "type": "string" } } } } } },
+          "400": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/api/version": {
+      "get": {
+        "summary": "Wersja aplikacji (zmienna APP_VERSION; domyślnie main)",
+        "security": [],
+        "responses": {
+          "200": { "description": "Wersja", "content": { "application/json": { "schema": { "type": "object", "properties": { "version": { "type": "string", "examples": ["main"] } } } } } }
+        }
+      }
+    },
     "/api/openapi.json": {
       "get": {
         "summary": "Ten dokument (OpenAPI 3.1)",
@@ -232,13 +435,132 @@
           "id": { "type": "integer" },
           "number": { "type": "string", "examples": ["ZAM-1001"] },
           "qty": { "type": "integer" },
-          "status": { "type": "string", "enum": ["new", "cancelled"] },
+          "status": { "type": "string", "enum": ["new", "paid", "shipped", "cancelled"] },
           "created_at": { "type": "string", "examples": ["2026-10-01 10:15"] },
           "product_id": { "type": "integer" },
           "product": { "type": "string" },
           "total_cents": { "type": "integer" },
           "customer": { "type": "string", "description": "Login klienta" }
         }
+      },
+      "CatalogProduct": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "price_cents": { "type": "integer", "description": "Cena regularna w groszach" },
+          "promo_percent": { "type": "integer", "description": "Rabat promocyjny w procentach; 0 = bez promocji" },
+          "promo_price_cents": { "type": "integer", "description": "Cena po promocji (równa price_cents, gdy brak promocji)" },
+          "available": { "type": "boolean" },
+          "stock": { "type": "integer", "description": "Tylko w /api/catalog/{id}" },
+          "description": { "type": "string", "description": "Tylko w /api/catalog/{id}" },
+          "url": { "type": "string", "examples": ["/produkt/5"] }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "type": "object", "properties": {
+            "id": { "type": "integer" }, "product_id": { "type": "integer" }, "name": { "type": "string" }, "qty": { "type": "integer" },
+            "unit_price_cents": { "type": "integer", "description": "Cena za sztukę po promocji, przed kodem rabatowym" },
+            "total_cents": { "type": "integer" } } } },
+          "subtotal_cents": { "type": "integer", "description": "Suma przed kodem rabatowym" },
+          "discount": { "type": ["object", "null"], "properties": {
+            "code": { "type": ["string", "null"] }, "valid": { "type": "boolean" }, "message": { "type": "string" }, "amount_cents": { "type": "integer" } } },
+          "total_cents": { "type": "integer", "description": "Do zapłaty" }
+        }
+      },
+      "CartItemRequest": {
+        "type": "object",
+        "required": ["product_id"],
+        "properties": {
+          "product_id": { "type": "integer", "minimum": 1 },
+          "qty": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 1 }
+        }
+      },
+      "DiscountRequest": {
+        "type": "object",
+        "required": ["code"],
+        "properties": { "code": { "type": "string", "examples": ["CZARNY20"] } }
+      },
+      "Invoice": {
+        "type": "object",
+        "required": ["nip", "company"],
+        "properties": {
+          "nip": { "type": "string", "description": "10 cyfr z poprawną sumą kontrolną; myślniki i spacje dozwolone", "examples": ["2412241228"] },
+          "company": { "type": "string", "examples": ["Biuro Mikołaja"] }
+        }
+      },
+      "CheckoutRequest": {
+        "type": "object",
+        "properties": { "invoice": { "$ref": "#/components/schemas/Invoice" } }
+      },
+      "BusinessOrderRequest": {
+        "type": "object",
+        "required": ["product_id", "nip", "company"],
+        "properties": {
+          "product_id": { "type": "integer", "minimum": 1, "examples": [21] },
+          "qty": { "type": "integer", "minimum": 1, "maximum": 1000, "default": 1 },
+          "nip": { "type": "string", "examples": ["2412241228"] },
+          "company": { "type": "string", "examples": ["Biuro Mikołaja"] }
+        }
+      },
+      "OrderDetails": {
+        "type": "object",
+        "properties": {
+          "number": { "type": "string" },
+          "status": { "type": "string", "enum": ["new", "paid", "shipped", "cancelled"] },
+          "created_at": { "type": "string" },
+          "product_id": { "type": "integer" },
+          "product": { "type": "string" },
+          "qty": { "type": "integer" },
+          "unit_price_cents": { "type": "integer" },
+          "total_cents": { "type": "integer" },
+          "discount_code": { "type": ["string", "null"] },
+          "invoice": { "type": ["object", "null"], "properties": { "nip": { "type": "string" }, "company": { "type": "string" } } }
+        }
+      },
+      "InvoiceDocument": {
+        "type": "object",
+        "properties": {
+          "invoice_number": { "type": "string", "examples": ["FV/2026/ZAM-1007"] },
+          "order_number": { "type": "string" },
+          "issue_date": { "type": "string" },
+          "seller": { "type": "object", "properties": { "name": { "type": "string" }, "address": { "type": "string" }, "nip": { "type": "string" } } },
+          "buyer": { "type": "object", "properties": { "name": { "type": "string" }, "nip": { "type": "string" } } },
+          "items": { "type": "array", "items": { "type": "object", "properties": {
+            "name": { "type": "string" }, "qty": { "type": "integer" }, "unit_price_cents": { "type": "integer" }, "total_cents": { "type": "integer" } } } },
+          "total_cents": { "type": "integer" }
+        }
+      },
+      "ProfileAddress": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "description": "0 = adres główny" },
+          "name": { "type": "string", "examples": ["Praca"] },
+          "street": { "type": "string" },
+          "postal_code": { "type": "string" },
+          "city": { "type": "string" },
+          "phone": { "type": "string" },
+          "default": { "type": "boolean" }
+        }
+      },
+      "NewProfileAddress": {
+        "type": "object",
+        "required": ["name", "street", "postal_code", "city", "phone"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 40, "examples": ["Praca"] },
+          "street": { "type": "string", "maxLength": 100 },
+          "postal_code": { "type": "string", "pattern": "^\\d{2}-\\d{3}$" },
+          "city": { "type": "string" },
+          "phone": { "type": "string" }
+        }
+      },
+      "StatusRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": { "status": { "type": "string", "enum": ["new", "paid", "shipped"] } }
       },
       "Address": {
         "type": "object",

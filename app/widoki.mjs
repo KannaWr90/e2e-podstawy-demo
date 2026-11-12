@@ -1,12 +1,14 @@
 // Wspólny wygląd stron: układ, menu, style i drobne funkcje formatujące.
 // Fikcyjna marka „Namssor”. Styl tylko w CSS, bez bibliotek.
+import { wersja, hotfix } from './wersja.mjs';
 
 export function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
 
 export const cena = (grosze) => (grosze / 100).toFixed(2).replace('.', ',') + ' zł';
-export const statusZamowienia = (status) => (status === 'new' ? 'Nowe' : 'Anulowane');
+export const statusZamowienia = (status) =>
+  ({ new: 'Nowe', paid: hotfix() ? 'Zapłacone' : 'Opłacone', shipped: 'Wysłane' })[status] ?? 'Anulowane';
 
 const LOGO = `<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="15" fill="var(--accent)"/>
 <path d="M9.5 21V9h3.2l4.6 7V9h3.2v12h-3.2l-4.6-7v7z" fill="#fff"/></svg>`;
@@ -69,12 +71,25 @@ dialog{border:1px solid var(--line);border-radius:12px;padding:1.25rem 1.5rem;ma
 dialog::backdrop{background:rgba(29,43,42,.45)}
 dialog .przyciski{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
 iframe{width:100%;max-width:30rem;height:22rem;border:1px solid var(--line);border-radius:12px;background:#fff}
+.baner{background:#1d2b2a;color:#fff;border-radius:12px;padding:.7rem 1rem;margin:0 0 1rem;font-weight:600}
+.cena-stara{color:var(--muted);font-weight:400;margin-right:.3rem}
+.cena-nowa{font-weight:700}
+.cena-nowa.promocja{color:var(--danger)}
+.plakietka{display:inline-block;background:var(--accent);color:#fff;font-size:.75rem;font-weight:700;border-radius:999px;padding:.05rem .5rem;margin-left:.3rem}
+.plakietka.spokojna{background:var(--brand)}
+.kafelek h3{margin:0 0 .3rem;font-size:1.05rem}
+.kafelek p{margin:.3rem 0}
+.karta-produktu{max-width:40rem}
+.karta-produktu .cena{font-size:1.3rem}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:.5rem 1rem;margin:.75rem 0;max-width:30rem}
+.klaudiusz{background:#fff4d6;border:1px dashed #d9a400;border-radius:8px;padding:.6rem 1rem;margin-bottom:1rem}
+.mirek{font-style:italic;color:var(--muted)}
 footer{max-width:1100px;margin:2.5rem auto 1.5rem;padding:0 1.25rem;color:var(--muted);font-size:.8rem;display:flex;gap:1rem;flex-wrap:wrap}`;
 
 // Menu zależy od roli: „Panel admina” widzi tylko administrator.
 function menu(user) {
   const pozycje = [['/', 'Produkty'], ['/koszyk', 'Koszyk'], ['/zamowienia', 'Moje zamówienia']];
-  if (user) pozycje.push(['/konto/adres', 'Adres dostawy']);
+  if (user) pozycje.push(['/konto/adres', 'Adres dostawy'], ['/konto/adresy', 'Moje adresy']);
   if (user?.role === 'admin') pozycje.push(['/admin', 'Panel admina']);
   return pozycje;
 }
@@ -95,11 +110,34 @@ export function layout({ title, user, body, active }) {
 <nav aria-label="Menu główne">${navHtml}</nav><div class="who">${who}</div></div></header>
 <main>${body}</main>
 <footer><span>Namssor to fikcyjna drogeria do ćwiczeń z automatyzacji testów. Dane są przykładowe.</span>
-<a href="/regulamin" target="_blank" rel="noopener">Regulamin</a> <a href="/api/docs">API</a></footer>
+<a href="/regulamin" target="_blank" rel="noopener">Regulamin</a> <a href="/api/docs">API</a>${wersja() ? ` <span data-testid="app-version">Wersja: ${escapeHtml(wersja())}</span>` : ''}
+<!-- TODO(Bożena): wymagania na Czarny Piątek (wersja robocza) są pod /api/bozena/wymagania. Nie pokazywać klientom. --></footer>
 <script>
 // Komunikat po akcji (flash) znika po 3–5 s. Test, który sprawdzi go za późno, nie znajdzie go.
 const flash = document.querySelector('[data-testid="flash"]');
 if (flash) setTimeout(() => flash.remove(), 3000 + Math.random() * 2000);
+(() => {
+  const k = 'nm-' + 'k';
+  const pokaz = () => {
+    if (sessionStorage.getItem(k) !== '1' || document.getElementById('nm-k')) return;
+    const p = document.createElement('p');
+    p.id = 'nm-k';
+    p.className = 'klaudiusz';
+    p.setAttribute('role', 'status');
+    p.textContent = 'Tryb Klaudiusza: wszystkie testy są zielone. Jestem pewien, że to działa.';
+    document.querySelector('main').prepend(p);
+  };
+  try {
+    pokaz();
+    document.querySelector('.brand').addEventListener('click', () => {
+      const t = Date.now();
+      const s = JSON.parse(sessionStorage.getItem(k + 's') || '[]').filter((x) => t - x < 10000);
+      s.push(t);
+      sessionStorage.setItem(k + 's', JSON.stringify(s));
+      if (s.length >= 5) { sessionStorage.setItem(k, '1'); pokaz(); }
+    });
+  } catch {}
+})();
 </script></body></html>`;
 }
 

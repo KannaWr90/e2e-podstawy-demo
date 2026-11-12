@@ -2,7 +2,10 @@
 // import CSV) i tryb konserwacji. Wymaga roli admin.
 import crypto from 'node:crypto';
 import { layout, escapeHtml, cena, statusZamowienia, flash } from './widoki.mjs';
-import { wszystkieZamowienia, anulujZamowienie, trybKonserwacji, ustawTrybKonserwacji } from './logika.mjs';
+import {
+  wszystkieZamowienia, anulujZamowienie, trybKonserwacji, ustawTrybKonserwacji, zamowienieSzczegoly, zmienStatus, STATUSY,
+} from './logika.mjs';
+import { hotfix } from './wersja.mjs';
 import { wymagajLogowania } from './sklep.mjs';
 
 function wymagajAdmina(ctx, h) {
@@ -16,16 +19,27 @@ const strona = (ctx, title, body) => layout({ title, user: ctx.user, active: '/a
 
 // Tabela zamówień. Każdy wiersz dostaje NOWE losowe id przy każdym wyświetleniu strony,
 // a wiersze nie mają data-testid. Wiersz trzeba znaleźć po treści (numerze zamówienia).
+// Numer zamówienia prowadzi do szczegółów ze zmianą statusu.
 function tabelaZamowien(zamowienia, przyciskAnuluj) {
+  // Kolumny: [nagłówek, komórka]. Wydanie „hotfix” przenosi „Status” na drugie miejsce.
+  const kolumny = [
+    ['Numer', (z) => `<a href="/admin/zamowienia/${encodeURIComponent(z.number)}">${escapeHtml(z.number)}</a>`],
+    ['Data', (z) => escapeHtml(z.created_at)],
+    ['Klient', (z) => escapeHtml(z.customer)],
+    ['Produkt', (z) => escapeHtml(z.product)],
+    ['Ilość', (z) => z.qty],
+    ['Wartość', (z) => cena(z.total_cents)],
+    ['Status', (z) => statusZamowienia(z.status)],
+  ];
+  if (hotfix()) kolumny.splice(1, 0, kolumny.pop());
   const wiersze = zamowienia
     .map(
       (z) => `<tr id="row-${crypto.randomBytes(4).toString('hex')}">
-      <td>${escapeHtml(z.number)}</td><td>${escapeHtml(z.created_at)}</td><td>${escapeHtml(z.customer)}</td>
-      <td>${escapeHtml(z.product)}</td><td>${z.qty}</td><td>${cena(z.total_cents)}</td><td>${statusZamowienia(z.status)}</td>
+      ${kolumny.map(([, komorka]) => `<td>${komorka(z)}</td>`).join('')}
       <td>${z.status === 'new' ? przyciskAnuluj(z) : ''}</td></tr>`,
     )
     .join('');
-  return `<table><thead><tr><th>Numer</th><th>Data</th><th>Klient</th><th>Produkt</th><th>Ilość</th><th>Wartość</th><th>Status</th><th></th></tr></thead>
+  return `<table><thead><tr>${kolumny.map(([n]) => `<th>${n}</th>`).join('')}<th></th></tr></thead>
     <tbody>${wiersze}</tbody></table>`;
 }
 
@@ -101,6 +115,17 @@ export function trasyAdmina(app) {
       </script>`));
   });
 
+  app.post('/admin/zamowienia/:numer/status', (ctx, h) => {
+    if (!wymagajAdmina(ctx, h)) return;
+    const wynik = zmienStatus(h, ctx.params.numer, String(ctx.body.status ?? ''));
+    if (wynik.kod === 404) return h.notFound();
+    if (wynik.blad) {
+      const z = zamowienieSzczegoly(h, ctx.params.numer);
+      return h.html(stronaZamowienia(ctx, z, `<p class="error" role="alert">${escapeHtml(wynik.blad)}</p>`), wynik.kod);
+    }
+    h.redirect(`/admin/zamowienia/${encodeURIComponent(ctx.params.numer)}?zapisano=1`);
+  });
+
   app.post('/admin/zamowienia/:id/anuluj', (ctx, h) => {
     if (!wymagajAdmina(ctx, h)) return;
     const wroc = DOZWOLONE_POWROTY.includes(ctx.body.wroc) ? ctx.body.wroc : '/admin/zamowienia';
@@ -116,6 +141,14 @@ export function trasyAdmina(app) {
       wszystkieZamowienia(h).map((z) => [z.number, z.created_at, z.customer, z.product, z.qty, cena(z.total_cents), statusZamowienia(z.status)]),
     );
     h.download('﻿' + linie.map((l) => l.map(pole).join(';')).join('\r\n') + '\r\n', 'zamowienia.csv', 'text/csv; charset=utf-8');
+  });
+
+  // Szczegóły zamówienia (po trasach /potwierdzenie i /eksport.csv, żeby ich nie przesłonić) i zmiana statusu: Nowe → Opłacone → Wysłane.
+  app.get('/admin/zamowienia/:numer', (ctx, h) => {
+    if (!wymagajAdmina(ctx, h)) return;
+    const z = zamowienieSzczegoly(h, ctx.params.numer);
+    if (!z) return h.notFound();
+    h.html(stronaZamowienia(ctx, z, ctx.query.zapisano ? flash(`Zmieniono status zamówienia ${z.number} na „${STATUSY[z.status]}”`) : ''));
   });
 
   // ---------- Produkty ----------
@@ -251,4 +284,25 @@ function czytajCsvProduktow(tekst) {
   });
   if (!bledy.length && produkty.length === 0) bledy.push('Plik nie zawiera żadnego produktu');
   return { produkty, bledy };
+}
+
+function stronaZamowienia(ctx, z, komunikat) {
+  const opcje = ['new', 'paid', 'shipped']
+    .map((s) => `<option value="${s}"${s === z.status ? ' selected' : ''}>${STATUSY[s]}</option>`)
+    .join('');
+  const formularz = z.status === 'cancelled'
+    ? '<p>Zamówienie anulowane: statusu nie można zmienić.</p>'
+    : `<form method="post" action="/admin/zamowienia/${encodeURIComponent(z.number)}/status" class="filtry">
+        <label>Status zamówienia <select name="status">${opcje}</select></label>
+        <button type="submit">Zapisz status</button></form>
+      <p class="podpowiedz">Kolejność: Nowe → Opłacone → Wysłane.</p>`;
+  return strona(ctx, `Zamówienie ${z.number}`, `<p><a href="/admin/zamowienia">← Lista zamówień</a></p>
+    <h1>Zamówienie ${escapeHtml(z.number)}</h1>${komunikat}
+    <div class="karta">
+      <p>Klient: ${escapeHtml(z.customer)} · Data: ${escapeHtml(z.created_at)}</p>
+      <p>${escapeHtml(z.product)} × ${z.qty} = <strong>${cena(z.total_cents)}</strong></p>
+      <p>Status: <strong data-testid="order-status">${statusZamowienia(z.status)}</strong></p>
+      ${z.invoice ? `<p>Faktura na firmę: ${escapeHtml(z.company)}, NIP ${escapeHtml(z.nip)}</p>` : ''}
+      ${formularz}
+    </div>`);
 }

@@ -4,6 +4,7 @@ import http from 'node:http';
 import crypto from 'node:crypto';
 import { all, get, run } from './db.mjs';
 import { layout } from './widoki.mjs';
+import { uruchomWarstwy } from './rozszerzenia.mjs';
 
 function parseCookies(req) {
   const out = {};
@@ -59,6 +60,7 @@ export function createApp({ db, before }) {
     get: (p, fn) => app.route('GET', p, fn),
     post: (p, fn) => app.route('POST', p, fn),
     put: (p, fn) => app.route('PUT', p, fn),
+    delete: (p, fn) => app.route('DELETE', p, fn),
     server() {
       return http.createServer(async (req, res) => {
         const ctx = { req, res, url: null, db, query: {}, params: {}, body: {}, user: null };
@@ -76,6 +78,7 @@ export function createApp({ db, before }) {
           ctx.url = url;
           ctx.query = Object.fromEntries(url.searchParams);
           ctx.user = currentUser(ctx);
+          if (await uruchomWarstwy(ctx, h)) return;
           for (const r of routes) {
             if (r.method !== req.method) continue;
             const m = url.pathname.match(r.re);
@@ -90,7 +93,7 @@ export function createApp({ db, before }) {
             return await r.handler(ctx, h);
           }
           if (isApi) return h.json({ error: 'Nie znaleziono' }, 404);
-          h.html(layout({ title: 'Nie znaleziono', user: ctx.user, body: '<h1>Nie znaleziono strony</h1><p><a href="/">Wróć do sklepu</a></p>' }), 404);
+          h.notFound();
         } catch (e) {
           if (e instanceof BadRequest) {
             if (isApi) return h.json({ error: e.message, errors: [] }, 400);
@@ -126,6 +129,11 @@ function helpers(ctx) {
     download(content, filename, type) {
       res.writeHead(200, { 'content-type': type, 'content-disposition': `attachment; filename="${filename}"` }).end(content);
     },
+    // Strona 404 (HTML). Pod spodem podpis dewelopera.
+    notFound() {
+      res.writeHead(404, { 'content-type': 'text/html; charset=utf-8' }).end(layout({ title: 'Nie znaleziono', user: ctx.user, body:
+        '<h1>Nie znaleziono strony</h1><p><a href="/">Wróć do sklepu</a></p><p class="mirek" data-testid="dev-note">Mirek: „U mnie działa”.</p>' }));
+    },
     redirect(to) {
       res.writeHead(303, { location: to }).end();
     },
@@ -134,7 +142,9 @@ function helpers(ctx) {
       if (!user) return null;
       const token = crypto.randomBytes(16).toString('hex');
       run(db, 'INSERT INTO sessions (token, user_id) VALUES (?, ?)', [token, user.id]);
-      res.setHeader('set-cookie', `sid=${token}; Path=/; HttpOnly; SameSite=Lax`);
+      // Secure, gdy żądanie przyszło przez HTTPS (także przez proxy, np. Cloud Run: X-Forwarded-Proto).
+      const https = ctx.req.socket.encrypted || String(ctx.req.headers['x-forwarded-proto'] ?? '').split(',')[0].trim() === 'https';
+      res.setHeader('set-cookie', `sid=${token}; Path=/; HttpOnly; SameSite=Lax${https ? '; Secure' : ''}`);
       return { user, token };
     },
     logout() {

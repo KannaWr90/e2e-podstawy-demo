@@ -1,6 +1,6 @@
 // Baza aplikacji: SQLite przez wbudowany moduł node:sqlite (Node >= 22.13).
-// Jeden plik, domyślnie data/app.db. Inną ścieżkę ustawisz zmienną APP_DB_PATH
-// (np. gdy repo leży w folderze synchronizowanym przez OneDrive).
+// Jeden plik, domyślnie data/app.db. Inną ścieżkę ustawisz zmienną NAMSSOR_DB
+// albo APP_DB_PATH (np. gdy repo leży w folderze synchronizowanym przez OneDrive).
 import * as sqlite from 'node:sqlite';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -11,7 +11,8 @@ const Database = sqlite.DatabaseSync ?? sqlite.Database;
 export const ROOT = path.resolve(import.meta.dirname, '..');
 
 export function dbPath() {
-  return process.env.APP_DB_PATH ? path.resolve(process.env.APP_DB_PATH) : path.join(ROOT, 'data', 'app.db');
+  const zmienna = process.env.NAMSSOR_DB || process.env.APP_DB_PATH;
+  return zmienna ? path.resolve(zmienna) : path.join(ROOT, 'data', 'app.db');
 }
 
 export function openDb(file = dbPath()) {
@@ -22,7 +23,17 @@ export function openDb(file = dbPath()) {
   return db;
 }
 
+// Wersja schematu bazy. Baza ze starszej wersji aplikacji jest tworzona od nowa (dane startowe).
+const WERSJA_SCHEMATU = 2;
+const TABELE = ['sessions', 'cart_codes', 'cart_items', 'addresses', 'orders', 'products', 'users', 'settings'];
+
 export function ensureSchema(db) {
+  const wersja = get(db, 'PRAGMA user_version').user_version;
+  const saTabele = get(db, "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name = 'users'").n > 0;
+  if (saTabele && wersja < WERSJA_SCHEMATU) {
+    console.log('Baza pochodzi ze starszej wersji aplikacji: tworzę ją od nowa z danymi startowymi.');
+    usunTabele(db);
+  }
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
@@ -32,14 +43,18 @@ export function ensureSchema(db) {
       street TEXT NOT NULL DEFAULT '',
       postal_code TEXT NOT NULL DEFAULT '',
       city TEXT NOT NULL DEFAULT '',
-      phone TEXT NOT NULL DEFAULT ''
+      phone TEXT NOT NULL DEFAULT '',
+      default_address_id INTEGER
     );
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY,
       name TEXT UNIQUE NOT NULL,
       category TEXT NOT NULL,
       price_cents INTEGER NOT NULL,
-      stock INTEGER NOT NULL DEFAULT 0
+      stock INTEGER NOT NULL DEFAULT 0,
+      description TEXT NOT NULL DEFAULT '',
+      promo_percent INTEGER NOT NULL DEFAULT 0,
+      archived INTEGER NOT NULL DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS cart_items (
       id INTEGER PRIMARY KEY,
@@ -48,14 +63,33 @@ export function ensureSchema(db) {
       qty INTEGER NOT NULL DEFAULT 1,
       UNIQUE (user_id, product_id)
     );
+    CREATE TABLE IF NOT EXISTS cart_codes (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      code TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY,
       number TEXT UNIQUE NOT NULL,
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
       qty INTEGER NOT NULL,
-      status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'cancelled')),
-      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M', 'now', 'localtime'))
+      status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'paid', 'shipped', 'cancelled')),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M', 'now', 'localtime')),
+      unit_price_cents INTEGER,
+      discount_code TEXT,
+      invoice INTEGER NOT NULL DEFAULT 0,
+      nip TEXT,
+      company TEXT,
+      address TEXT
+    );
+    CREATE TABLE IF NOT EXISTS addresses (
+      id INTEGER PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      street TEXT NOT NULL,
+      postal_code TEXT NOT NULL,
+      city TEXT NOT NULL,
+      phone TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS sessions (
       token TEXT PRIMARY KEY,
@@ -67,7 +101,36 @@ export function ensureSchema(db) {
       value TEXT NOT NULL
     );
   `);
+  db.exec(`PRAGMA user_version = ${WERSJA_SCHEMATU}`);
   if (get(db, 'SELECT COUNT(*) AS n FROM users').n === 0) seed(db);
+  kontaZeZmiennych(db);
+}
+
+// Konta zależne od zmiennych (wspólny serwer szkoleniowy):
+//   NAMSSOR_ADMIN_HASLO   nowe hasło konta admin (bez zmiennej: admin123),
+//   NAMSSOR_TRENER_HASLO  konto „trener” z rolą admin; bez zmiennej konta nie ma.
+function kontaZeZmiennych(db) {
+  run(db, 'UPDATE users SET password = ? WHERE login = ?', [process.env.NAMSSOR_ADMIN_HASLO || 'admin123', 'admin']);
+  const trener = process.env.NAMSSOR_TRENER_HASLO;
+  if (trener) {
+    run(db, `INSERT INTO users (login, password, role, street, postal_code, city, phone)
+             VALUES ('trener', ?, 'admin', 'ul. Szkoleniowa 1', '00-001', 'Warszawa', '500 100 400')
+             ON CONFLICT(login) DO UPDATE SET password = excluded.password, role = 'admin'`, [trener]);
+  } else {
+    run(db, "DELETE FROM users WHERE login = 'trener'");
+  }
+}
+
+function usunTabele(db) {
+  db.exec('PRAGMA foreign_keys = OFF');
+  for (const t of TABELE) db.exec(`DROP TABLE IF EXISTS ${t}`);
+  db.exec('PRAGMA foreign_keys = ON');
+}
+
+// Reset bazy w działającej aplikacji (endpoint trenera): wszystkie tabele od nowa, dane startowe.
+export function resetujBaze(db) {
+  usunTabele(db);
+  ensureSchema(db);
 }
 
 // Dane startowe. Zawsze te same (bez losowości), żeby testy na każdym laptopie
@@ -95,6 +158,48 @@ export const SEED_PRODUCTS = [
   ['Płyn do mycia naczyń', 'Dom', 699, 45],
 ];
 
+// Produkty dodane w wersji „Czarny Piątek”. Nowe id (21, 22), żeby nie przesunąć istniejących.
+// [nazwa, kategoria, cena w groszach, stan, ukryty na liście bez wyszukiwania]
+export const SEED_PRODUCTS_SWIETA = [
+  ['Kalendarz adwentowy 2026', 'Święta', 3999, 3000, 0],
+  ['Kalendarz adwentowy 2025', 'Święta', 3999, 7, 1],
+];
+
+// Rabat promocyjny w procentach (id produktu → procent). Plakietka „-20%”.
+export const PROMOCJE = { 2: 20, 5: 20, 7: 20, 22: 20 };
+
+const OPISY = {
+  1: 'Szampon do codziennego mycia włosów suchych i normalnych. Pojemność 400 ml.',
+  2: 'Odżywka bez spłukiwania, ułatwia rozczesywanie. Pojemność 200 ml.',
+  3: 'Maska regenerująca z olejem arganowym do włosów zniszczonych. Pojemność 250 ml.',
+  4: 'Lakier mocno utrwalający, nie skleja włosów. Pojemność 250 ml.',
+  5: 'Lekki krem nawilżający z filtrem SPF 15. Pojemność 50 ml.',
+  6: 'Płyn do demakijażu twarzy i oczu. Pojemność 400 ml.',
+  7: 'Serum rozświetlające z witaminą C. Pojemność 30 ml.',
+  8: 'Maseczka oczyszczająca z zieloną glinką. Pojemność 75 ml.',
+  9: 'Żel pod prysznic o zapachu cytrusów. Pojemność 500 ml.',
+  10: 'Balsam nawilżający do całego ciała. Pojemność 400 ml.',
+  11: 'Mydło glicerynowe w kostce. Waga 100 g.',
+  12: 'Dezodorant w sprayu, ochrona do 48 godzin. Pojemność 150 ml.',
+  13: 'Pasta wybielająca z fluorem. Pojemność 75 ml.',
+  14: 'Szczoteczka manualna, włosie średnie.',
+  15: 'Płyn odświeżający z miętą, bez alkoholu. Pojemność 500 ml.',
+  16: 'Nić miętowa woskowana, 50 m.',
+  17: 'Chusteczki dla niemowląt, bezzapachowe, 64 sztuki.',
+  18: 'Delikatny szampon „bez łez”. Pojemność 300 ml.',
+  19: 'Krem na odparzenia z tlenkiem cynku. Pojemność 75 ml.',
+  20: 'Płyn do naczyń o zapachu limonki. Pojemność 900 ml.',
+  21: 'Kalendarz z 24 okienkami i kosmetykami w miniaturze. Edycja 2026.',
+  22: 'Kalendarz z 24 okienkami i kosmetykami w miniaturze. Edycja 2025, ostatnie sztuki z magazynu.',
+};
+
+// Konta uczestników szkolenia (fikcyjne): tester01 … tester12, wspólne hasło.
+export const HASLO_TESTEROW = 'czarny-piatek-2026';
+export const TESTERZY = Array.from({ length: 12 }, (_, i) => `tester${String(i + 1).padStart(2, '0')}`);
+
+// Klient firmowy z zamówieniem na fakturę.
+export const BIURO = { login: 'biuro', haslo: 'biuro123', firma: 'Biuro Mikołaja', nip: '2412241228' };
+
 function seed(db) {
   db.exec('BEGIN');
   try {
@@ -102,8 +207,18 @@ function seed(db) {
     run(db, `INSERT INTO users (id, login, password, role, street, postal_code, city, phone)
              VALUES (1, 'user', 'user123', 'user', 'ul. Przykładowa 12/3', '00-001', 'Warszawa', '500 100 200')`);
     run(db, `INSERT INTO users (id, login, password, role) VALUES (2, 'admin', 'admin123', 'admin')`);
-    SEED_PRODUCTS.forEach(([name, category, price, stock], i) =>
-      run(db, 'INSERT INTO products (id, name, category, price_cents, stock) VALUES (?, ?, ?, ?, ?)', [i + 1, name, category, price, stock]),
+    run(db, `INSERT INTO users (id, login, password, role, street, postal_code, city, phone)
+             VALUES (3, ?, ?, 'user', 'ul. Reniferowa 24', '24-120', 'Gwiazdkowo', '500 240 120')`, [BIURO.login, BIURO.haslo]);
+    TESTERZY.forEach((login, i) =>
+      run(db, `INSERT INTO users (id, login, password, role, street, postal_code, city, phone)
+               VALUES (?, ?, ?, 'user', 'ul. Testowa 1', '00-001', 'Warszawa', '500 100 200')`, [101 + i, login, HASLO_TESTEROW]),
+    );
+    // Stany z SEED_PRODUCTS razy 4 (między 50 a 200), żeby na wspólnym serwerze starczyło towaru; 0 zostaje 0.
+    const stan = (n, i) => (i >= SEED_PRODUCTS.length || n === 0 ? n : Math.min(200, Math.max(50, n * 4)));
+    SEED_PRODUCTS.concat(SEED_PRODUCTS_SWIETA).forEach(([name, category, price, stock0, archived = 0], i) =>
+      run(db, 'INSERT INTO products (id, name, category, price_cents, stock, description, promo_percent, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
+        i + 1, name, category, price, stan(stock0, i), OPISY[i + 1] ?? '', PROMOCJE[i + 1] ?? 0, archived,
+      ]),
     );
     // Zamówienia startowe: [numer, id klienta, id produktu, ilość, status, data]
     const orders = [
@@ -119,6 +234,10 @@ function seed(db) {
         i + 1, number, userId, productId, qty, status, createdAt,
       ]),
     );
+    // Biuro Mikołaja: 1000 kalendarzy adwentowych na fakturę, już opłacone. Stan kalendarzy uwzględnia to zamówienie.
+    run(db, `INSERT INTO orders (id, number, user_id, product_id, qty, status, created_at, unit_price_cents, invoice, nip, company, address)
+             VALUES (7, 'ZAM-1007', 3, 21, 1000, 'paid', '2026-11-02 08:00', 3999, 1, ?, ?, 'ul. Reniferowa 24, 24-120 Gwiazdkowo')`, [BIURO.nip, BIURO.firma]);
+    run(db, 'UPDATE products SET stock = stock - 1000 WHERE id = 21');
     run(db, "INSERT INTO settings (key, value) VALUES ('maintenance', '0')");
     db.exec('COMMIT');
   } catch (e) {
