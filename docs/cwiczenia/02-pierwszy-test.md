@@ -1,4 +1,4 @@
-# Ćwiczenie 02. Test „dodanie produktu do koszyka” z Claude Code, raport i trace
+# Ćwiczenie 02. Test „produkt w promocji w koszyku” z Claude Code, raport i trace
 
 Blok 1.2 · 40 min · w parach, zmiana ról co blok
 
@@ -8,11 +8,13 @@ Uruchomisz test napisany z Claude Code, sprawdzisz w raporcie HTML i w trace, co
 
 ## Materiał wejściowy
 
+> **Od Bożeny:** Promocja w koszyku musi działać. Klient dodaje „Krem do twarzy na dzień” i ma w koszyku zobaczyć 26,39 zł, a nie 32,99 zł. Mirek mówi, że u niego działa. Poproszę test, który powie to za Mirka.
+
 - `tests/cwiczenia/02-koszyk.spec.ts`: szkielet testu z `test.fixme` i komentarzami TODO.
 - `tests/przyklady/logowanie.spec.ts`: wzór logowania.
 - `CLAUDE.md`: zasady pisania testów, które Claude Code czyta sam.
-- Konto klienta: `user` / `user123`. Produkt: „Płyn micelarny”.
-- Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. `getByText('Płyn micelarny')` znajdzie dwa elementy (komórkę tabeli i kafelek). Produkt szukaj w obrębie tabeli: `page.getByRole('row').filter({ hasText: 'Płyn micelarny' })` albo przycisk `getByRole('button', { name: 'Dodaj do koszyka: Płyn micelarny' })`.
+- Konto klienta: `user` / `user123`. Produkt: „Krem do twarzy na dzień”, cena regularna 32,99 zł, cena promocyjna 26,39 zł.
+- Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. `getByText('Krem do twarzy na dzień')` znajdzie dwa elementy (komórkę tabeli i kafelek). Produkt szukaj w obrębie tabeli: `page.getByRole('row').filter({ hasText: 'Krem do twarzy na dzień' })` albo przycisk `getByRole('button', { name: 'Dodaj do koszyka: Krem do twarzy na dzień' })`.
 
 ## Kroki
 
@@ -24,7 +26,7 @@ PowerShell, z folderu repo (`C:\e2e\e2e-podstawy-demo`).
    ```
    Oczekiwany wynik: `1 skipped`. Test oznaczony `test.fixme` jest pomijany.
 
-2. **Napisz test z Claude Code.** Uruchom `claude` w folderze repo. Poproś o uzupełnienie testu w `tests/cwiczenia/02-koszyk.spec.ts` według komentarzy TODO. Zanim zaakceptujesz zmianę, przeczytaj ją: każdy TODO ma swoją linię kodu, w pliku nie ma już `test.fixme`, nie ma `waitForTimeout`.
+2. **Napisz test z Claude Code.** Uruchom `claude` w folderze repo. Poproś o uzupełnienie testu w `tests/cwiczenia/02-koszyk.spec.ts` według komentarzy TODO. Zanim zaakceptujesz zmianę, przeczytaj ją: każdy TODO ma swoją linię kodu, w pliku nie ma już `test.fixme`, nie ma `waitForTimeout`, a cena 26,39 zł jest sprawdzana w wierszu kremu w koszyku.
 
 > **Jeśli utknąłeś po 10 minutach**
 > Wklej do Claude Code ten prompt:
@@ -48,7 +50,7 @@ PowerShell, z folderu repo (`C:\e2e\e2e-podstawy-demo`).
    ```
    Oczekiwany wynik w terminalu: `Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.` i raport w przeglądarce. Kliknij nazwę testu. W sekcji „Test Steps” policz kroki i znajdź klik w „Dodaj do koszyka”. Kliknij **View Trace**. W trace wybierz po lewej ten sam klik i przełączaj zakładki **Before** i **After**: widać stronę przed kliknięciem i po nim. Zamknij raport w terminalu `Ctrl+C`.
 
-5. **Zepsuj test celowo.** W asercji z komunikatem dopisz do oczekiwanego tekstu ` 400 ml`, tak żeby test oczekiwał „Dodano do koszyka: Płyn micelarny 400 ml”. Zapisz i uruchom:
+5. **Zepsuj test celowo.** W asercji z komunikatem dopisz do oczekiwanego tekstu ` 50 ml`, tak żeby test oczekiwał „Dodano do koszyka: Krem do twarzy na dzień 50 ml”. Zapisz i uruchom:
    ```powershell
    npx playwright test tests/cwiczenia/02-koszyk.spec.ts
    ```
@@ -56,19 +58,19 @@ PowerShell, z folderu repo (`C:\e2e\e2e-podstawy-demo`).
    ```
    Error: expect(locator).toBeVisible() failed
 
-   Locator: getByText('Dodano do koszyka: Płyn micelarny 400 ml')
+   Locator: getByText('Dodano do koszyka: Krem do twarzy na dzień 50 ml')
    Expected: visible
    Timeout: 5000ms
    Error: element(s) not found
    ```
-   Tak wygląda błąd, gdy test szuka komunikatu przez `getByText`. Jeśli Claude użył innego locatora albo `toHaveText`, pierwsze linie będą inne, ale znajdziesz w nich ten sam oczekiwany tekst z ` 400 ml`. Pod spodem fragment kodu ze znakiem `>` przy linii, która nie przeszła. Otwórz `npx playwright show-report`: przy nieudanym teście są zrzut ekranu i trace, tym razem bez `--trace on`. Na zrzucie znajdź komunikat, który aplikacja naprawdę pokazała.
+   Tak wygląda błąd, gdy test szuka komunikatu przez `getByText`. Jeśli Claude użył innego locatora albo `toHaveText`, pierwsze linie będą inne, ale znajdziesz w nich ten sam oczekiwany tekst z ` 50 ml`. Pod spodem fragment kodu ze znakiem `>` przy linii, która nie przeszła. Otwórz `npx playwright show-report`: przy nieudanym teście są zrzut ekranu i trace, tym razem bez `--trace on`. Na zrzucie znajdź komunikat, który aplikacja naprawdę pokazała.
 
-6. **Przywróć test i zapisz pracę.** Usuń ` 400 ml`, uruchom test jeszcze raz (oczekiwany wynik `1 passed`), potem:
+6. **Przywróć test i zapisz pracę.** Usuń ` 50 ml`, uruchom test jeszcze raz (oczekiwany wynik `1 passed`), potem:
    ```powershell
    git add tests/cwiczenia/02-koszyk.spec.ts
-   git commit -m "Ćwiczenie 02: test dodania produktu do koszyka"
-   git push
+   git commit -m "Ćwiczenie 02: produkt w promocji w koszyku"
    ```
+   Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
 
 ## Przykład wyniku
 
@@ -84,18 +86,18 @@ Click getByRole('button', { name: 'Zaloguj' })
 ## Kryterium „gotowe”
 
 - [ ] `npx playwright test tests/cwiczenia/02-koszyk.spec.ts` daje `1 passed`, a w pliku nie ma `test.fixme`.
-- [ ] Test padał po dopisaniu ` 400 ml` i przechodzi po przywróceniu. Druga osoba z pary widziała oba wyniki.
+- [ ] Test padał po dopisaniu ` 50 ml` i przechodzi po przywróceniu. Druga osoba z pary widziała oba wyniki.
 - [ ] Pokazujesz palcem w opisie błędu: który locator, jakie oczekiwanie, ile czekał test i w której linii pliku.
-- [ ] Umiesz powiedzieć własnymi słowami, co zmieniło się na stronie między **Before** i **After** przy kliknięciu „Dodaj do koszyka”.
+- [ ] Pokazujesz palcem linię, która sprawdza cenę 26,39 zł, i mówisz, w którym elemencie strony test jej szuka.
 
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Uruchom test trzy razy z rzędu: `npx playwright test tests/cwiczenia/02-koszyk.spec.ts --repeat-each=3`. Potem uruchom aplikację (`npm start`), zaloguj się jako `user` i otwórz koszyk. Zapisz w `notatki.md`: co test zostawia po sobie w aplikacji i jak to może przeszkodzić innemu testowi, który liczy pozycje w koszyku. Dopisz na końcu testu krok, który przywraca koszyk do stanu sprzed testu, i sprawdź `--repeat-each=3` jeszcze raz. Dłuższe zadania: gałąź `extra/d1-przegladarki-i-dane`.
+> Zamień w asercji ceny `26,39 zł` na starą cenę `32,99 zł` i uruchom test. Jeśli nadal jest zielony, zapisz w `notatki.md`, dlaczego (podpowiedź: co jeszcze jest w wierszu kremu w koszyku). Napisz asercję, która pada przy `32,99 zł`, a przechodzi przy `26,39 zł`, i sprawdź oba przypadki. Potem uruchom test trzy razy z rzędu: `npx playwright test tests/cwiczenia/02-koszyk.spec.ts --repeat-each=3` i zobacz w aplikacji, co zostaje w koszyku konta `user`. Dłuższe zadania: gałąź `extra/d1-przegladarki-i-dane`.
 
 ## Artefakt do zabrania
 
-Działający test `tests/cwiczenia/02-koszyk.spec.ts` w Twoim forku na GitHubie.
+Działający test `tests/cwiczenia/02-koszyk.spec.ts` w twoim repo.
 
 ## Rozwiązanie wzorcowe
 

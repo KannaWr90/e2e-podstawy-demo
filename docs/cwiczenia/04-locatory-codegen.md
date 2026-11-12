@@ -1,12 +1,14 @@
-# Ćwiczenie 04. Trzy scenariusze nagrane Codegenem i poprawione do odpornych locatorów
+# Ćwiczenie 04. Scenariusze nagrane Codegenem i poprawione do odpornych locatorów, cena promocyjna w trzech miejscach
 
-Blok 1.4 · 50 min · w parach, zmiana ról co scenariusz
+Blok 1.4 · 50 min + 30 min karta produktu (04b) · w parach, zmiana ról co scenariusz
 
 ## Cel
 
-Nagrasz scenariusz w Codegenie, przeczytasz wygenerowany kod i poprawisz w nim locatory i asercje tak, żeby test sprawdzał wynik scenariusza i nie psuł się po drobnej zmianie wyglądu strony.
+Nagrasz scenariusz w Codegenie, przeczytasz wygenerowany kod i poprawisz w nim locatory i asercje tak, żeby test sprawdzał wynik scenariusza i nie psuł się po drobnej zmianie wyglądu strony. Zawęzisz locator do fragmentu strony, gdy ta sama nazwa występuje na niej dwa razy.
 
 ## Materiał wejściowy
+
+> **Od Mirka:** Przestawiłem w nocy kolumny w tabeli produktów, bo tak ładniej. Testy poprzednika, które miały selektory skopiowane z DevTools, padły. U mnie działa. Nagrajcie testy, które przeżyją moje następne poprawki.
 
 Szkielety z `test.fixme` i listą kroków w komentarzach TODO:
 
@@ -15,10 +17,11 @@ Szkielety z `test.fixme` i listą kroków w komentarzach TODO:
 | `tests/cwiczenia/04-filtr-kategorii.spec.ts` | A. Filtr kategorii „Dziecko” | bez logowania |
 | `tests/cwiczenia/04-koszyk-usuwanie.spec.ts` | B. Dodanie „Żel pod prysznic” do koszyka i usunięcie go | `user` / `user123` |
 | `tests/cwiczenia/04-adres-walidacja.spec.ts` | C. Adres dostawy z błędnym kodem pocztowym `00000` | `user` / `user123` |
-
-Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codegen może nagrać `getByText('Żel pod prysznic')`, który znajdzie dwa elementy (komórkę tabeli i kafelek). Zawęź locator do tabeli: `page.getByRole('row').filter({ hasText: 'Żel pod prysznic' })`. W scenariuszu B koszyk ma kolumny Produkt, Cena, Ilość, Wartość, a po kliknięciu „Usuń” adres strony to `/koszyk?usunieto=1` (asercja `toHaveURL(/\/koszyk/)` przejdzie, `toHaveURL(/\/koszyk$/)` nie).
+| `tests/cwiczenia/04-karta-produktu.spec.ts` | 04b. Cena promocyjna na kafelku, karcie produktu i w koszyku | `tester11` / `czarny-piatek-2026` |
 
 Kolejność wyboru locatorów (z `CLAUDE.md`): `getByRole`, `getByLabel`, `getByText`, dopiero potem `getByTestId`. Bez selektorów CSS, XPath, `id` i klas.
+
+Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codegen może nagrać `getByText('Żel pod prysznic')`, który znajdzie dwa elementy (komórkę tabeli i kafelek). Zawęź locator do tabeli: `page.getByRole('row').filter({ hasText: 'Żel pod prysznic' })`. W scenariuszu B koszyk ma kolumny Produkt, Cena, Ilość, Wartość, a po kliknięciu „Usuń” adres strony to `/koszyk?usunieto=1` (asercja `toHaveURL(/\/koszyk/)` przejdzie, `toHaveURL(/\/koszyk$/)` nie).
 
 ## Kroki
 
@@ -41,7 +44,7 @@ Kolejność wyboru locatorów (z `CLAUDE.md`): `getByRole`, `getByLabel`, `getBy
    Oczekiwany wynik: `1 passed`.
 
 > **Jeśli utknąłeś po 10 minutach**
-> Najpierw przeczytaj komunikat błędu od góry: który locator, co było oczekiwane. `strict mode violation … resolved to 2 elements` znaczy, że locator pasuje do dwóch elementów: zobacz, które dwa wypisał Playwright i co je różni. Pomaga `exact: true` albo zawężenie do wiersza tabeli: `page.getByRole('row').filter({ hasText: '…' })`.
+> Najpierw przeczytaj komunikat błędu od góry: który locator, co było oczekiwane. `strict mode violation … resolved to 2 elements` znaczy, że locator pasuje do dwóch elementów: zobacz, które dwa wypisał Playwright i co je różni. Pomaga `exact: true` albo zawężenie do fragmentu strony, w którym element jest tylko raz: do wiersza tabeli (`page.getByRole('row').filter({ hasText: '…' })`) albo do kafelka.
 
 4. **Nagraj i popraw scenariusz B, potem C.** Zmiana osoby przy klawiaturze. Ten sam rytm: Codegen, wklejenie, review locatorów, uruchomienie. W B i C nagrywasz także logowanie. W C sprawdź oba komunikaty błędu i to, że komunikat „Zapisano adres dostawy.” się nie pojawił.
    ```powershell
@@ -57,14 +60,34 @@ Kolejność wyboru locatorów (z `CLAUDE.md`): `getByRole`, `getByLabel`, `getBy
    ```powershell
    npx playwright test tests/cwiczenia/04- --repeat-each=3 --workers=1
    ```
-   Oczekiwany wynik: `9 passed`. Potem w scenariuszu C zmień oczekiwany komunikat przy polu na „Kod pocztowy musi mieć format 00-0000”, uruchom C i zobacz `1 failed`. Przywróć.
-
-6. **Zapisz pracę.**
+   Oczekiwany wynik: `3 skipped` i `9 passed`. `skipped` to szkielet 04b, który zrobisz w następnym kroku. Potem w scenariuszu C zmień oczekiwany komunikat przy polu na „Kod pocztowy musi mieć format 00-0000”, uruchom C i zobacz `1 failed`. Przywróć i zapisz pracę:
    ```powershell
    git add tests/cwiczenia
    git commit -m "Ćwiczenie 04: trzy scenariusze z Codegena"
-   git push
    ```
+
+### Część 04b. Karta produktu · 30 min
+
+> **Od Bożeny:** Cena promocyjna ma być wszędzie taka sama: na kafelku, na karcie produktu i w koszyku. Jak klient zobaczy trzy różne ceny, zadzwoni do mnie, a ja do was. To ostatnia zmiana wymagań przed Czarnym Piątkiem, obiecuję.
+
+Produkt: „Krem do twarzy na dzień”, cena regularna 32,99 zł, promocyjna 26,39 zł, plakietka `-20%`. Kafelki są w sekcji „Oferta na Czarny Piątek” pod tabelą produktów. Konto `tester11` ma własny koszyk, do którego nie dodają nic testy z ćwiczeń 02 i 04.
+
+6. **Obejrzyj trzy miejsca z ceną.** W przeglądarce (aplikacja z kroku 1 działa) otwórz http://localhost:4100, znajdź krem w tabeli i w kafelku, kliknij jego nazwę w kafelku, dodaj go do koszyka jako `tester11` i otwórz koszyk. Zanotuj, jak w każdym miejscu wygląda cena.
+
+7. **Napisz test według TODO w `04-karta-produktu.spec.ts`.** Codegenem, z Claude Code albo ręcznie. Na stronie produktów każdy locator z nazwą albo ceną kremu sprawdź pod kątem drugiego elementu o tej samej treści.
+   ```powershell
+   npx playwright test tests/cwiczenia/04-karta-produktu.spec.ts
+   ```
+   Oczekiwany wynik: `1 passed`.
+
+> **Jeśli utknąłeś po 10 minutach**
+> Błąd `strict mode violation: getByText('Krem do twarzy na dzień') resolved to 2 elements` wypisuje oba elementy: komórkę tabeli (`<td …>`) i link w kafelku (`<a href="/produkt/5">`). Każdy kafelek to osobny element z nazwą produktu. Zbuduj najpierw locator całego kafelka kremu (Pick locator w `--ui` podpowie jego rolę), a ceny i plakietki szukaj już w nim, tak jak w scenariuszu B szukałeś przycisku w wierszu.
+
+8. **Sprawdź, że test pilnuje każdego z trzech miejsc.** Zmień oczekiwaną cenę `26,39 zł` na `26,40 zł` tylko w asercji koszyka i uruchom test: oczekiwany wynik `1 failed`, a w opisie błędu locator z koszyka. Przywróć. Uruchom test dwa razy z rzędu:
+   ```powershell
+   npx playwright test tests/cwiczenia/04-karta-produktu.spec.ts --repeat-each=2 --workers=1
+   ```
+   Oczekiwany wynik: `2 passed`. Zapisz pracę: `git add tests/cwiczenia`, `git commit -m "Ćwiczenie 04b: cena promocyjna w trzech miejscach"`.
 
 ## Przykład wyniku
 
@@ -75,24 +98,29 @@ await page.getByRole('button', { name: 'Dodaj do koszyka: Pasta do zębów' }).c
 ```
 Wynik kroku 5 (fragment, czasy będą inne):
 ```
+  3 skipped
   9 passed (3.3s)
 ```
 
 ## Kryterium „gotowe”
 
-- [ ] `npx playwright test tests/cwiczenia/04- --repeat-each=3 --workers=1` daje `9 passed`.
-- [ ] W trzech plikach nie ma `test.fixme`, `locator('…')` z CSS, `nth(`, `first()` ani `waitForTimeout`.
-- [ ] Scenariusz C padał po zmianie oczekiwanego komunikatu i przechodzi po przywróceniu.
-- [ ] Przy każdym locatorze z `getByTestId` umiesz powiedzieć, dlaczego `getByRole`, `getByLabel` i `getByText` nie wystarczyły.
+- [ ] `npx playwright test tests/cwiczenia/04- --repeat-each=3 --workers=1` daje `12 passed` (trzy scenariusze i 04b, każdy 3 razy).
+- [ ] W czterech plikach nie ma `test.fixme`, `locator('…')` z CSS, `nth(`, `first()` ani `waitForTimeout`.
+- [ ] Scenariusz C padał po zmianie oczekiwanego komunikatu, a 04b po zmianie ceny w koszyku. Oba przechodzą po przywróceniu.
+- [ ] W 04b pokazujesz palcem, w obrębie jakiego elementu szukasz ceny na stronie produktów, i mówisz, co by znalazł locator bez tego zawężenia.
 
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Scenariusz A ma nazwę „pokazuje tylko produkty dla dzieci”. Sprawdź, czy Twój test to udowadnia, czy tylko sprawdza, że trzy produkty są widoczne. Dopisz asercję, która liczy wszystkie wiersze produktów na stronie, i porównaj ją z licznikiem „Liczba produktów”. Potem uruchom scenariusz A na innej przeglądarce: `npx playwright install firefox`, a następnie `npx playwright test tests/cwiczenia/04-filtr-kategorii.spec.ts --project=firefox`. Dłuższe zadania (przeglądarki, rozdzielczości, zrzuty przy błędzie): gałąź `extra/d1-przegladarki-i-dane`.
+> 1. Kod rabatowy: dopisz w `04-karta-produktu.spec.ts` drugi test na koncie `tester12` (hasło jak `tester11`). Dodaj krem do koszyka, wpisz kod `CZARNY20` w pole „Kod rabatowy”, kliknij „Zastosuj kod” i sprawdź komunikat „Kod CZARNY20 przyjęty: -20% na całe zamówienie.” oraz sumę do zapłaty po rabacie: 21,11 zł. Na końcu testu usuń kod i krem, a potem uruchom plik z `--repeat-each=2 --workers=1`.
+> 2. Produkt niedostępny: trzeci test otwiera kartę „Serum z witaminą C” przez kafelek i sprawdza, że przycisk „Dodaj do koszyka” i pole „Ilość” są wyłączone.
+> 3. Scenariusz A ma nazwę „pokazuje tylko produkty dla dzieci”. Sprawdź, czy twój test to udowadnia, czy tylko sprawdza, że trzy produkty są widoczne. Dopisz asercję, która liczy wiersze produktów, i porównaj ją z licznikiem „Liczba produktów”.
+>
+> Dłuższe zadania (przeglądarki, telefon, kody rabatowe z tabeli danych): gałąź `extra/d1-przegladarki-i-dane`.
 
 ## Artefakt do zabrania
 
-Trzy działające testy w `tests/cwiczenia/04-*.spec.ts` w Twoim forku i nawyk: każdy nagrany locator przechodzi review.
+Cztery działające testy w `tests/cwiczenia/04-*.spec.ts` w twoim repo i nawyk: każdy nagrany locator przechodzi review, a nazwa, która występuje na stronie dwa razy, dostaje zawężenie.
 
 ## Rozwiązanie wzorcowe
 
