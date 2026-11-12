@@ -13,7 +13,7 @@ Zgłoszenie od Mirka, 8:47:
 
 - `tests/pomocnicze/logowanie.ts`: gotowe funkcje `zaloguj(page)` i `zalogujPrzezApi(request)`.
 - `tests/czytanie/02-moje-zamowienia.spec.ts`: dwa testy, w każdym te same trzy linie logowania.
-- Adres wspólnego serwera: `https://namssor-XXXX.europe-central2.run.app`. Prawdziwy adres w miejsce `XXXX` poda trener na sali.
+- Adres wspólnego serwera: `https://namssor-376292984721.europe-central2.run.app`. W przeglÄdarce wystarczy krÃ³tki adres `namssor.prosit.cloud` (przekierowuje na ten). Do `BASE_URL` wpisz peÅny adres powyÅ¼ej.
 
 ## Kroki
 
@@ -49,7 +49,7 @@ PowerShell, z katalogu głównego repo.
 
 4. **Uruchom testy dymne na wspólnym serwerze.** Zmienna `BASE_URL` mówi Playwrightowi, gdzie jest aplikacja. Gdy wskazuje inny komputer niż `localhost`, Playwright nie uruchamia aplikacji u ciebie.
    ```powershell
-   $env:BASE_URL="https://namssor-XXXX.europe-central2.run.app"
+   $env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"
    npx playwright test tests/smoke.spec.ts
    Remove-Item Env:BASE_URL
    ```

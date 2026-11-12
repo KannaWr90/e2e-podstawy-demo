@@ -19,13 +19,13 @@ Bożena, 10:57:
 
 | Co | Wartość |
 |---|---|
-| Wersja `rc` (kandydat do wydania) | `https://namssor-rc-XXXX.europe-central2.run.app` |
-| Wersja zwykła na wspólnym serwerze | `https://namssor-XXXX.europe-central2.run.app` |
+| Wersja `rc` (kandydat do wydania) | `https://namssor-rc-376292984721.europe-central2.run.app` |
+| Wersja zwykła na wspólnym serwerze | `https://namssor-376292984721.europe-central2.run.app` |
 | Konta | `tester01`–`tester12`, hasło `czarny-piatek-2026`; numer konta poda trener |
-| Tablica wyników (rzutnik) | `https://namssor-rc-XXXX.europe-central2.run.app/tablica` |
-| Zgłoszenia (błędy i flagi) | `https://namssor-rc-XXXX.europe-central2.run.app/tablica/zglos` |
+| Tablica wyników (rzutnik) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica` |
+| Zgłoszenia (błędy i flagi) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica/zglos` |
 
-Prawdziwe adresy w miejsce `XXXX` poda trener na sali.
+W przeglÄdarce wystarczÄ krÃ³tkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowujÄ na adresy z tabeli). Do `BASE_URL` wpisuj peÅne adresy z tabeli: skopiuj je z tego pliku w repo.
 
 ## Zasady gry
 
@@ -48,7 +48,7 @@ PowerShell, z katalogu głównego repo.
    ```powershell
    $env:APP_USER="tester05"
    $env:APP_PASSWORD="czarny-piatek-2026"
-   $env:BASE_URL="https://namssor-rc-XXXX.europe-central2.run.app"
+   $env:BASE_URL="https://namssor-rc-376292984721.europe-central2.run.app"
    npx playwright test tests/smoke.spec.ts
    ```
    Oczekiwany wynik: `4 passed`. W stopce strony `rc` widać „Wersja: rc”.
@@ -60,9 +60,9 @@ PowerShell, z katalogu głównego repo.
 
 3. **Udowodnijcie błąd dwoma uruchomieniami.** Ten sam test, dwa adresy:
    ```powershell
-   $env:BASE_URL="https://namssor-rc-XXXX.europe-central2.run.app"
+   $env:BASE_URL="https://namssor-rc-376292984721.europe-central2.run.app"
    npx playwright test tests/polowanie/rabat-dla-wlosow.spec.ts
-   $env:BASE_URL="https://namssor-XXXX.europe-central2.run.app"
+   $env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"
    npx playwright test tests/polowanie/rabat-dla-wlosow.spec.ts
    ```
    Oczekiwany wynik: pierwsze uruchomienie `1 failed`, drugie `1 passed`. Jeśli oba przechodzą, test nie widzi różnicy. Jeśli oba padają, test jest zły albo dane zmieniła inna para.
