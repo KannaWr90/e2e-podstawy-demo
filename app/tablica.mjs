@@ -232,7 +232,7 @@ function fragmentTablicy(h) {
       <ul class="pierwsi">${lista(niespodzianki, 'Niespodzianka')}</ul>
     </section>
   </main>
-  <footer>Zaktualizowano ${godzina(teraz())}:${String(new Date().getSeconds()).padStart(2, '0')}. Zgłoszenia: /tablica/zglos. Klaudiusz-sędzia ocenia, trener ma ostatnie słowo.</footer>`;
+  <footer>Zaktualizowano ${godzina(teraz())}:${String(new Date().getSeconds()).padStart(2, '0')}. Zgłoszenia: /tablica/zglos. Klaudiusz-sędzia ocenia, trener ma ostatnie słowo. Grzegorz Brzezinka, Prosit AS, https://agentgreg.ai</footer>`;
 }
 
 function stronaTablicy(h) {
