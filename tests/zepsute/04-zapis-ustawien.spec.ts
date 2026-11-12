@@ -12,10 +12,9 @@ test('zapis ustawień pokazuje komunikat', async ({ page }) => {
 
   await page.goto('/admin/ustawienia');
   await page.getByRole('button', { name: 'Zapisz' }).click();
-  await expect(page.getByTestId('maintenance-state')).toHaveText('Stan: wyłączony');
 
-  // Dajemy aplikacji chwilę na zapis ustawień
-  await page.waitForTimeout(6000);
-
+  // Komunikat znika po 3–5 s. Sprawdzamy go od razu po zapisie, a pauza 6 s
+  // (komunikat już zniknął) wypadła z testu. Zapis kończy się przed nowym widokiem strony.
   await expect(page.getByText('Zapisano ustawienia')).toBeVisible();
+  await expect(page.getByTestId('maintenance-state')).toHaveText('Stan: wyłączony');
 });

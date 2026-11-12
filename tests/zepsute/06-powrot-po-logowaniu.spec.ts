@@ -11,7 +11,8 @@ test('po zalogowaniu klient wraca na stronę adresu dostawy', async ({ page }) =
   await page.getByLabel('Hasło').fill('user123');
   await page.keyboard.press('Enter');
 
-  // Po zalogowaniu jesteśmy z powrotem na stronie adresu
-  expect(page.url()).toContain('/konto/adres');
+  // page.url() czytał adres od razu po naciśnięciu Enter, zanim przyszła odpowiedź
+  // serwera z przekierowaniem. toHaveURL czeka, aż adres się zmieni.
+  await expect(page).toHaveURL(/\/konto\/adres$/);
   await expect(page.getByRole('heading', { name: 'Zmiana adresu dostawy' })).toBeVisible();
 });
