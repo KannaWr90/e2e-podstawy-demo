@@ -111,6 +111,7 @@ export function layout({ title, user, body, active }) {
 <nav aria-label="Menu główne">${navHtml}</nav><div class="who">${who}</div></div></header>
 <main>${body}</main>
 <footer><span>Namssor to fikcyjna drogeria do ćwiczeń z automatyzacji testów. Dane są przykładowe.</span>
+<span data-testid="autor">Grzegorz Brzezinka, Prosit AS, <a href="https://agentgreg.ai" target="_blank" rel="noopener">https://agentgreg.ai</a></span>
 <a href="/regulamin" target="_blank" rel="noopener">Regulamin</a> <a href="/api/docs">API</a>${wersja() ? ` <span data-testid="app-version">Wersja: ${escapeHtml(wersja())}</span>` : ''}
 <!-- TODO(Bożena): wymagania na Czarny Piątek (wersja robocza) są pod /api/bozena/wymagania. Nie pokazywać klientom. --></footer>
 <script>
