@@ -198,7 +198,8 @@ ul.pierwsi{list-style:none;margin:0 0 1em;padding:0;display:grid;grid-template-c
 ul.pierwsi li{background:var(--panel);border-left:.3em solid var(--linia);padding:.2em .5em;border-radius:.2em}
 ul.pierwsi li.znaleziony{border-left-color:var(--czerwony)}
 .zamknieta{background:var(--czerwony);color:#fff;font-weight:900;text-align:center;padding:.4em;font-size:1.3em;text-transform:uppercase}
-footer{color:var(--szary);font-size:.7em;padding:0 2vw 1vw}`;
+footer{color:var(--szary);font-size:.7em;padding:0 2vw 1vw}
+footer a{color:inherit;text-decoration:underline}`;
 
 function fragmentTablicy(h) {
   const { ranking, bledy, niespodzianki } = wyniki(h);
@@ -232,7 +233,7 @@ function fragmentTablicy(h) {
       <ul class="pierwsi">${lista(niespodzianki, 'Niespodzianka')}</ul>
     </section>
   </main>
-  <footer>Zaktualizowano ${godzina(teraz())}:${String(new Date().getSeconds()).padStart(2, '0')}. Zgłoszenia: /tablica/zglos. Klaudiusz-sędzia ocenia, trener ma ostatnie słowo. Grzegorz Brzezinka, Prosit AS, https://agentgreg.ai</footer>`;
+  <footer>Zaktualizowano ${godzina(teraz())}:${String(new Date().getSeconds()).padStart(2, '0')}. Zgłoszenia: /tablica/zglos. Klaudiusz-sędzia ocenia, trener ma ostatnie słowo. Grzegorz Brzezinka, Prosit AS, <a href="https://agentgreg.ai" target="_blank" rel="noopener">https://agentgreg.ai</a></footer>`;
 }
 
 function stronaTablicy(h) {
