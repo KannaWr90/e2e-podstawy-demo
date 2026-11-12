@@ -42,7 +42,7 @@ PowerShell, z katalogu głównego repo.
    |---|---|
    | `npx playwright test tests/czytanie` | `5 passed` |
    | `npx playwright test --grep "@zamowienia"` | `2 passed` |
-   | `npx playwright test --grep-invert "@zamowienia"` | żaden test z `02-moje-zamowienia` na liście |
+   | `npx playwright test --grep-invert "@zamowienia"` | żaden test z `tests/czytanie/02-moje-zamowienia` na liście |
    | `npx playwright test tests/czytanie --project=chromium` | `5 passed` |
    | `npx playwright test tests/czytanie/01-wyszukiwarka.spec.ts --headed` | okno przeglądarki otwiera się i zamyka, `2 passed` |
    | `npx playwright test --ui` | okno trybu UI z listą testów; uruchom w nim jeden test przyciskiem ▶ |
