@@ -1,12 +1,14 @@
-# Ćwiczenie 03. Trzy gotowe testy opisane słowami: co sprawdzają, a czego nie
+# Ćwiczenie 03. Testy po poprzedniku i od Klaudiusza opisane słowami: co sprawdzają, a czego nie
 
-Blok 1.3 · 45 min · w parach, zmiana ról co blok
+Blok 1.3 · 45 min + 20 min runda 2 (03b) · w parach, zmiana ról co blok
 
 ## Cel
 
 Przeczytasz test Playwright bez uruchamiania go i powiesz własnymi słowami, co sprawdza, czego nie sprawdza i kiedy zrobi się czerwony. Tak samo będziesz czytać testy pisane przez Claude, zanim je zatwierdzisz.
 
 ## Materiał wejściowy
+
+> **Od Mirka:** Twój poprzednik odszedł i zostawił w `tests/czytanie/` trzy pliki bez słowa komentarza. Wszystkie są zielone, ale nikt w zespole nie wie, co właściwie sprawdzają. Zanim cokolwiek w nich zmienimy, opisz je po ludzku.
 
 - `tests/czytanie/01-wyszukiwarka.spec.ts`
 - `tests/czytanie/02-moje-zamowienia.spec.ts`
@@ -38,9 +40,42 @@ Tabela do wypełnienia w `notatki.md` (skopiuj nagłówek):
 
 5. **Uruchom testy i porównaj z tabelą.**
    ```powershell
-   npx playwright test tests/czytanie
+   npx playwright test tests/czytanie/01 tests/czytanie/02 tests/czytanie/03
    ```
    Oczekiwany wynik: `5 passed`, także test z kroku 3. Przy każdym wierszu tabeli zapisz, czy zielony wynik potwierdza to, co obiecuje nazwa testu.
+
+## Runda 2 (03b): trzy testy od Klaudiusza · 20 min
+
+> **Od Klaudiusza, nowego kolegi z zespołu:** W nocy dopisałem trzy testy do `tests/czytanie/`. Zajęło mi to 30 sekund. Jest pętla, funkcja pomocnicza i zagnieżdżone grupy, wszystko zielone. Jestem pewien, że sprawdzają wszystko, co trzeba.
+
+- `tests/czytanie/04-ceny-promocyjne.spec.ts`: pętla po tablicy produktów w promocji.
+- `tests/czytanie/05-karta-produktu.spec.ts`: funkcja pomocnicza `otworzKarteProduktu`.
+- `tests/czytanie/06-filtr-kategorii.spec.ts`: `test.describe` w pętli po kategoriach, dwa `beforeEach`.
+
+Druga tabela w `notatki.md`:
+
+```markdown
+| Test | Co sprawdza | Czego nie sprawdza |
+|---|---|---|
+| 04-ceny-promocyjne (jeden wiersz na cały plik) | | |
+| 05 › karta produktu pokazuje opis i dostępność | | |
+| 05 › cena na karcie produktu jest taka sama jak na kafelku | | |
+| 05 › produktu niedostępnego nie da się dodać do koszyka z karty produktu | | |
+| 06-filtr-kategorii (jeden wiersz na cały plik) | | |
+```
+
+6. **Przeczytaj trzy pliki i wypełnij drugą tabelę.** Nie uruchamiaj testów. Zapisz odpowiedzi:
+   - `04`: ile testów powstanie z tego pliku i jakie będą miały nazwy? Nazwa obiecuje cenę „obniżoną o 20%”: która linia to sprawdza?
+   - `05`: co robi funkcja `otworzKarteProduktu`, zanim test dojdzie do swoich linii z `expect`? Ile asercji ma drugi test razem z tymi w funkcji? Co o funkcjach pomocniczych mówi `CLAUDE.md` w repo?
+   - `06`: ile testów powstanie i jak brzmi pełna nazwa jednego z nich w raporcie? W jakiej kolejności wykonają się oba `beforeEach` przed testem „licznik…” dla kategorii Dom?
+
+7. **Sprawdź liczby i nazwy bez uruchamiania testów.**
+   ```powershell
+   npx playwright test tests/czytanie/04 tests/czytanie/05 tests/czytanie/06 --list
+   ```
+   Oczekiwany wynik na końcu: `Total: 12 tests in 3 files`. Porównaj nazwy z listy ze swoimi odpowiedziami z kroku 6. Potem uruchom te same pliki bez `--list`: oczekiwany wynik `12 passed`.
+
+8. **Napisz jedno zdanie do Klaudiusza.** Wybierz najpoważniejszą lukę z drugiej tabeli i zapisz w `notatki.md` komentarz, jaki zostawiłbyś w review: który test, czego nie sprawdza, jaka asercja by to naprawiła.
 
 ## Przykład wyniku
 
@@ -52,19 +87,19 @@ Wiersz dla testu, którego nie ma w tym ćwiczeniu (`tests/przyklady/logowanie.s
 
 ## Kryterium „gotowe”
 
-- [ ] Tabela ma 5 wierszy, każda kolumna wypełniona.
+- [ ] Pierwsza tabela ma 5 wierszy, druga 5 wierszy, każda kolumna wypełniona.
 - [ ] Dla testu z `03-produkt-niedostepny.spec.ts` wskazujesz palcem brakującą asercję i mówisz, jaką linią kodu byś ją dopisał.
-- [ ] Druga osoba z pary wskazuje dowolną linię z `await`, a Ty mówisz, na co ta linia czeka.
-- [ ] Umiesz powiedzieć, w której linii drugi test z `02-moje-zamowienia.spec.ts` upewnia się, że lista zamówień już się załadowała.
+- [ ] Druga osoba z pary wskazuje dowolną linię z `await`, a ty mówisz, na co ta linia czeka.
+- [ ] Twoja liczba testów z kroku 6 zgadza się z `Total: 12 tests in 3 files` z kroku 7, a w drugim teście z `05` pokazujesz palcem asercję, która siedzi w funkcji pomocniczej.
 
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Dopisz w `03-produkt-niedostepny.spec.ts` asercję, której brakuje według Twojej tabeli. Sprawdź, że test nadal przechodzi (`1 passed`). Potem odwróć chwilowo swoją asercję na przeciwną i uruchom test jeszcze raz: oczekiwany wynik `1 failed`. Dopiero wtedy wiesz, że asercja coś sprawdza. Przywróć ją. Dłuższe zadania (typy danych testowych, jeden test dla kilku zestawów danych): gałąź `extra/d1-przegladarki-i-dane`.
+> Dopisz w `03-produkt-niedostepny.spec.ts` asercję, której brakuje według twojej tabeli. Sprawdź, że test nadal przechodzi (`1 passed`). Potem odwróć chwilowo swoją asercję na przeciwną i uruchom test jeszcze raz: oczekiwany wynik `1 failed`. Dopiero wtedy wiesz, że asercja coś sprawdza. Przywróć ją. To samo zrób dla testu z `05`, który obiecuje „taka sama jak na kafelku”: dopisz asercję, która porównuje cenę z kafelkiem, i sprawdź, że pada, gdy w niej zmienisz cenę. Dłuższe zadania (typy danych testowych, jeden test dla kilku zestawów danych): gałąź `extra/d1-przegladarki-i-dane`.
 
 ## Artefakt do zabrania
 
-Tabela pięciu testów w `notatki.md` w Twoim forku: wzór, jak opisywać test przed review.
+Dwie tabele w `notatki.md` w twoim repo: wzór, jak opisywać test przed review, także test z pętlą i funkcją pomocniczą.
 
 ## Rozwiązanie wzorcowe
 

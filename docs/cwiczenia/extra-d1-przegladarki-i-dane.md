@@ -1,12 +1,14 @@
 # Zadanie dodatkowe D1. Te same testy w trzech przeglądarkach, na telefonie i dla kilku zestawów danych
 
-Zadanie dodatkowe · dzień 1 · ok. 60 min · w parach
+Zadanie dodatkowe · dzień 1 · ok. 75 min · w parach
 
 ## Cel
 
-Uruchomisz istniejące testy w Firefoksie, WebKicie i na emulowanym telefonie bez zmiany kodu testu. Znajdziesz zrzut ekranu z nieudanego testu i dołączysz własny zrzut do raportu. Zamienisz jeden test na pętlę po zestawach danych opisanych typem TypeScript, tak że każdy zestaw jest osobnym testem w raporcie.
+Uruchomisz istniejące testy w Firefoksie, WebKicie i na emulowanym telefonie bez zmiany kodu testu. Znajdziesz zrzut ekranu z nieudanego testu i dołączysz własny zrzut do raportu. Zamienisz test na pętlę po zestawach danych opisanych typem TypeScript, tak że każdy zestaw jest osobnym testem w raporcie: najpierw dla adresu, potem dla kodów rabatowych.
 
 ## Materiał wejściowy
+
+> **Od Bożeny:** Połowa klientów kupi na Czarny Piątek z telefonu, druga połowa w Safari, a trzecia połowa wpisze wszystkie kody rabatowe, jakie znajdzie w internecie. Kody mam w tabelce: jeden działa, jeden wygasł, jeden jest tylko na włosy. Sprawdźcie je wszystkie. Tabelkę zmieniam ostatni raz, obiecuję.
 
 Gałąź `extra/d1-przegladarki-i-dane`. Nowe pliki są w `tests/extra/d1/`:
 
@@ -15,6 +17,7 @@ Gałąź `extra/d1-przegladarki-i-dane`. Nowe pliki są w `tests/extra/d1/`:
 | `telefon.spec.ts` | test z `test.fixme` i TODO: przejście do koszyka na ekranie telefonu |
 | `zrzuty.spec.ts` | test „Moje zamówienia” z `test.fixme` i TODO: zrzut ekranu do raportu |
 | `dane-adresu.spec.ts` | gotowy test jednego błędnego adresu i TODO: pętla po zestawach danych |
+| `kody-rabatowe.spec.ts` | gotowy test jednego kodu rabatowego i TODO: pętla po tabeli kodów |
 
 `playwright.config.ts` ma już projekty `firefox` i `webkit` z `default: false`: nie biegną przy `npm test`, tylko gdy wskażesz je przez `--project`.
 
@@ -28,7 +31,7 @@ PowerShell, z katalogu głównego repo.
    git switch extra/d1-przegladarki-i-dane
    npx playwright test tests/extra/d1
    ```
-   Oczekiwany wynik: `1 passed` i `2 skipped`.
+   Oczekiwany wynik: `2 passed` i `2 skipped`.
 
 2. **Uruchom gotowe testy w Firefoksie i WebKicie.** WebKit to silnik przeglądarki Safari. Każda przeglądarka to osobne pobranie, kilkadziesiąt MB.
    ```powershell
@@ -69,12 +72,18 @@ PowerShell, z katalogu głównego repo.
 > **Jeśli utknąłeś po 10 minutach**
 > Błąd `duplicate test title` oznacza, że wszystkie testy z pętli mają tę samą nazwę. Nazwa musi zawierać pole zestawu, np. `` test(`błędny adres nie zapisuje się: ${zestaw.opis}`, ...) ``. Zwróć uwagę na odwrócone apostrofy `` ` `` zamiast `'`.
 
-6. **Uruchom cały zestaw na komputerze i na telefonie.**
+6. **Zamień test kodu rabatowego na tabelę danych.** W `tests/extra/d1/kody-rabatowe.spec.ts` zrób TODO 1–3 tym samym wzorcem co w kroku 5. Tabela ma cztery kody: `CZARNY20` (przyjęty), `JESIEN10` (wygasł), `WLOSY15` (działa tylko na kategorię Włosy, a w koszyku jest krem do twarzy) i kod, którego nie ma. Komunikaty skopiuj z koszyka konta `tester10` na http://localhost:4100/koszyk.
+   ```powershell
+   npx playwright test tests/extra/d1/kody-rabatowe.spec.ts
+   ```
+   Oczekiwany wynik: `4 passed`, każdy test z innym kodem w nazwie.
+
+7. **Uruchom cały zestaw na komputerze i na telefonie.**
    ```powershell
    npx playwright test tests/extra/d1
    npx playwright test tests/extra/d1 --project=telefon
    ```
-   Oczekiwany wynik: `5 passed` i `1 skipped`, potem `6 passed`.
+   Oczekiwany wynik: `9 passed` i `1 skipped`, potem `10 passed`.
 
 ## Przykład wyniku
 
@@ -98,7 +107,7 @@ for (const zestaw of zestawy) {
 }
 ```
 
-Wynik kroku 6 (czasy i kolejność u ciebie będą inne):
+Wynik kroku 5 (czasy i kolejność u ciebie będą inne):
 ```
 Running 6 tests using 6 workers
   -  4 [chromium] › tests/extra/d1/telefon.spec.ts:7:5 › na telefonie klient przechodzi z listy produktów do koszyka
@@ -114,19 +123,19 @@ Running 6 tests using 6 workers
 
 ## Kryterium „gotowe”
 
-- [ ] `npx playwright test tests/extra/d1` daje `5 passed` i `1 skipped`, a z `--project=telefon` daje `6 passed`.
+- [ ] `npx playwright test tests/extra/d1` daje `9 passed` i `1 skipped`, a z `--project=telefon` daje `10 passed`.
 - [ ] `npm test` przechodzi i nie uruchamia projektu `telefon` (w liście wyników nie ma `[telefon]`).
-- [ ] Zmieniasz `oczekiwanyBlad` w jednym zestawie na inny tekst: pada dokładnie jeden z czterech testów, a jego nazwa mówi, który zestaw. Potem przywracasz tekst.
+- [ ] Zmieniasz `oczekiwanyBlad` w jednym zestawie adresu albo `komunikat` w jednym zestawie kodu na inny tekst: pada dokładnie jeden test, a jego nazwa mówi, który zestaw. Potem przywracasz tekst.
 - [ ] Pokazujesz drugiej osobie w raporcie HTML załącznik `moje-zamowienia` i plik `test-failed-1.png` z kroku 4.
 
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Dodaj do interfejsu pole `liczbaBledow: number` i piąty zestaw z dwoma błędnymi polami naraz. Asercja komunikatu ma używać tego pola: `Popraw błędy w formularzu (2).` Potem dodaj drugi projekt telefonu, `telefon-iphone`, z `devices['iPhone 15']`, i uruchom w nim `tests/extra/d1`. Sprawdź w wyniku, w jakiej przeglądarce biegnie ten projekt i dlaczego (podpowiedź: `defaultBrowserType` w opisie urządzenia).
+> Dodaj do interfejsu pole `liczbaBledow: number` i piąty zestaw z dwoma błędnymi polami naraz. Asercja komunikatu ma używać tego pola: `Popraw błędy w formularzu (2).` Potem dodaj drugi projekt telefonu, `telefon-iphone`, z `devices['iPhone 15']`, i uruchom w nim `tests/extra/d1`. Sprawdź w wyniku, w jakiej przeglądarce biegnie ten projekt i dlaczego (podpowiedź: `defaultBrowserType` w opisie urządzenia). W tabeli kodów dopisz piąty zestaw: kod `czarny20` wpisany małymi literami ze spacją na końcu. Zanim uruchomisz test, zapisz, jakiego komunikatu się spodziewasz.
 
 ## Artefakt do zabrania
 
-Projekt `telefon` w `playwright.config.ts` i wzorzec testu sterowanego danymi: `interface`, tablica zestawów, pętla z nazwą testu zawierającą opis zestawu.
+Projekt `telefon` w `playwright.config.ts` i wzorzec testu sterowanego danymi, użyty dwa razy (adres, kody rabatowe): `interface`, tablica zestawów, pętla z nazwą testu zawierającą opis zestawu.
 
 ## Rozwiązanie wzorcowe
 
