@@ -1,28 +1,45 @@
-# Ćwiczenie 12. Projekt w parach: pakiet testów E2E i API z review każdego testu
+# Ćwiczenie 12. Projekt w parach: pakiet regresji przed zamrożeniem kodu
 
-Blok 3.2 · 210 min · w parach, zmiana ról po każdym teście
+Blok 3.2 · 9:40–15:00, z przerwami · w parach, zmiana ról po każdym teście
 
 ## Cel
 
-Zamienisz w parze pakiet scenariuszy biznesowych na testy E2E i API pisane z Claude Code. Każdy test przejdzie review drugiej osoby z pary, zanim trafi do commita. Na koniec pokażesz jeden test i uzasadnisz wybór locatorów i asercji.
+Umiesz w parze zamienić scenariusze biznesowe na testy E2E i API pisane z Claude Code i przepuścić każdy test przez review drugiej osoby, zanim trafi do commita. Umiesz poprawić istniejący test, gdy zmienia się wymaganie albo aplikacja, i odróżnić test do poprawy od błędu do zgłoszenia.
 
 ## Materiał wejściowy
 
-- `docs/projekt.md`: 8 scenariuszy (P1–P8) z oczekiwanym wynikiem, dane, kryteria oceny pary.
+Wiadomość od Bożeny, 9:38:
+> Kochani, regresja ręczna trwa trzy dni, a mamy do 16:00. Scenariusze są w `docs/projekt.md`, wszystkie już ostateczne. Klaudiusz mówi, że napisze wszystko w kwadrans. Proszę, sprawdźcie po nim. O 16:00 spotkanie: wydajemy czy nie.
+
+- `docs/projekt.md`: scenariusze P1–P16, dane, kryteria oceny, karta punktacji review krzyżowego, szablon prezentacji.
 - `docs/lista-kontrolna-review.md`: lista kontrolna review z ćwiczenia 05.
-- `tests/pomocnicze/logowanie.ts` z ćwiczenia 11, jeśli go masz.
+- `tests/pomocnicze/logowanie.ts`: `zaloguj(page)` i `zalogujPrzezApi(request)` z ćwiczenia 11.
 - Opis API: http://localhost:4100/api/docs (po `npm start`).
+
+Projekt ma warstwy. Robicie je po kolei, a godziny z nawiasów obowiązują wszystkich:
+
+| Warstwa | Co | Kiedy |
+|---|---|---|
+| 1 | Scenariusze P1–P12, kroki 1–5 tej karty | od 9:40 |
+| 2 | Scenariusze Bożeny P13–P16 | gdy warstwa 1 ma co najmniej 4 testy |
+| 2b | Zmiana wymagań: karta `12b-zmiana-wymagan.md` | 13:00 |
+| 3 | Review krzyżowe z kartą punktacji z `docs/projekt.md` | 13:30–14:00 |
+| 4 | Hotfix Mirka: karta `12c-hotfix.md` | 14:00–14:20 |
+| 5 | Polowanie na błędy: karta `13-polowanie.md` | od 11:00 do 14:55, równolegle z resztą |
+| 6 | Spotkanie „wydajemy czy nie”, krok 6 | od 15:00 |
 
 ## Kroki
 
-1. **Wybierzcie scenariusze i jedno repo.** Przeczytajcie `docs/projekt.md`. Wybierzcie co najmniej 4 scenariusze, w tym co najmniej 1 API i 1 z kontem `admin`. Wpiszcie numery w linii „Wybrane”. Pracujecie w forku jednej osoby. Druga osoba dostaje dostęp: GitHub › fork › Settings › Collaborators › Add people.
+PowerShell, z katalogu głównego repo.
+
+1. **Wybierzcie scenariusze i jedno repo.** Przeczytajcie `docs/projekt.md`. Wybierzcie co najmniej 4 scenariusze z P1–P12, w tym co najmniej 1 API i 1 z kontem `admin`. Wpiszcie numery w linii „Wybrane”. Pracujecie w forku jednej osoby. Druga osoba dostaje dostęp: GitHub › fork › Settings › Collaborators › Add people.
    ```powershell
    git add docs/projekt.md
    git commit -m "Projekt: wybrane scenariusze"
    git push
    ```
 
-2. **Napiszcie pierwszy test z Claude Code.** Osoba A ma klawiaturę. Prompt do Claude zawiera numer scenariusza, plik docelowy (`tests/projekt/pN-….spec.ts`) i oczekiwany wynik przepisany z `docs/projekt.md`. Przed akceptacją zmiany osoba A czyta kod i porównuje każdy punkt „Oczekiwany wynik” z asercjami.
+2. **Napiszcie pierwszy test z Claude Code.** Osoba A ma klawiaturę. Prompt do Claude zawiera numer scenariusza, plik docelowy (`tests/projekt/pN-….spec.ts`), oczekiwany wynik przepisany z `docs/projekt.md` i prośbę o logowanie funkcją z `tests/pomocnicze/logowanie.ts`. Przed akceptacją zmiany osoba A czyta kod i porównuje każdy punkt „Oczekiwany wynik” z asercjami.
    ```powershell
    npx playwright test tests/projekt/p5-api-katalog.spec.ts
    ```
@@ -39,47 +56,51 @@ Zamienisz w parze pakiet scenariuszy biznesowych na testy E2E i API pisane z Cla
 > **Jeśli utknąłeś po 15 minutach na jednym teście**
 > Najpierw przejdźcie scenariusz ręcznie w przeglądarce albo w `/api/docs` i zapiszcie, co dokładnie widać na ekranie lub w odpowiedzi. Potem uruchomcie test z `--ui` albo z `--trace on` i porównajcie krok, na którym test staje, z tym, co widzieliście ręcznie. Prośba do Claude o poprawkę zawiera przyczynę, którą sami ustaliliście.
 
-4. **Powtarzajcie kroki 2 i 3 dla kolejnych scenariuszy.** Po każdym teście zmiana ról: kto pisał, robi teraz review.
+4. **Powtarzajcie kroki 2 i 3 dla kolejnych scenariuszy.** Po każdym teście zmiana ról: kto pisał, robi teraz review. Po czwartym teście z P1–P12 przechodzicie do P13–P16 albo do polowania (karta 13), jeśli trwa.
 
-5. **Sprawdźcie cały pakiet.** Pół godziny przed prezentacjami:
+5. **Sprawdźcie cały pakiet.** Przed review krzyżowym i jeszcze raz przed prezentacją:
    ```powershell
-   npx playwright test tests/projekt --repeat-each=3
+   npx playwright test tests/projekt --repeat-each=3 --workers=1
    ```
-   Oczekiwany wynik: żadnego `failed`. Jeśli test raz przechodzi, a raz nie, uruchomcie go z `--workers=1` i porównajcie. Różnica zwykle oznacza, że dwa testy zmieniają te same dane (np. koszyk konta `user`).
+   Oczekiwany wynik: żadnego `failed`. `--workers=1` uruchamia testy po kolei: tak sprawdzacie, czy test po sobie sprząta, bez kłótni dwóch kopii tego samego testu o jeden koszyk. Jeśli test przechodzi tylko za pierwszym razem, zostawia dane, które psują drugi przebieg.
 
-6. **Przygotujcie prezentację jednego testu.** 3 minuty na parę: który scenariusz, dlaczego takie locatory, co sprawdzają asercje, czego test nie sprawdza i dlaczego. Pokazujecie test zielony i test celowo czerwony.
+6. **Przygotujcie 5 minut na spotkanie „wydajemy czy nie”.** Szablon jest na końcu `docs/projekt.md`: co pokrywa pakiet, co znaleźliście, rekomendacja. Pokazujecie jeden test zielony i ten sam test celowo czerwony.
+
+> **Pracujecie na wspólnym serwerze, nie na swoim komputerze**
+> Ustawcie konto pary i adres serwera przed uruchomieniem: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-XXXX.europe-central2.run.app"`. Testy z kontem `admin` uruchamiajcie lokalnie, bo na serwerze tego konta nie ma. Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
 
 ## Przykład wyniku
 
 ```
-PS C:\e2e\e2e-podstawy-demo> git log --oneline -3
-9f8e7d6 (HEAD -> main, origin/main) Projekt P3: administrator dodaje produkt
+PS C:\e2e\e2e-podstawy-demo> git log --oneline -4
+4e1d2c3 (HEAD -> main, origin/main) Projekt P13: zmiana wymagań Bożeny z 13:00
+9f8e7d6 Projekt P9: cena promocyjna w trzech miejscach
 5c4b3a2 Projekt P5: katalog produktów w API
 1a2b3c4 Projekt: wybrane scenariusze
-PS C:\e2e\e2e-podstawy-demo> git log -1 --format=%b
-Review: dopisana asercja aktywnego przycisku „Dodaj do koszyka”
+PS C:\e2e\e2e-podstawy-demo> git log -1 --format=%b 9f8e7d6
+Review: dopisana asercja ceny w koszyku, sprzątanie koszyka na końcu testu
 ```
 
 ## Kryterium „gotowe”
 
-- [ ] W `tests/projekt/` są testy co najmniej 4 scenariuszy, w tym 1 API i 1 z kontem `admin`.
-- [ ] `npx playwright test tests/projekt --repeat-each=3` kończy się bez `failed`.
+- [ ] W `tests/projekt/` są testy co najmniej 4 scenariuszy z P1–P12, w tym 1 API i 1 z kontem `admin`.
+- [ ] `npx playwright test tests/projekt --repeat-each=3 --workers=1` kończy się bez `failed`.
 - [ ] Przy każdym teście w `git log` jest linia `Review: …`.
 - [ ] Dla każdego testu para pokazała, że pada po zmianie oczekiwanej wartości.
-- [ ] Spełnione kryteria oceny z tabeli na końcu `docs/projekt.md`.
+- [ ] Spełnione kryteria oceny z tabeli „Kryteria oceny pary” w `docs/projekt.md`.
 
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Zautomatyzujcie scenariusz, którego nikt w parze nie chciał wziąć, albo dopiszcie do testów API wszystkie ścieżki negatywne z opisu w `/api/docs` (400, 401, 403, 404, 409) dla jednego endpointu. Dłuższe zadania (Page Object dla ekranów projektu, fixture „zalogowany użytkownik”, własny skill pary): gałąź `extra/d3-page-object-fixtures`.
+> Weźcie scenariusz, którego nikt w parze nie chciał, albo dopiszcie do jednego testu API wszystkie ścieżki negatywne z `/api/docs` (400, 401, 403, 404, 409) dla jednego endpointu. Potem polowanie na błędy (karta 13): tam liczy się każdy test, który odróżni wersję `rc` od zwykłej. Dłuższe zadania (Page Object, fixtures, zamówienie firmowe przygotowane przez API): gałąź `extra/d3-page-object-fixtures`.
 
 ## Artefakt do zabrania
 
-Fork z folderem `tests/projekt/`: pakiet testów z historią review w `git log`, gotowy do pokazania zespołowi.
+Fork z folderem `tests/projekt/`: pakiet regresji z historią review w `git log`, gotowy do pokazania zespołowi, i Wasza rekomendacja „wydajemy czy nie” z uzasadnieniem testami.
 
 ## Rozwiązanie wzorcowe
 
-Gałąź `solution/12` z przykładowymi testami trzech scenariuszy (P3, P5, P7), do porównania po projekcie:
+Gałąź `solution/12` z przykładowymi testami czterech scenariuszy (P5, P9, P10, P11), do porównania po projekcie:
 ```powershell
 git fetch origin
 git diff main origin/solution/12 -- tests/projekt
