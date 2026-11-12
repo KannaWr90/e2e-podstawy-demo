@@ -22,6 +22,17 @@ export default defineConfig({
     // Otwórz je z raportu HTML albo: npx playwright show-trace <plik.zip>
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    // Firmowe proxy: gdy ustawisz HTTPS_PROXY, przeglądarka i testy API (fixture request)
+    // łączą się przez nie. Adresy z NO_PROXY (domyślnie localhost) idą bez proxy.
+    // Bez zmiennej HTTPS_PROXY nic się nie zmienia.
+    ...(process.env.HTTPS_PROXY
+      ? {
+          proxy: {
+            server: process.env.HTTPS_PROXY,
+            bypass: process.env.NO_PROXY || 'localhost,127.0.0.1',
+          },
+        }
+      : {}),
   },
 
   projects: [

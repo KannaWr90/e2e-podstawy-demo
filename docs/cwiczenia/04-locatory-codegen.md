@@ -83,7 +83,7 @@ Produkt: „Krem do twarzy na dzień”, cena regularna 32,99 zł, promocyjna 26
 > **Jeśli utknąłeś po 10 minutach**
 > Błąd `strict mode violation: getByText('Krem do twarzy na dzień') resolved to 2 elements` wypisuje oba elementy: komórkę tabeli (`<td …>`) i link w kafelku (`<a href="/produkt/5">`). Każdy kafelek to osobny element z nazwą produktu. Zbuduj najpierw locator całego kafelka kremu (Pick locator w `--ui` podpowie jego rolę), a ceny i plakietki szukaj już w nim, tak jak w scenariuszu B szukałeś przycisku w wierszu.
 
-8. **Sprawdź, że test pilnuje każdego z trzech miejsc.** Zmień oczekiwaną cenę `26,39 zł` na `26,40 zł` tylko w asercji koszyka i uruchom test: oczekiwany wynik `1 failed`, a w opisie błędu locator z koszyka. Przywróć. Uruchom test dwa razy z rzędu:
+8. **Sprawdź, że test pilnuje każdego z trzech miejsc.** Zmień oczekiwaną cenę `26,39 zł` na `26,40 zł` tylko w asercji koszyka i uruchom test: oczekiwany wynik `1 failed`, a w opisie błędu locator z koszyka. Przywróć. Test padł przed usunięciem kremu, więc krem został w koszyku `tester11`. Zaloguj się w przeglądarce jako `tester11`, otwórz koszyk i kliknij „Usuń” przy kremie. Oczekiwany wynik: „Koszyk jest pusty.”. Uruchom test dwa razy z rzędu:
    ```powershell
    npx playwright test tests/cwiczenia/04-karta-produktu.spec.ts --repeat-each=2 --workers=1
    ```

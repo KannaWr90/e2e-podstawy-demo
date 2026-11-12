@@ -44,6 +44,13 @@ PowerShell, z katalogu głównego repo.
 
 5. **Zrób review wyniku i porozmawiaj o udostępnianiu.** Przejdź nowy test listą kontrolną. Każde „nie” to poprawka w `SKILL.md` albo w `CLAUDE.md`. Potem w parze, 5 minut: gdyby ten skill trafił do firmowego marketplace skilli, kto byłby jego właścicielem? Jak zgłosicie poprawkę, gdy skill napisze zły test? Zapiszcie dwie odpowiedzi.
 
+6. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 10: zasady review w CLAUDE.md i skill test-e2e"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 10: zasady review w CLAUDE.md i skill test-e2e` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+
 ## Przykład wyniku
 
 Fragment `CLAUDE.md` po kroku 2:

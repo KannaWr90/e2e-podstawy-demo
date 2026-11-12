@@ -15,6 +15,13 @@ Przeczytasz test Playwright bez uruchamiania go i powiesz własnymi słowami, co
 - `tests/czytanie/03-produkt-niedostepny.spec.ts`
 - Aplikacja: http://localhost:4100 po `npm start` (do sprawdzania, co jest na ekranie).
 
+> **Słowniczek**
+> - `const nazwa = …`: stała, czyli nazwa nadana wartości albo lokatorowi, żeby użyć jej dalej w teście.
+> - `await`: czekaj, aż ta linia się skończy (strona się załaduje, kliknięcie się wykona, oczekiwanie się spełni), dopiero potem idź dalej.
+> - `test.beforeEach`: kroki wykonywane przed każdym testem w pliku albo w grupie.
+> - `for (const produkt of produkty)`: pętla, która powtarza blok kodu dla każdego elementu listy.
+> - `` `${produkt.nazwa} ma cenę…` ``: tekst w odwrotnych apostrofach. W miejsce `${…}` wstawia się wartość, np. nazwa produktu.
+
 Tabela do wypełnienia w `notatki.md` (skopiuj nagłówek):
 
 ```markdown
@@ -76,6 +83,13 @@ Druga tabela w `notatki.md`:
    Oczekiwany wynik na końcu: `Total: 12 tests in 3 files`. Porównaj nazwy z listy ze swoimi odpowiedziami z kroku 6. Potem uruchom te same pliki bez `--list`: oczekiwany wynik `12 passed`.
 
 8. **Napisz jedno zdanie do Klaudiusza.** Wybierz najpoważniejszą lukę z drugiej tabeli i zapisz w `notatki.md` komentarz, jaki zostawiłbyś w review: który test, czego nie sprawdza, jaka asercja by to naprawiła.
+
+9. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 03: opisy testów w notatkach"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 03: opisy testów w notatkach` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
 
 ## Przykład wyniku
 

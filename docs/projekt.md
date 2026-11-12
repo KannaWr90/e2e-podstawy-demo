@@ -1,6 +1,6 @@
 # Projekt w parach: pakiet regresji przed Czarnym Piątkiem
 
-Środa, dzień zamrożenia kodu. O 16:00 Bożena pyta: „wydajemy czy nie?”. Odpowiedź daje Wasz pakiet testów.
+Środa, dzień zamrożenia kodu. O 15:00 Bożena pyta: „wydajemy czy nie?”. Odpowiedź daje wasz pakiet testów.
 
 Scenariusze są w dwóch warstwach:
 - **P1–P12**: zamówione wcześniej. Osiem z pierwszej wersji projektu i cztery z Czarnego Piątku (karta produktu, kod rabatowy, faktura, drugi adres).
@@ -8,7 +8,7 @@ Scenariusze są w dwóch warstwach:
 
 Wybierzcie co najmniej cztery scenariusze z P1–P12, w tym co najmniej jeden API i jeden z kontem `admin`. Numery wpiszcie w linii „Wybrane” pod nagłówkiem „Scenariusze”. Do P13–P16 przechodzicie, gdy pierwsza czwórka jest gotowa.
 
-Testy zapisujecie w folderze `tests/projekt/`, jeden scenariusz w jednym pliku: `tests/projekt/p1-zakup.spec.ts`, `tests/projekt/p9-cena-promocyjna.spec.ts` itd. Do logowania używajcie funkcji `zaloguj(page)` i `zalogujPrzezApi(request)` z `tests/pomocnicze/logowanie.ts` (ćwiczenie 11): wtedy ten sam test zadziała na wspólnym serwerze z kontem Waszej pary.
+Testy zapisujecie w folderze `tests/projekt/`, jeden scenariusz w jednym pliku: `tests/projekt/p1-zakup.spec.ts`, `tests/projekt/p9-cena-promocyjna.spec.ts` itd. Do logowania używajcie funkcji `zaloguj(page)` i `zalogujPrzezApi(request)` z `tests/pomocnicze/logowanie.ts` (ćwiczenie 11): wtedy ten sam test zadziała na wspólnym serwerze z kontem waszej pary.
 
 ## Zasada pracy
 
@@ -197,7 +197,7 @@ Oczekiwany wynik:
 
 ## Review krzyżowe: karta punktacji
 
-30 minut. Każda para robi review testów innej pary: trener podaje, czyje. Otwórzcie ich fork (`git clone` albo GitHub w przeglądarce) albo usiądźcie przy ich ekranie. Autorzy nie podpowiadają, odpowiadają tylko na pytania.
+30 minut. Każda para robi review testów innej pary: trener podaje, czyje. Usiądźcie przy ich ekranie albo, jeśli mają fork, otwórzcie go na GitHubie w przeglądarce. Bez konta GitHub autorzy pokazują zmiany na swoim laptopie: `git log --oneline` (lista commitów) i `git show <skrót commita>` (co zmienił jeden commit). Autorzy nie podpowiadają, odpowiadają tylko na pytania.
 
 Przejdźcie testy z listą kontrolną (`docs/lista-kontrolna-review.md`). Każde znalezisko wpiszcie do tabeli. Punkt liczy się, gdy autorzy się zgadzają albo gdy pokażecie to uruchomieniem testu.
 

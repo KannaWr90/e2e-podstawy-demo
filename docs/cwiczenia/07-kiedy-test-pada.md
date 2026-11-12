@@ -76,6 +76,13 @@ Dopisz do tabeli wiersze 04, 05 i 06.
 
 7. **Popraw testy 04–06 i uruchom je dwa razy pod rząd.** Tak jak w kroku 4: z przyczyną z tabeli, bez `waitForTimeout` i bez usuwania asercji. Uruchom polecenie z kroku 6 dwa razy. Oczekiwany wynik za każdym razem: `3 passed`.
 
+8. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 07: diagnoza i poprawki testów z tests/zepsute"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 07: diagnoza i poprawki testów z tests/zepsute` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+
 ## Przykład wyniku
 
 Wiersz tabeli dla testu spoza tego ćwiczenia:

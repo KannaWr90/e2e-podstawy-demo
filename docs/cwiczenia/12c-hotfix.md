@@ -9,7 +9,7 @@ Umiesz po czerwonym przebiegu rozdzielić testy, które padły, bo aplikacja zmi
 ## Materiał wejściowy
 
 Wiadomość od Mirka, 13:59:
-> Wrzuciłem malutki hotfix, same kosmetyczne poprawki tekstów, Bożena prosiła. Testy pewnie trochę poczerwienieją, ale to Wasze testy, nie mój kod. U mnie działa.
+> Wrzuciłem malutki hotfix, same kosmetyczne poprawki tekstów, Bożena prosiła. Testy pewnie trochę poczerwienieją, ale to wasze testy, nie mój kod. U mnie działa.
 
 Wiadomość od Klaudiusza, 14:00:
 > Przejrzałem zmianę Mirka. Jestem pewien, że to tylko teksty. Mogę od razu poprawić wszystkie testy, żeby były zielone.
@@ -23,16 +23,18 @@ PowerShell, z katalogu głównego repo.
 
 1. **Zapiszcie wynik przed hotfiksem.** Zamknijcie aplikację uruchomioną przez `npm start`, jeśli działa w innym oknie (`Ctrl+C`). Potem:
    ```powershell
+   npm run db:reset
    npx playwright test --workers=1
    ```
-   Zapiszcie liczby `passed`, `failed` i `skipped`. Oczekiwany wynik: bez `failed`.
+   Oczekiwany wynik `npm run db:reset`: linia zaczyna się od `Baza odtworzona z danymi startowymi`. Zapiszcie liczby `passed`, `failed` i `skipped`. Oczekiwany wynik testów: bez `failed`.
 
 2. **Uruchomcie testy na wersji z hotfiksem.**
    ```powershell
+   npm run db:reset
    $env:APP_VERSION="hotfix"
    npx playwright test --workers=1
    ```
-   Oczekiwany wynik: kilka testów `failed`. Na dole strony sklepu widać „Wersja: hotfix”. Jeśli wszystko jest zielone, sprawdźcie, czy w innym oknie nie działa stara aplikacja: Playwright używa działającej i nie uruchamia nowej.
+   Oczekiwany wynik `npm run db:reset`: znowu `Baza odtworzona z danymi startowymi`, bo krok 1 zmienił dane. Oczekiwany wynik testów: kilka testów `failed`. Na dole strony sklepu widać „Wersja: hotfix”. Jeśli wszystko jest zielone, sprawdźcie, czy w innym oknie nie działa stara aplikacja: Playwright używa działającej i nie uruchamia nowej.
 
 3. **Zdiagnozujcie każdy czerwony test.** Dla każdego testu `failed` otwórzcie błąd w raporcie (`npx playwright show-report`) albo w trace i wypełnijcie tabelę. Nie zmieniajcie jeszcze kodu.
 
@@ -42,7 +44,7 @@ PowerShell, z katalogu głównego repo.
 
    Przy każdym teście sprawdźcie ręcznie w przeglądarce (`npm start` w drugim oknie, z tą samą zmienną), co widzi klient. Komunikat „element not found” mówi tylko, że czegoś nie ma. Przyczynę mówi dopiero ekran.
 
-> **Jeśli utknąłeś po 5 minutach**
+> **Jeśli utknęliście po 5 minutach**
 > Dla każdego czerwonego testu zadajcie dwa pytania. Czy klient zrobi zakupy z nowym tekstem na ekranie? Czy liczby, które widzi klient, zgadzają się z tym, co zamówił? Jedno „nie” na drugie pytanie wystarczy, żeby to był błąd.
 
 4. **Poprawcie testy na osobnej gałęzi.** Hotfix nie jest jeszcze wydany, więc poprawki do testów trzymacie obok `main`:
@@ -59,8 +61,8 @@ PowerShell, z katalogu głównego repo.
    Remove-Item Env:APP_VERSION
    ```
 
-> **Pracujesz na wspólnym serwerze, nie lokalnie**
-> Zamiast `$env:APP_VERSION` ustaw `$env:BASE_URL` na adres serwera `namssor` i konto pary w `APP_USER` i `APP_PASSWORD`. Testy z kontem `admin` padną tam przy logowaniu, bo tego konta na serwerze nie ma. Wpisz je do tabeli jako „nie dotyczy” i sprawdź je lokalnie.
+> **Pracujecie na wspólnym serwerze, nie lokalnie**
+> Zamiast `$env:APP_VERSION` ustawcie `$env:BASE_URL` na adres serwera `namssor` i konto pary w `APP_USER` i `APP_PASSWORD`. Kroku `npm run db:reset` na serwerze nie ma. Testy z kontem `admin` padną tam przy logowaniu, bo tego konta na serwerze nie ma. Wpiszcie je do tabeli jako „nie dotyczy” i sprawdźcie je lokalnie.
 
 ## Przykład wyniku
 
@@ -96,7 +98,7 @@ Test: tests/projekt/<plik>.spec.ts › <nazwa testu> (failed na hotfix, passed b
 
 ## Dla szybszych
 
-> **Skończyłeś wcześniej**
+> **Skończyliście wcześniej**
 > Policzcie, ile testów musieliście poprawić przez jedną zmianę tekstu i dlaczego tyle. Jeśli ten sam tekst stoi w kilku plikach, zastanówcie się, gdzie powinien stać tylko raz (funkcja pomocnicza, jak `zaloguj`, albo Page Object z `extra/d3-page-object-fixtures`). Potem wybierzcie jeden poprawiony test i przepiszcie go tak, żeby następna zmiana tekstu wymagała poprawki w jednym miejscu.
 
 ## Artefakt do zabrania
@@ -105,4 +107,4 @@ Tabela diagnozy, zgłoszenie dla Mirka z testem jako dowodem i gałąź `hotfix-
 
 ## Rozwiązanie wzorcowe
 
-Brak gałęzi z rozwiązaniem: wynik zależy od Waszego pakietu. Trener omawia wyniki po 14:20.
+Brak gałęzi z rozwiązaniem: wynik zależy od waszego pakietu. Trener omawia wyniki po 14:20.

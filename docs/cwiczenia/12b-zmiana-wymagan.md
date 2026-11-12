@@ -35,8 +35,8 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik: wszystkie testy z pliku `passed`.
 
-> **Jeśli utknąłeś po 10 minutach**
-> Jeśli Claude proponuje nowy plik `p13-…-v2.spec.ts`, odmów i poproś o zmianę w istniejącym. Pętla po tablicy obiektów `{ data, dni, komunikat }` z `test(...)` w środku daje osobny wynik dla każdej daty. Nazwa testu musi zawierać datę, inaczej Playwright zgłosi dwa testy o tej samej nazwie.
+> **Jeśli utknęliście po 10 minutach**
+> Jeśli Claude proponuje nowy plik `p13-…-v2.spec.ts`, odmówcie i poproście o zmianę w istniejącym. Pętla po tablicy obiektów `{ data, dni, komunikat }` z `test(...)` w środku daje osobny wynik dla każdej daty. Nazwa testu musi zawierać datę, inaczej Playwright zgłosi dwa testy o tej samej nazwie.
 
 3. **Poprawcie P16.** Zmieniacie produkt, ilość i oczekiwaną wartość. Jeśli test sprząta koszyk, sprawdźcie, czy sprząta nowy produkt.
    ```powershell
@@ -80,12 +80,12 @@ commit 4e1d2c3...
 
 ## Dla szybszych
 
-> **Skończyłeś wcześniej**
-> W P16 dopiszcie przypadek graniczny z karty produktu: ilość 1001 daje komunikat „Ilość musi być liczbą całkowitą od 1 do 1000.”, a koszyk się nie zmienia. Potem zastanówcie się w parze, które asercje w Waszych innych testach zależą od konkretnej daty albo ilości i padną przy następnej zmianie Bożeny. Wpiszcie je do notatek na prezentację.
+> **Skończyliście wcześniej**
+> W P16 dopiszcie przypadek graniczny z karty produktu: ilość 1001 daje komunikat „Ilość musi być liczbą całkowitą od 1 do 1000.”, a koszyk się nie zmienia. Potem zastanówcie się w parze, które asercje w waszych innych testach zależą od konkretnej daty albo ilości i padną przy następnej zmianie Bożeny. Wpiszcie je do notatek na prezentację.
 
 ## Artefakt do zabrania
 
-Commit „zmiana wymagań” w Waszym forku: dwa poprawione testy, w historii widać, co się zmieniło.
+Commit „zmiana wymagań” w waszym repo (na forku po `git push`): dwa poprawione testy, w historii widać, co się zmieniło.
 
 ## Rozwiązanie wzorcowe
 

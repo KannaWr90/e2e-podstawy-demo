@@ -28,8 +28,9 @@ Prawdziwe adresy w miejsce `XXXX` poda trener na sali.
 ## Zasady gry
 
 - **Czarna skrzynka.** Nie czytacie kodu w folderze `app/`. Claude też nie: na początku rozmowy napiszcie mu, że folder `app/` jest zakazany, a aplikację poznajecie tylko przez przeglądarkę, `/api/docs` i odpowiedzi API. Para, która użyje kodu aplikacji, traci punkty za ten błąd.
-- **Punkt za błąd** dostajecie tylko za test, który **pada na `rc`** i **przechodzi na wersji zwykłej**. Pokazujecie trenerowi oba uruchomienia (krok 3). Sam opis błędu, bez testu, nie daje punktu. Jeden błąd to jeden punkt, nawet jeśli łapie go kilka Waszych testów.
+- **Punkt za błąd** dostajecie tylko za test, który **pada na `rc`** i **przechodzi na wersji zwykłej**. Pokazujecie trenerowi oba uruchomienia (krok 3). Sam opis błędu, bez testu, nie daje punktu. Jeden błąd to jeden punkt, nawet jeśli łapie go kilka waszych testów.
 - **Punkt bonusowy za niespodziankę Klaudiusza:** test, który ją dokumentuje i przechodzi na obu wersjach.
+- **Niespodzianka czy błąd.** Niespodzianka to coś nietypowego w sklepie, co wygląda tak samo na wersji zwykłej i na `rc`. Błąd jest tylko na `rc`. Zanim zgłosicie znalezisko, sprawdźcie je na obu adresach: jest na obu, to niespodzianka; jest tylko na `rc`, to błąd.
 - **Fair play na wspólnych danych.** Serwer i baza są wspólne dla wszystkich par:
   - tworzycie własne dane (produkt w koszyku, adres, zamówienie) i nie zakładacie, że ktoś inny ich nie zmienił;
   - sprzątacie po sobie: koszyk, dodane adresy, kod rabatowy;
@@ -51,8 +52,8 @@ PowerShell, z katalogu głównego repo.
 
 2. **Wybierzcie obszar i szukajcie ręcznie, potem testem.** Obszary warte sprawdzenia: ceny i promocje, kody rabatowe, faktura, koszyk, sortowanie i filtrowanie, walidacja formularzy, adresy w profilu, odpowiedzi API (statusy i treść), statusy zamówień. Przejdźcie scenariusz ręcznie na `rc` i na wersji zwykłej, porównajcie ekrany i odpowiedzi, a dopiero potem piszcie test w `tests/polowanie/`.
 
-> **Jeśli utknąłeś po 15 minutach**
-> Weźcie test z Waszego pakietu, który już przechodzi, i uruchomcie go na `rc`. Potem zadajcie pytania, których test nie zadaje: co, jeśli klient zrobi to dwa razy, cofnie się, wpisze wartość graniczną, usunie ostatnią rzecz? Co pokazuje API, gdy poprosi o coś, czego nie ma?
+> **Jeśli utknęliście po 15 minutach**
+> Weźcie test z waszego pakietu, który już przechodzi, i uruchomcie go na `rc`. Potem zadajcie pytania, których test nie zadaje: co, jeśli klient zrobi to dwa razy, cofnie się, wpisze wartość graniczną, usunie ostatnią rzecz? Co pokazuje API, gdy poprosi o coś, czego nie ma?
 
 3. **Udowodnijcie błąd dwoma uruchomieniami.** Ten sam test, dwa adresy:
    ```powershell
@@ -71,8 +72,8 @@ PowerShell, z katalogu głównego repo.
 
 5. **Sprzątnijcie po sobie przed kolejnym polowaniem.** Sprawdźcie na `rc` swoim kontem koszyk i „Moje adresy”. Usuńcie to, co zostało po nieudanych testach.
 
-> **Pracujesz bez wspólnego serwera**
-> Gdy serwer nie odpowiada przez proxy, trener udostępni plik wersji `rc`. Zapisz go poza folderem repo, np. `C:\e2e\wydanie\`, i nie otwieraj go. W drugim oknie PowerShell uruchom `rc` na porcie 4200 z osobną bazą:
+> **Pracujecie bez wspólnego serwera**
+> Gdy serwer nie odpowiada przez proxy, trener udostępni plik wersji `rc`. Zapiszcie go poza folderem repo, np. `C:\e2e\wydanie\`, i nie otwierajcie go. W drugim oknie PowerShell uruchomcie `rc` na porcie 4200 z osobną bazą:
 > ```powershell
 > $env:APP_VERSION="rc"
 > $env:NAMSSOR_RC_MODULE="C:\e2e\wydanie\<plik od trenera>"
@@ -80,7 +81,7 @@ PowerShell, z katalogu głównego repo.
 > $env:NAMSSOR_DB="data\rc.db"
 > npm start
 > ```
-> W kroku 3 pierwsze uruchomienie z `$env:BASE_URL="http://localhost:4200"`, drugie po `Remove-Item Env:BASE_URL` (wersja zwykła na Twoim komputerze). Konto `user` też działa, bo cała baza jest Twoja.
+> W kroku 3 pierwsze uruchomienie z `$env:BASE_URL="http://localhost:4200"`, drugie po `Remove-Item Env:BASE_URL` (wersja zwykła na waszym komputerze). Konto `user` też działa, bo cała baza jest wasza.
 
 ## Tablica wyników
 
@@ -99,7 +100,7 @@ Remis rozstrzyga godzina pierwszego zgłoszenia.
 
 ## Przykład wyniku
 
-Para łapie błąd, którego w `rc` nie ma: kod `WLOSY15` działa na koszyk bez produktów do włosów. Test w `tests/polowanie/rabat-dla-wlosow.spec.ts` zna oczekiwany komunikat z wersji zwykłej. Na `rc` przechodzi, więc punktu nie ma:
+Para łapie błąd, którego w `rc` nie ma: kod `WLOSY15` działa na koszyk bez produktów do włosów. Test w `tests/polowanie/rabat-dla-wlosow.spec.ts` zna oczekiwany komunikat z wersji zwykłej. Na `rc` przechodzi, więc punktu nie ma. W klasycznej konsoli PowerShell zamiast `✓` i `✘` zobaczysz `ok` i `x`:
 ```
 PS C:\e2e\e2e-podstawy-demo> npx playwright test tests/polowanie/rabat-dla-wlosow.spec.ts
 
@@ -114,11 +115,11 @@ Running 1 test using 1 worker
 
 - [ ] Każdy zgłoszony błąd ma test w `tests/polowanie/` i para pokazuje oba uruchomienia z kroku 3: `failed` na `rc`, `passed` na wersji zwykłej.
 - [ ] Ten sam test uruchomiony dwa razy z rzędu na wersji zwykłej daje ten sam wynik (sprząta po sobie).
-- [ ] Na `rc` Waszym kontem koszyk jest pusty, a w „Moje adresy” jest tylko „Adres główny”.
+- [ ] Na `rc` waszym kontem koszyk jest pusty, a w „Moje adresy” jest tylko „Adres główny”.
 
 ## Dla szybszych
 
-> **Skończyłeś wcześniej**
+> **Skończyliście wcześniej**
 > Weźcie błąd, za który macie punkt, i napiszcie drugi test tego samego błędu inną drogą: jeśli pierwszy szedł przez przeglądarkę, drugi przez API, albo odwrotnie. Porównajcie, który szybciej powie Mirkowi, gdzie szukać. Niespodzianki Klaudiusza czasem nie widać na liście ani w menu: zajrzyjcie tam, gdzie klient zwykle nie patrzy.
 
 ## Artefakt do zabrania

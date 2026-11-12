@@ -15,6 +15,14 @@ Wiadomość od Bożeny:
 - Ekran http://localhost:4100/admin/zamowienia (konto `admin` / `admin123`): tabela zamówień, wyszukiwarka „Szukaj zamówienia”, przycisk „Anuluj” w każdym nowym zamówieniu.
 - `tests/cwiczenia/06-admin-zamowienia.spec.ts`: trzy testy z `test.fixme` i listą TODO. Logowanie admina jest już w `beforeEach`.
 
+> **Słowniczek**
+> - `page.getByRole('row').filter({ hasText: 'ZAM-1003' })`: wszystkie wiersze tabeli zawężone do tych, w których jest tekst `ZAM-1003`.
+> - `wiersz.getByRole(...)`: szukanie tylko wewnątrz elementu ze zmiennej `wiersz`, a nie na całej stronie.
+> - `toHaveCount(1)`: asercja, że lokator pasuje do dokładnie tylu elementów. `toHaveCount(0)` sprawdza, że elementu nie ma.
+> - `let numer: string;`: zmienna, której wartość ustawi się później (tu w `beforeEach`). `const` nie pozwala zmienić wartości, `let` pozwala.
+> - `` `Bearer ${token}` ``: nagłówek z tokenem logowania API. W miejsce `${token}` wstawia się token z odpowiedzi `POST /api/login`.
+> - `contentFrame()`: wejście do wnętrza ramki `<iframe>`, żeby szukać w niej pól i przycisków.
+
 ## Kroki: część A, tabela (35 min)
 
 PowerShell, z katalogu głównego repo.
@@ -42,7 +50,11 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik zaczyna się od `Baza odtworzona z danymi startowymi`.
 
-5. **Napisz dwa testy wyszukiwania.** Według TODO w drugim i trzecim teście. Uruchom plik. Oczekiwany wynik: `3 passed`.
+5. **Napisz dwa testy wyszukiwania.** Według TODO w drugim i trzecim teście. Uruchamiaj tylko testy wyszukiwania, żeby każde uruchomienie nie anulowało ZAM-1003:
+   ```powershell
+   npx playwright test tests/cwiczenia/06-admin-zamowienia.spec.ts -g "wyszukanie"
+   ```
+   Oczekiwany wynik: `2 passed`.
 
 6. **Sprawdź, że test liczenia potrafi paść.** W teście „Mydło” zmień oczekiwaną liczbę wierszy z 1 na 2 i uruchom tylko ten test:
    ```powershell
@@ -74,9 +86,16 @@ Druga wiadomość od Bożeny:
 > **Jeśli utknąłeś po 10 minutach**
 > Gdy `getByLabel('Numer karty')` czeka 5 s i pada z `element(s) not found`, szukasz pola na stronie głównej, a ono jest w ramce. Każdy lokator elementu z formularza karty, także komunikat i nagłówek po płatności, musi zaczynać się od zmiennej z `contentFrame()`.
 
+9. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 06: wiersz po treści, okno potwierdzenia, ramka płatności"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 06: wiersz po treści, okno potwierdzenia, ramka płatności` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+
 ## Przykład wyniku
 
-Przebieg po kroku 5 (kolejność, numery linii i czasy mogą się różnić):
+Przebieg całego pliku z kroku 6 (kolejność, numery linii i czasy mogą się różnić). W klasycznej konsoli PowerShell zamiast `✓` i `✘` zobaczysz `ok` i `x`:
 ```
   ✓  1 [chromium] › tests/cwiczenia/06-admin-zamowienia.spec.ts:16:7 › Panel admina: zamówienia › anulowanie ZAM-1003 zmienia jego status na „Anulowane” (251ms)
   ✓  2 [chromium] › tests/cwiczenia/06-admin-zamowienia.spec.ts:29:7 › Panel admina: zamówienia › wyszukanie „Mydło” zostawia jedno zamówienie, ZAM-1006 (219ms)

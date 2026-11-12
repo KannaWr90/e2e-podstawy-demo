@@ -73,9 +73,16 @@ Pliki `tests/review/06-kod-rabatowy.spec.ts` … `tests/review/10-cena-promocyjn
 
 9. **Udowodnij dwa znaleziska.** Jedno w teście 06, 07, 09 albo 10: zmiana, po której test powinien paść, a przechodzi. Drugie w teście 08: uruchom sam drugi test z pliku:
    ```powershell
-   npx playwright test tests/review/08-adresy.spec.ts -g "domyślny"
+   npx playwright test tests/review/08-adresy.spec.ts -g "domy"
    ```
-   Zapisz wynik i wyjaśnij go drugiej osobie. Ten przebieg trwa około 30 sekund.
+   Zapisz wynik i wyjaśnij go drugiej osobie. Ten przebieg trwa około 30 sekund. Filtr `-g "domy"` wybiera ten sam test co pełne słowo „domyślny”. Bez polskiej litery w poleceniu działa w każdej konsoli PowerShell.
+
+10. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 05: review testów Klaudiusza"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 05: review testów Klaudiusza` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
 
 ## Przykład wyniku
 

@@ -2,7 +2,7 @@
 
 Repo do warsztatu „Od testów manualnych do automatycznych: Playwright i TypeScript z Claude Code”.
 
-W środku jest aplikacja **Namssor**, fikcyjna drogeria internetowa: sklep, panel administratora i API. Na niej piszemy, czytamy i poprawiamy testy. Aplikacja i jej dane są przykładowe, żadne dane nie trafiają poza Twój komputer.
+W środku jest aplikacja **Namssor**, fikcyjna drogeria internetowa: sklep, panel administratora i API. Na niej piszemy, czytamy i poprawiamy testy. Aplikacja i jej dane są przykładowe, żadne dane nie trafiają poza twój komputer.
 
 ## Wymagania
 
@@ -19,7 +19,7 @@ Node pobierzesz z https://nodejs.org (wersja LTS). Na laptopie firmowym zwykle i
 Każde polecenie wpisz w osobnej linii i zatwierdź Enterem. Folder `C:\e2e` to przykład. Wybierz folder **poza OneDrive** (powód w sekcji „Problemy”).
 
 ```powershell
-mkdir C:\e2e
+New-Item -ItemType Directory -Force C:\e2e
 cd C:\e2e
 git clone <adres repo od trenera> e2e-podstawy-demo
 cd e2e-podstawy-demo
@@ -161,7 +161,9 @@ npm config set https-proxy http://proxy.firma.local:8080
 npm config set cafile "C:\certyfikaty\firma-ca.pem"
 ```
 
-Zmienne `$env:` działają tylko w bieżącym oknie. `NO_PROXY` z `localhost` jest ważne: testy łączą się z aplikacją na Twoim komputerze i nie powinny iść przez proxy.
+Zmienne `$env:` działają tylko w bieżącym oknie. `NO_PROXY` z `localhost` jest ważne: testy łączą się z aplikacją na twoim komputerze i nie powinny iść przez proxy.
+
+Gdy `HTTPS_PROXY` jest ustawione, Playwright też łączy się przez to proxy: przeglądarka i testy API (`playwright.config.ts`, `use.proxy`). Adresy z `NO_PROXY` idą bez proxy, a bez tej zmiennej `localhost` i `127.0.0.1`. Błąd `net::ERR_CERT_AUTHORITY_INVALID` znaczy, że proxy podmienia certyfikaty: ustaw `NODE_EXTRA_CA_CERTS` jak wyżej i zgłoś to trenerowi. Tego ustawienia nie sprawdziliśmy jeszcze za prawdziwym firmowym proxy.
 
 ## Problemy i rozwiązania
 
@@ -173,7 +175,7 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 **Repo w OneDrive albo na dysku sieciowym.** Baza SQLite i synchronizacja OneDrive przeszkadzają sobie nawzajem (blokady pliku, pliki tymczasowe bazy). Sklonuj repo do folderu lokalnego, np. `C:\e2e`. Jeśli to niemożliwe, przenieś samą bazę:
 ```powershell
-$env:APP_DB_PATH = "C:\Temp\namssor.db"
+$env:NAMSSOR_DB = "C:\Temp\namssor.db"
 ```
 
 **Spacja albo polskie znaki w ścieżce** (`C:\Users\Jan Kowalski\...`) są obsługiwane. Jeśli coś mimo to nie działa, spróbuj w `C:\e2e`.

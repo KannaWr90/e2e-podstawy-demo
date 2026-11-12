@@ -51,7 +51,7 @@ export function trasyApi(app) {
   app.get('/api/products', (ctx, h) => {
     const szukaj = ctx.query.q ?? '';
     const kategoria = ctx.query.category ?? '';
-    // Produkty archiwalne pojawiają się tylko przy wyszukiwaniu pasującej frazy (q).
+    // Produkty archiwalne: pokazArchiwalne w logika.mjs.
     h.json(h.all(
       `SELECT id, name, category, price_cents, stock FROM products
        WHERE name LIKE ? AND (? = '' OR category = ?) AND (archived = 0 OR ? = 1) ORDER BY category, name`,

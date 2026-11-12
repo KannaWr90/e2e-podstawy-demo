@@ -21,7 +21,7 @@ const strona = (ctx, title, body) => layout({ title, user: ctx.user, active: '/a
 // a wiersze nie mają data-testid. Wiersz trzeba znaleźć po treści (numerze zamówienia).
 // Numer zamówienia prowadzi do szczegółów ze zmianą statusu.
 function tabelaZamowien(zamowienia, przyciskAnuluj) {
-  // Kolumny: [nagłówek, komórka]. Wydanie „hotfix” przenosi „Status” na drugie miejsce.
+  // Kolumny: [nagłówek, komórka].
   const kolumny = [
     ['Numer', (z) => `<a href="/admin/zamowienia/${encodeURIComponent(z.number)}">${escapeHtml(z.number)}</a>`],
     ['Data', (z) => escapeHtml(z.created_at)],

@@ -9,7 +9,7 @@ Umiesz w parze zamienić scenariusze biznesowe na testy E2E i API pisane z Claud
 ## Materiał wejściowy
 
 Wiadomość od Bożeny, 9:38:
-> Kochani, regresja ręczna trwa trzy dni, a mamy do 16:00. Scenariusze są w `docs/projekt.md`, wszystkie już ostateczne. Klaudiusz mówi, że napisze wszystko w kwadrans. Proszę, sprawdźcie po nim. O 16:00 spotkanie: wydajemy czy nie.
+> Kochani, regresja ręczna trwa trzy dni, a zamrożenie jest o 16:00. Scenariusze są w `docs/projekt.md`, wszystkie już ostateczne. Klaudiusz mówi, że napisze wszystko w kwadrans. Proszę, sprawdźcie po nim. O 15:00 spotkanie: wydajemy czy nie.
 
 - `docs/projekt.md`: scenariusze P1–P16, dane, kryteria oceny, karta punktacji review krzyżowego, szablon prezentacji.
 - `docs/lista-kontrolna-review.md`: lista kontrolna review z ćwiczenia 05.
@@ -32,12 +32,12 @@ Projekt ma warstwy. Robicie je po kolei, a godziny z nawiasów obowiązują wszy
 
 PowerShell, z katalogu głównego repo.
 
-1. **Wybierzcie scenariusze i jedno repo.** Przeczytajcie `docs/projekt.md`. Wybierzcie co najmniej 4 scenariusze z P1–P12, w tym co najmniej 1 API i 1 z kontem `admin`. Wpiszcie numery w linii „Wybrane”. Pracujecie w forku jednej osoby. Druga osoba dostaje dostęp: GitHub › fork › Settings › Collaborators › Add people.
+1. **Wybierzcie scenariusze i jedno repo.** Przeczytajcie `docs/projekt.md`. Wybierzcie co najmniej 4 scenariusze z P1–P12, w tym co najmniej 1 API i 1 z kontem `admin`. Wpiszcie numery w linii „Wybrane”. Pracujecie w jednym repo, na laptopie jednej osoby, i tam robicie commity:
    ```powershell
    git add docs/projekt.md
    git commit -m "Projekt: wybrane scenariusze"
-   git push
    ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Projekt: wybrane scenariusze` (skrót będzie inny). Jeśli to repo jest forkiem (ścieżka A z ćwiczenia 01), druga osoba może dostać dostęp (GitHub › fork › Settings › Collaborators › Add people), a po każdym commicie dopisujecie `git push`. Bez konta GitHub wszystko zostaje na jednym laptopie i to wystarcza.
 
 2. **Napiszcie pierwszy test z Claude Code.** Osoba A ma klawiaturę. Prompt do Claude zawiera numer scenariusza, plik docelowy (`tests/projekt/pN-….spec.ts`), oczekiwany wynik przepisany z `docs/projekt.md` i prośbę o logowanie funkcją z `tests/pomocnicze/logowanie.ts`. Przed akceptacją zmiany osoba A czyta kod i porównuje każdy punkt „Oczekiwany wynik” z asercjami.
    ```powershell
@@ -49,11 +49,10 @@ PowerShell, z katalogu głównego repo.
    ```powershell
    git add tests/projekt
    git commit -m "Projekt P5: katalog produktów w API" -m "Review: OK"
-   git push
    ```
    Przy poprawkach po review zamiast `Review: OK` wpiszcie, co zostało poprawione, np. `Review: exact: true w nazwie produktu, dopisana asercja statusu 404`.
 
-> **Jeśli utknąłeś po 15 minutach na jednym teście**
+> **Jeśli utknęliście po 15 minutach na jednym teście**
 > Najpierw przejdźcie scenariusz ręcznie w przeglądarce albo w `/api/docs` i zapiszcie, co dokładnie widać na ekranie lub w odpowiedzi. Potem uruchomcie test z `--ui` albo z `--trace on` i porównajcie krok, na którym test staje, z tym, co widzieliście ręcznie. Prośba do Claude o poprawkę zawiera przyczynę, którą sami ustaliliście.
 
 4. **Powtarzajcie kroki 2 i 3 dla kolejnych scenariuszy.** Po każdym teście zmiana ról: kto pisał, robi teraz review. Po czwartym teście z P1–P12 przechodzicie do P13–P16 albo do polowania (karta 13), jeśli trwa.
@@ -73,7 +72,7 @@ PowerShell, z katalogu głównego repo.
 
 ```
 PS C:\e2e\e2e-podstawy-demo> git log --oneline -4
-4e1d2c3 (HEAD -> main, origin/main) Projekt P13: zmiana wymagań Bożeny z 13:00
+4e1d2c3 (HEAD -> main) Projekt P13: zmiana wymagań Bożeny z 13:00
 9f8e7d6 Projekt P9: cena promocyjna w trzech miejscach
 5c4b3a2 Projekt P5: katalog produktów w API
 1a2b3c4 Projekt: wybrane scenariusze
@@ -91,12 +90,12 @@ Review: dopisana asercja ceny w koszyku, sprzątanie koszyka na końcu testu
 
 ## Dla szybszych
 
-> **Skończyłeś wcześniej**
+> **Skończyliście wcześniej**
 > Weźcie scenariusz, którego nikt w parze nie chciał, albo dopiszcie do jednego testu API wszystkie ścieżki negatywne z `/api/docs` (400, 401, 403, 404, 409) dla jednego endpointu. Potem polowanie na błędy (karta 13): tam liczy się każdy test, który odróżni wersję `rc` od zwykłej. Dłuższe zadania (Page Object, fixtures, zamówienie firmowe przygotowane przez API): gałąź `extra/d3-page-object-fixtures`.
 
 ## Artefakt do zabrania
 
-Fork z folderem `tests/projekt/`: pakiet regresji z historią review w `git log`, gotowy do pokazania zespołowi, i Wasza rekomendacja „wydajemy czy nie” z uzasadnieniem testami.
+Repo (na laptopie albo na forku) z folderem `tests/projekt/`: pakiet regresji z historią review w `git log`, gotowy do pokazania zespołowi, i wasza rekomendacja „wydajemy czy nie” z uzasadnieniem testami.
 
 ## Rozwiązanie wzorcowe
 

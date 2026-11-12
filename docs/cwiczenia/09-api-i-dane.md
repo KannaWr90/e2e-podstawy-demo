@@ -15,6 +15,13 @@ Wiadomość od Mirka:
 - http://localhost:4100/api/docs: lista endpointów z kodami odpowiedzi (pełny opis w `app/openapi.json`).
 - `tests/cwiczenia/09-api.spec.ts`: jeden gotowy test (`GET /api/orders`) jako wzór i pięć testów z `test.fixme` i TODO.
 
+> **Słowniczek**
+> - JSON: tekstowy format danych, w którym API odsyła odpowiedź, np. `{ "error": "Wymagane logowanie" }`.
+> - token Bearer: przepustka z odpowiedzi `POST /api/login`. Wysyłasz ją w nagłówku `Authorization: Bearer <token>`, żeby API wiedziało, kto pyta.
+> - `` `Bearer ${token}` ``: tekst w odwrotnych apostrofach. W miejsce `${token}` wstawia się wartość zmiennej `token`.
+> - `toEqual`: asercja, że cała treść odpowiedzi jest równa oczekiwanej, pole po polu.
+> - `let numer: string;`: zmienna, której wartość ustawi się później, tu w `beforeEach`, i którą odczyta `afterEach`.
+
 Kody błędów w tym API:
 
 | Kod | Kiedy | Treść odpowiedzi |
@@ -48,6 +55,13 @@ PowerShell, z katalogu głównego repo.
    npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3
    ```
    Oczekiwany wynik: `12 passed` i `6 skipped`. Otwórz http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":180`, tyle co przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
+
+6. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 09: testy API i dane przez API"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 09: testy API i dane przez API` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
 
 ## Przykład wyniku
 

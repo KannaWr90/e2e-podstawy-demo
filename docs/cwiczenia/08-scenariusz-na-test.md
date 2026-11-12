@@ -16,6 +16,13 @@ Wiadomość od Bożeny:
 - `docs/scenariusze/zmiana-adresu.feature`: ten sam scenariusz w Gherkinie (słowa kluczowe po polsku).
 - `.mcp.json`: konfiguracja Playwright MCP. Dzięki niej Claude może sam otworzyć aplikację w przeglądarce i przejść scenariusz.
 
+> **Słowniczek**
+> - Playwright MCP: dodatek do Claude Code, przez który Claude sam klika w przeglądarce i czyta, co jest na stronie.
+> - `test.describe.configure({ mode: 'serial' })`: testy z tej grupy biegną po kolei, jeden po drugim, a nie równolegle.
+> - `toHaveValue('00-001')`: asercja, że pole formularza zawiera dokładnie tę wartość.
+> - `afterEach`: kroki wykonywane po każdym teście, także po nieudanym. Tu przywracają adres startowy.
+> - `page.waitForEvent('download')`: czekanie na pobranie pliku. Zapisujesz je w zmiennej przed kliknięciem, które pobiera plik.
+
 ## Kroki: część A, zmiana adresu (40 min)
 
 PowerShell, z katalogu głównego repo.
@@ -26,10 +33,10 @@ PowerShell, z katalogu głównego repo.
    ```powershell
    claude mcp list
    ```
-   Oczekiwany wynik: wiersz `playwright` ze statusem `✔ Connected`. Status `⏸ Pending approval` znaczy, że trzeba raz uruchomić `claude` w tym folderze i zgodzić się na serwery z `.mcp.json`.
+   Oczekiwany wynik przy pierwszym uruchomieniu: wiersz `playwright` ze statusem `⏸ Pending approval (run claude to approve)`. Uruchom wtedy `claude` w tym folderze, zgódź się na serwery z `.mcp.json`, zamknij Claude (`/exit`) i powtórz `claude mcp list`. Oczekiwany wynik: wiersz `playwright` ze statusem `✔ Connected`.
 
 > **Serwer MCP nie startuje na Windows (`✘ Failed to connect`)**
-> W `.mcp.json` zamień `"command": "npx"` na `"command": "cmd"` i dodaj `"/c", "npx"` na początku listy `args`. Sprawdź jeszcze raz `claude mcp list`. Jeśli nadal nie działa (proxy, blokada pobierania), rób kroki 3–5 bez MCP: Claude napisze test z samego przypadku testowego i kodu aplikacji.
+> Zawołaj trenera. Plan B, którego nie opisuje dokumentacja i który trener najpierw sprawdzi: w `.mcp.json` zamień `"command": "npx"` na `"command": "cmd"` i dodaj `"/c", "npx"` na początku listy `args`. Sprawdź jeszcze raz `claude mcp list`. Jeśli nadal nie działa (proxy, blokada pobierania), rób kroki 3–5 bez MCP: Claude napisze test z samego przypadku testowego i kodu aplikacji.
 
 3. **Poproś Claude o plan, bez kodu.** Uruchom `claude`. Wskaż oba pliki `zmiana-adresu` i poproś o plan testów w punktach: nazwy testów, kroki, asercje, dane i sprzątanie. Poproś, żeby przed planem przeszedł scenariusz w przeglądarce przez Playwright MCP i zapisał, jakie etykiety i komunikaty naprawdę widzi.
 
@@ -37,9 +44,9 @@ PowerShell, z katalogu głównego repo.
 
 > **Jeśli utknąłeś po 10 minutach**
 > Wklej do Claude ten prompt:
-> „Przeczytaj docs/scenariusze/zmiana-adresu.md i docs/scenariusze/zmiana-adresu.feature oraz CLAUDE.md. Najpierw przez Playwright MCP zaloguj się w http://localhost:4100 jako user / user123, otwórz „Adres dostawy” i przejdź scenariusz poprawnej zmiany adresu oraz przypadek z kodem pocztowym 31001. Zapisz dokładne etykiety pól i treść komunikatów. Potem przedstaw plan testów w punktach: osobny test dla poprawnej zmiany adresu i po jednym teście na każdy wiersz tabeli Przykłady. Dla każdego testu podaj kroki, asercje z dokładnym tekstem i sposób przywrócenia adresu startowego (ul. Przykładowa 12/3, 00-001, Warszawa, 500 100 200). Nie pisz jeszcze kodu, poczekaj na moją akceptację planu.”
+> „Przeczytaj docs/scenariusze/zmiana-adresu.md i docs/scenariusze/zmiana-adresu.feature oraz CLAUDE.md. Najpierw przez Playwright MCP zaloguj się w http://localhost:4100 jako user / user123, otwórz „Adres dostawy” i przejdź scenariusz poprawnej zmiany adresu oraz przypadek z kodem pocztowym 31001. Zapisz dokładne etykiety pól i treść komunikatów. Potem przedstaw plan testów w punktach: osobny test dla poprawnej zmiany adresu i po jednym teście na każdy wiersz tabeli Przykłady. Dla każdego testu podaj kroki, asercje z dokładnym tekstem i sposób przywrócenia adresu startowego (ul. Przykładowa 12/3, 00-001, Warszawa, 500 100 200). Wszystkie testy używają jednego konta user i jednego adresu, więc grupa testów ma zaczynać się od test.describe.configure({ mode: 'serial' }). Nie pisz jeszcze kodu, poczekaj na moją akceptację planu.”
 
-5. **Zatwierdź plan i uruchom test.** Poproś Claude o test w pliku `tests/cwiczenia/08-zmiana-adresu.spec.ts` według zaakceptowanego planu. Uruchom go dwa razy pod rząd:
+5. **Zatwierdź plan i uruchom test.** Poproś Claude o test w pliku `tests/cwiczenia/08-zmiana-adresu.spec.ts` według zaakceptowanego planu, z linią `test.describe.configure({ mode: 'serial' });` na początku grupy testów. Wszystkie testy z pliku używają jednego konta `user` i jednego adresu, więc uruchomione równolegle nadpisywałyby sobie adres. Uruchom plik dwa razy pod rząd:
    ```powershell
    npx playwright test tests/cwiczenia/08-zmiana-adresu.spec.ts
    ```
@@ -67,6 +74,13 @@ Wiadomość od Bożeny, 13:30:
 > Uruchom test z `--ui` i sprawdź, który krok pada. Numer zamówienia znajdziesz w adresie strony po złożeniu zamówienia (`?zlozono=ZAM-…`). Gdy nie wiesz, co jest w fakturze, otwórz pobrany plik w przeglądarce: to zwykła strona HTML.
 
 8. **Sprawdź, że test potrafi paść i nie rusza ZAM-1007.** Zmień w asercji NIP nabywcy na `1234563218` i uruchom test. Oczekiwany wynik: `1 failed`. Cofnij zmianę. Uruchom test drugi raz pod rząd: znowu `1 passed`, bo każdy przebieg zakłada nowe zamówienie. Na http://localhost:4100/zamowienia/ZAM-1007 (konto `biuro`) status to nadal „Opłacone”.
+
+9. **Zapisz pracę w git.**
+   ```powershell
+   git add .
+   git commit -m "Ćwiczenie 08: zmiana adresu i Biuro Mikołaja z przypadków testowych"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 08: zmiana adresu i Biuro Mikołaja z przypadków testowych` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
 
 ## Przykład wyniku
 

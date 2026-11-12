@@ -97,14 +97,13 @@ export const koszyk = usluga('koszyk', function koszyk(h, userId) {
     return { ...w, cena_cents: cena, cena_po_rabacie_cents: poRabacie, wartosc_cents: poRabacie * w.qty, objety_kodem: objetyKodem };
   });
   const sumaPrzedRabatem = pozycje.reduce((s, i) => s + i.cena_cents * i.qty, 0);
-  // Wydanie „hotfix” liczy sumę z ceny za sztukę, bez ilości (regresja do wykrycia testem).
+  // Suma koszyka po rabatach.
   const suma = pozycje.reduce((s, i) => s + (hotfix() ? i.cena_po_rabacie_cents : i.wartosc_cents), 0);
   return { pozycje, suma, sumaPrzedRabatem, rabat: sumaPrzedRabatem - suma, kod };
 });
 
 // ---------- Katalog: produkty z cenami promocyjnymi ----------
-// Produkty archiwalne są ukryte. Pokazujemy je tylko przy wyszukiwaniu frazy, która do nich pasuje
-// (np. „kalendarz”, „adwent”), a nie przy dowolnym fragmencie nazwy.
+// Czy wyszukiwanie obejmuje produkty archiwalne.
 export const pokazArchiwalne = (q) => /kalendarz|adwent|advent|2025/i.test(String(q ?? '').trim());
 
 // sort: '' (kategoria, nazwa), 'cena' (rosnąco), 'cena-malejaco', 'nazwa'
@@ -136,7 +135,7 @@ export const produktApi = (p, zOpisem = false) => ({
 });
 
 // ---------- Statusy zamówienia ----------
-// Nazwy statusów. Wydanie „hotfix” nazywa „Opłacone” inaczej.
+// Nazwy statusów.
 export const STATUSY = {
   new: 'Nowe',
   get paid() {

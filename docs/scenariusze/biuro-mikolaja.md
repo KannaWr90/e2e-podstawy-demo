@@ -27,7 +27,7 @@ Eksport z Azure Test Plans: kroki w kolumnach „Akcja” i „Oczekiwany wynik�
 |---|---|---|
 | 1 | Zaloguj się jako `@klient` | W nagłówku napis „Zalogowano jako biuro (user)” |
 | 2 | Otwórz kartę produktu `@produkt`, wpisz w pole „Ilość” `@ilosc` i kliknij „Dodaj do koszyka” | Komunikat „Dodano do koszyka: Kalendarz adwentowy 2026” |
-| 3 | Otwórz „Koszyk” | Jedna pozycja: Kalendarz adwentowy 2026, ilość 10. Razem: 399,90 zł |
+| 3 | Otwórz „Koszyk” | Jedna pozycja: Kalendarz adwentowy 2026, ilość 10. Pod tabelą „Pozycji: 1, razem: 399,90 zł” |
 | 4 | Zaznacz „Faktura na firmę”, wpisz NIP `@nip` i nazwę firmy `@firma`, kliknij „Złóż zamówienie (płatność przy odbiorze)” | Komunikat „Złożono zamówienie: ZAM-…”. Zapisz numer zamówienia |
 | 5 | Kliknij numer zamówienia na liście „Moje zamówienia” | Status „Nowe”. „Faktura na firmę: Biuro Mikołaja, NIP 2412241228” (NIP bez myślników). Przycisk „Pobierz fakturę” |
 | 6 | Wyloguj się. Zaloguj się jako `admin`, otwórz zamówienie z kroku 4 w panelu admina (`/admin/zamowienia/<numer>`) | Status „Nowe”, pole „Status zamówienia” |

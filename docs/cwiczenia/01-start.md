@@ -22,7 +22,7 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
 
    **A. Masz konto GitHub: własna kopia (fork).** Otwórz https://github.com/agentGreg/e2e-podstawy-demo i kliknij **Fork**. Na ekranie „Create a new fork” **odznacz** pole „Copy the `main` branch only”, bo potrzebujesz też gałęzi z rozwiązaniami. Kliknij **Create fork**. `<twój-login>` zamień na swój login z GitHuba:
    ```powershell
-   mkdir C:\e2e
+   New-Item -ItemType Directory -Force C:\e2e
    cd C:\e2e
    git clone https://github.com/<twój-login>/e2e-podstawy-demo.git
    cd e2e-podstawy-demo
@@ -30,12 +30,12 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
 
    **B. Nie masz konta GitHub: klon repo trenera.**
    ```powershell
-   mkdir C:\e2e
+   New-Item -ItemType Directory -Force C:\e2e
    cd C:\e2e
    git clone https://github.com/agentGreg/e2e-podstawy-demo.git
    cd e2e-podstawy-demo
    ```
-   Oczekiwany wynik w obu ścieżkach: `Cloning into 'e2e-podstawy-demo'...`, a po `cd` znak zachęty `PS C:\e2e\e2e-podstawy-demo>`.
+   `New-Item` wypisuje tabelkę z folderem `e2e`. Gdy folder już istnieje, polecenie też działa i niczego w nim nie usuwa. Oczekiwany wynik w obu ścieżkach: `Cloning into 'e2e-podstawy-demo'...`, a po `cd` znak zachęty `PS C:\e2e\e2e-podstawy-demo>`.
 
 2. **Zainstaluj zależności i przeglądarkę.**
    ```powershell
@@ -58,7 +58,7 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
    ```
    Czas będzie inny. `skipped` to szkielety ćwiczeń, które wypełnisz później. Słowa `failed` być nie może.
 
-4. **Zapisz pierwszą zmianę w git.** Otwórz folder w VS Code (`code .`), utwórz w głównym folderze repo plik `notatki.md` i wpisz w nim jedną linię: `Środowisko działa, npm test bez błędów.` Zapisz plik. Potem w PowerShell:
+4. **Zapisz pierwszą zmianę w git.** Otwórz folder w VS Code (`code .`). Jeśli PowerShell nie zna polecenia `code`, uruchom VS Code z menu Start i wybierz File › Open Folder… › `C:\e2e\e2e-podstawy-demo`. Utwórz w głównym folderze repo plik `notatki.md` i wpisz w nim jedną linię: `Środowisko działa, npm test bez błędów.` Zapisz plik. Potem w PowerShell:
    ```powershell
    git add notatki.md
    git commit -m "Pierwszy commit: środowisko działa"

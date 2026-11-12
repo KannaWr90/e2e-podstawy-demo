@@ -159,7 +159,7 @@ export const SEED_PRODUCTS = [
 ];
 
 // Produkty dodane w wersji „Czarny Piątek”. Nowe id (21, 22), żeby nie przesunąć istniejących.
-// [nazwa, kategoria, cena w groszach, stan, ukryty na liście bez wyszukiwania]
+// [nazwa, kategoria, cena w groszach, stan, archiwalny]
 export const SEED_PRODUCTS_SWIETA = [
   ['Kalendarz adwentowy 2026', 'Święta', 3999, 3000, 0],
   ['Kalendarz adwentowy 2025', 'Święta', 3999, 7, 1],

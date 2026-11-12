@@ -19,7 +19,7 @@ git diff main origin/solution/NN
 | 08 | D2 | [08-scenariusz-na-test.md](08-scenariusz-na-test.md) | Z przypadku testowego do testu; 08b: Biuro Mikołaja, zamówienie firmowe i faktura | `solution/08` |
 | 09 | D2 | [09-api-i-dane.md](09-api-i-dane.md) | Testy API i dane przez API | `solution/09` |
 | 10 | D2 | [10-claude-md-i-skill.md](10-claude-md-i-skill.md) | CLAUDE.md jako instrukcja dla Klaudiusza, pierwszy skill | `solution/10` |
-| 11 | D3 | [11-porzadek.md](11-porzadek.md) | Logowanie w funkcji, `.env`, wybrane testy | `solution/11` |
+| 11 | D3 | [11-porzadek.md](11-porzadek.md) | Logowanie w funkcji, wybrane testy, wspólny serwer; `.env` dla szybszych | `solution/11` |
 | 12 | D3 | [12-projekt.md](12-projekt.md) | Projekt w parach: pakiet regresji przed zamrożeniem | `solution/12` (po polowaniu) |
 | 12b | D3 | [12b-zmiana-wymagan.md](12b-zmiana-wymagan.md) | Zmiana wymagań o 13:00: poprawa istniejącego testu | — |
 | 12c | D3 | [12c-hotfix.md](12c-hotfix.md) | Hotfix: test do poprawy czy błąd do zgłoszenia | — |
