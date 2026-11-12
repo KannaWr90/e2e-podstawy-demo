@@ -2,11 +2,6 @@ import { test, expect } from '@playwright/test';
 
 // Ćwiczenie 06, część B: płatność w ramce (iframe).
 // Karta: docs/cwiczenia/06-dynamiczne-id.md
-//
-// Formularz karty jest w ramce <iframe title="Bramka płatnicza">. Locatory strony głównej
-// nie widzą jej wnętrza. Wejście do ramki:
-//   const bramka = page.getByTitle('Bramka płatnicza').contentFrame();
-//   await bramka.getByLabel('Numer karty').fill('...');
 
 // Płatność zamawia cały koszyk klienta. Konto tester07 ma koszyk tylko dla tych testów,
 // więc inne testy nie dokładają do niego produktów. Oba testy dzielą ten koszyk, więc biegną po kolei.
@@ -24,19 +19,60 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByText('Dodano do koszyka: Maseczka glinkowa')).toBeVisible();
 });
 
-test.fixme('karta odrzucona przez bank pokazuje komunikat w ramce', async ({ page }) => {
-  // TODO 1: otwórz /koszyk/platnosc i wejdź do ramki „Bramka płatnicza”.
-  // TODO 2: wpisz kartę 4000 0000 0000 0002 i kliknij „Zapłać” (oba elementy są w ramce).
-  // TODO 3: sprawdź komunikat w ramce (rola alert): „Płatność odrzucona przez bank. Użyj innej karty.”
-  // TODO 4: sprzątanie: w /koszyk kliknij „Usuń: Maseczka glinkowa” i sprawdź, że wiersza już nie ma.
+test('karta odrzucona przez bank pokazuje komunikat w ramce', async ({ page }) => {
+  await page.goto('/koszyk/platnosc');
+
+  // Ramkę znajdujemy po atrybucie title, a contentFrame() daje dostęp do jej wnętrza.
+  const bramka = page.getByTitle('Bramka płatnicza').contentFrame();
+  await bramka.getByLabel('Numer karty').fill('4000 0000 0000 0002');
+  await bramka.getByRole('button', { name: 'Zapłać' }).click();
+
+  await expect(bramka.getByRole('alert')).toHaveText('Płatność odrzucona przez bank. Użyj innej karty.');
+
+  // Sprzątanie: maseczka wraca z koszyka, płatność jej nie zamówiła.
+  await page.goto('/koszyk');
+  await page.getByRole('button', { name: 'Usuń: Maseczka glinkowa' }).click();
+  await expect(page.getByRole('row').filter({ hasText: 'Maseczka glinkowa' })).toHaveCount(0);
 });
 
-test.fixme('przyjęta płatność daje numer zamówienia', async ({ page, request }) => {
-  // TODO 1: otwórz /koszyk/platnosc, w ramce wpisz kartę 4111 1111 1111 1111 i kliknij „Zapłać”.
-  // TODO 2: sprawdź nagłówek „Płatność przyjęta” w ramce.
-  // TODO 3: sprawdź numer zamówienia (getByTestId('payment-order')) wyrażeniem /^ZAM-\d+(, ZAM-\d+)*$/.
-  //   Jedno zamówienie na każdą pozycję koszyka, numery po przecinku.
-  // TODO 4: sprzątanie: zaloguj się przez API jako admin i anuluj każde z tych zamówień:
-  //   POST /api/admin/orders/<numer>/cancel, oczekiwany status 200.
-  //   Tekst z locatora weźmiesz przez: await numery.innerText()
+test('przyjęta płatność daje numer zamówienia', async ({ page, request }) => {
+  await page.goto('/koszyk/platnosc');
+
+  const bramka = page.getByTitle('Bramka płatnicza').contentFrame();
+  await bramka.getByLabel('Numer karty').fill('4111 1111 1111 1111');
+  await bramka.getByRole('button', { name: 'Zapłać' }).click();
+
+  await expect(bramka.getByRole('heading', { name: 'Płatność przyjęta' })).toBeVisible();
+  // Jedno zamówienie na każdą pozycję koszyka, numery po przecinku: „ZAM-1008, ZAM-1009”.
+  const numery = bramka.getByTestId('payment-order');
+  await expect(numery).toHaveText(/^ZAM-\d+(, ZAM-\d+)*$/);
+
+  // Sprzątanie: admin anuluje nowe zamówienia przez API, towar wraca na stan.
+  const logowanie = await request.post('/api/login', { data: { login: 'admin', password: 'admin123' } });
+  const { token } = await logowanie.json();
+  for (const numer of (await numery.innerText()).split(', ')) {
+    const anulowanie = await request.post(`/api/admin/orders/${numer}/cancel`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(anulowanie.status()).toBe(200);
+  }
+});
+
+// Dla szybszych: błędny numer karty zatrzymuje płatność w ramce, koszyk zostaje bez zmian.
+test('numer karty z 15 cyframi daje komunikat przy polu, koszyk bez zmian', async ({ page }) => {
+  await page.goto('/koszyk/platnosc');
+
+  const bramka = page.getByTitle('Bramka płatnicza').contentFrame();
+  await bramka.getByLabel('Numer karty').fill('4111 1111 1111 111');
+  await bramka.getByRole('button', { name: 'Zapłać' }).click();
+
+  await expect(bramka.getByText('Numer karty musi mieć 16 cyfr')).toBeVisible();
+  await expect(bramka.getByRole('heading', { name: 'Płatność przyjęta' })).toHaveCount(0);
+
+  // Koszyk bez zmian: maseczka nadal w nim jest. Sprzątanie: usuwamy ją.
+  await page.goto('/koszyk');
+  const wiersz = page.getByRole('row').filter({ hasText: 'Maseczka glinkowa' });
+  await expect(wiersz.getByTestId('cart-item-qty')).toHaveText('1');
+  await page.getByRole('button', { name: 'Usuń: Maseczka glinkowa' }).click();
+  await expect(wiersz).toHaveCount(0);
 });
