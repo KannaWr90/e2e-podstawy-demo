@@ -66,7 +66,7 @@ PowerShell, z katalogu głównego repo.
 6. **Przygotujcie 5 minut na spotkanie „wydajemy czy nie”.** Szablon jest na końcu `docs/projekt.md`: co pokrywa pakiet, co znaleźliście, rekomendacja. Pokazujecie jeden test zielony i ten sam test celowo czerwony.
 
 > **Pracujecie na wspólnym serwerze, nie na swoim komputerze**
-> Ustawcie konto pary i adres serwera przed uruchomieniem: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-XXXX.europe-central2.run.app"`. Testy z kontem `admin` uruchamiajcie lokalnie, bo na serwerze tego konta nie ma. Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
+> Ustawcie konto pary i adres serwera przed uruchomieniem: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"`. Testy z kontem `admin` uruchamiajcie lokalnie: na serwerze hasÅo tego konta zna tylko trener. Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
 
 ## Przykład wyniku
 
