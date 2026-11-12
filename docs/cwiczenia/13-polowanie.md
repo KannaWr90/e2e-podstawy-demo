@@ -70,7 +70,7 @@ PowerShell, z katalogu głównego repo.
 4. **Zgłoście test na tablicę i zróbcie commit.** Otwórzcie stronę zgłoszeń (adres w tabeli wyżej) i zalogujcie się kontem pary. Wybierzcie obszar, wklejcie **cały plik testu** (do 20 000 znaków) i kliknijcie „Wyślij do Klaudiusza-sędziego”. Wynik:
    - „Zaliczony błąd #N”: punkt jest już na tablicy;
    - „Zgłoszenie czeka na trenera”: Klaudiusz nie jest pewien. Pokażcie trenerowi oba uruchomienia z kroku 3;
-   - „ten test nie łapie błędu wersji rc”: przeczytajcie uzasadnienie i poprawcie test.
+   - „nie rozpoznano błędu wersji rc”: test nie łapie żadnego z błędów. Sprawdźcie, czy asercja dotyczy wartości, która różni się między wersjami, i poprawcie test.
 
    Jedno zgłoszenie co 30 s, najwyżej 40 dziennie na konto. Potem:
    ```powershell

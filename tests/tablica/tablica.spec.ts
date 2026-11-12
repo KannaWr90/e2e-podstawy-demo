@@ -115,7 +115,8 @@ test('test, który łapie błąd, dostaje punkt, a kolejne zgłoszenie przed up�
   await zaloguj(page, 'tester02');
   await zglosTest(page, 'faktura', "import { test } from '@playwright/test';\n// ATRAPA:B3\n");
   await expect(page.getByTestId('verdict')).toContainText('Zaliczony błąd #3. +1 punkt, a za pierwsze znalezisko +1 bonus.');
-  await expect(page.getByTestId('verdict-reason')).toHaveText('Uzasadnienie: Atrapa: test łapie błąd B3.');
+  // Uzasadnienie modelu widzi tylko trener: na stronie uczestnika go nie ma.
+  await expect(page.getByText('Atrapa: test łapie błąd B3.')).toHaveCount(0);
 
   await zglosTest(page, 'faktura', '// ATRAPA:B4');
   await expect(page.getByTestId('verdict')).toContainText('Następne zgłoszenie testu za');
@@ -129,7 +130,9 @@ test('test bez asercji na błąd dostaje 0 punktów', async ({ page }) => {
   await zaloguj(page, 'tester08');
   await zglosTest(page, 'koszyk', "test('koszyk', async ({ page }) => { await page.goto('/koszyk'); });");
 
-  await expect(page.getByTestId('verdict')).toContainText('ten test nie łapie błędu wersji rc. 0 punktów.');
+  await expect(page.getByTestId('verdict')).toContainText('nie rozpoznano błędu wersji rc. 0 punktów.');
+  await page.goto(`${ADRES}/tablica/zglos`);
+  await expect(page.getByText('Atrapa: nie widzę asercji')).toHaveCount(0);
 });
 
 test('próba manipulacji sędzią daje 0 punktów i trafia do trenera', async ({ page }) => {
@@ -153,6 +156,28 @@ test('panel trenera bez tokenu jest zamknięty, ze złym tokenem odmawia', async
   await page.getByLabel('Token trenera').fill('zly-token');
   await page.getByRole('button', { name: 'Wejdź' }).click();
   await expect(page.getByRole('alert')).toHaveText('Zły token.');
+});
+
+test('konto admin nie ma dostępu do panelu trenera', async ({ page }) => {
+  await zaloguj(page, 'admin', 'admin123');
+  await page.goto(`${ADRES}/tablica/trener`);
+
+  await expect(page.getByLabel('Token trenera')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Zgłoszenia' })).toHaveCount(0);
+});
+
+test('uzasadnienie sędziego widzi trener, a uczestnik nie', async ({ page, browser }) => {
+  await zaloguj(page, 'tester10');
+  await zglosTest(page, 'adresy', '// ATRAPA:B7');
+  await expect(page.getByTestId('verdict')).toContainText('Zaliczony błąd #7.');
+  await expect(page.getByText('Atrapa: test łapie błąd B7.')).toHaveCount(0);
+  await page.goto(`${ADRES}/tablica/zglos`);
+  await expect(page.getByText('Atrapa: test łapie błąd B7.')).toHaveCount(0);
+
+  const trener = await browser.newPage();
+  await wejdzJakoTrener(trener);
+  await expect(trener.getByTestId('queue-row').filter({ hasText: 'tester10' })).toContainText('Atrapa: test łapie błąd B7.');
+  await trener.close();
 });
 
 test('trener zatwierdza niepewne zgłoszenie jako błąd', async ({ page, browser }) => {

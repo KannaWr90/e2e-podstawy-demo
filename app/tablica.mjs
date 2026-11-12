@@ -140,7 +140,8 @@ function rowne(a, b) {
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 }
 function czyTrener(ctx) {
-  if (ctx.user && (ctx.user.login === 'trener' || ctx.user.role === 'admin')) return true;
+  // Tylko konto „trener” albo token. Konto admin ma publicznie znane hasło lokalne, więc nie wystarcza.
+  if (ctx.user?.login === 'trener') return true;
   const token = process.env.NAMSSOR_RESET_TOKEN;
   if (!token) return false;
   return rowne(ctx.req.headers['x-reset-token'], token) || rowne(parseCookies(ctx.req).tablica_trener, skrotTokenu(token));
@@ -262,19 +263,20 @@ const STANY = {
 
 function wynikZgloszenia(z) {
   if (!z) return '';
-  const uz = z.uzasadnienie ? `<p data-testid="verdict-reason">Uzasadnienie: ${escapeHtml(z.uzasadnienie)}</p>` : '';
+  // Uczestnik widzi tylko stałe komunikaty. Wolny tekst modelu (uzasadnienie) jest wyłącznie w panelu trenera,
+  // żeby nie zdradził niczego o innych błędach.
   if (z.stan === 'przyznane') {
-    return `<div class="sukces" role="status" data-testid="verdict"><p><strong>Zaliczony błąd #${nrBledu(z.blad)}.</strong> +1 punkt${z.pierwszy ? ', a za pierwsze znalezisko +1 bonus' : ''}.</p>${uz}</div>`;
+    return `<div class="sukces" role="status" data-testid="verdict"><p><strong>Zaliczony błąd #${nrBledu(z.blad)}.</strong> +1 punkt${z.pierwszy ? ', a za pierwsze znalezisko +1 bonus' : ''}.</p></div>`;
   }
-  if (z.stan === 'powtorka') return `<div class="sukces" role="status" data-testid="verdict"><p>Błąd #${nrBledu(z.blad)} macie już zaliczony. Punkty bez zmian.</p>${uz}</div>`;
+  if (z.stan === 'powtorka') return `<div class="sukces" role="status" data-testid="verdict"><p>Błąd #${nrBledu(z.blad)} macie już zaliczony. Punkty bez zmian.</p></div>`;
   if (z.stan === 'manipulacja') {
     return `<div class="error" role="alert" data-testid="verdict"><p><strong>Klaudiusz: „Jestem pewien, że to nie zadziała”.</strong> Test próbuje wpłynąć na sędziego: 0 punktów, zgłoszenie trafia do trenera.</p></div>`;
   }
   if (z.stan === 'oczekuje') {
     const pewnosc = z.werdykt ? ` Klaudiusz nie jest pewien (${Math.round((z.pewnosc ?? 0) * 100)}%).` : '';
-    return `<div class="klaudiusz" role="status" data-testid="verdict"><p>Zgłoszenie czeka na trenera.${pewnosc}${z.powod ? ` Sędzia: ${escapeHtml(z.powod)}.` : ''}</p>${uz}</div>`;
+    return `<div class="klaudiusz" role="status" data-testid="verdict"><p>Zgłoszenie czeka na trenera.${pewnosc}${z.powod ? ` Sędzia: ${escapeHtml(z.powod)}.` : ''}</p></div>`;
   }
-  return `<div class="error" role="alert" data-testid="verdict"><p>Klaudiusz-sędzia: ten test nie łapie błędu wersji rc. 0 punktów. Trener może jeszcze zmienić decyzję.</p>${uz}</div>`;
+  return `<div class="error" role="alert" data-testid="verdict"><p>Klaudiusz-sędzia: nie rozpoznano błędu wersji rc. 0 punktów. Trener może jeszcze zmienić decyzję.</p></div>`;
 }
 
 function stronaZgloszen(ctx, h, { wynik = '', obszar = '', kod = '' } = {}) {
@@ -290,7 +292,7 @@ function stronaZgloszen(ctx, h, { wynik = '', obszar = '', kod = '' } = {}) {
     const wiersze = moje
       .map(
         (z) => `<tr><td>${godzina(z.utworzone)}</td><td>${escapeHtml(z.obszar)}</td><td>${STANY[z.stan] ?? escapeHtml(z.stan)}</td>
-        <td>${z.blad && ['przyznane', 'powtorka'].includes(z.stan) ? `Błąd #${nrBledu(z.blad)}` : '–'}</td><td>${escapeHtml(z.uzasadnienie ?? '')}</td></tr>`,
+        <td>${z.blad && ['przyznane', 'powtorka'].includes(z.stan) ? `Błąd #${nrBledu(z.blad)}` : '–'}</td></tr>`,
       )
       .join('');
     tresc = `${otwarta(h) ? '' : '<p class="error" role="alert">Tablica jest zamknięta. Zgłoszenia nie są przyjmowane.</p>'}
@@ -309,7 +311,7 @@ function stronaZgloszen(ctx, h, { wynik = '', obszar = '', kod = '' } = {}) {
         <label>Flaga <input name="flaga" autocomplete="off" placeholder="FLAGA-…"></label>
         <button type="submit">Zgłoś flagę</button></form>
       <h2>Wasze zgłoszenia</h2>
-      <table><thead><tr><th>Godzina</th><th>Obszar</th><th>Stan</th><th>Wynik</th><th>Uzasadnienie</th></tr></thead><tbody>${wiersze}</tbody></table>`;
+      <table><thead><tr><th>Godzina</th><th>Obszar</th><th>Stan</th><th>Wynik</th></tr></thead><tbody>${wiersze}</tbody></table>`;
   }
   return layout({
     title: 'Zgłoszenie na tablicę',
