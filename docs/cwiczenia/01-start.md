@@ -53,8 +53,8 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
    ```
    Oczekiwany wynik na końcu:
    ```
-     13 skipped
-     32 passed (4.4s)
+     18 skipped
+     38 passed (4.4s)
    ```
    Czas będzie inny. `skipped` to szkielety ćwiczeń, które wypełnisz później. Słowa `failed` być nie może.
 
@@ -89,7 +89,7 @@ Tak wygląda ścieżka A po `git push`. W ścieżce B w nawiasie jest tylko `HEA
 
 ## Kryterium „gotowe”
 
-- [ ] `npm test` kończy się bez słowa `failed`, a druga osoba z pary widzi na twoim ekranie `32 passed`.
+- [ ] `npm test` kończy się bez słowa `failed`, a druga osoba z pary widzi na twoim ekranie `38 passed`.
 - [ ] `git log --oneline -1` pokazuje commit „Pierwszy commit: środowisko działa”.
 - [ ] `git branch -r` pokazuje gałęzie `origin/solution/…` i `origin/extra/…`.
 - [ ] Ścieżka A: `git remote -v` pokazuje adres twojego forka (`github.com/<twój-login>/…`), a druga osoba widzi `notatki.md` na twoim forku w przeglądarce.
