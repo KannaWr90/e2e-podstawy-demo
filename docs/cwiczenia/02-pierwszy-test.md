@@ -12,6 +12,7 @@ Uruchomisz test napisany z Claude Code, sprawdzisz w raporcie HTML i w trace, co
 - `tests/przyklady/logowanie.spec.ts`: wzór logowania.
 - `CLAUDE.md`: zasady pisania testów, które Claude Code czyta sam.
 - Konto klienta: `user` / `user123`. Produkt: „Płyn micelarny”.
+- Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. `getByText('Płyn micelarny')` znajdzie dwa elementy (komórkę tabeli i kafelek). Produkt szukaj w obrębie tabeli: `page.getByRole('row').filter({ hasText: 'Płyn micelarny' })` albo przycisk `getByRole('button', { name: 'Dodaj do koszyka: Płyn micelarny' })`.
 
 ## Kroki
 

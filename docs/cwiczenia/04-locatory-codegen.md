@@ -16,6 +16,8 @@ Szkielety z `test.fixme` i listą kroków w komentarzach TODO:
 | `tests/cwiczenia/04-koszyk-usuwanie.spec.ts` | B. Dodanie „Żel pod prysznic” do koszyka i usunięcie go | `user` / `user123` |
 | `tests/cwiczenia/04-adres-walidacja.spec.ts` | C. Adres dostawy z błędnym kodem pocztowym `00000` | `user` / `user123` |
 
+Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codegen może nagrać `getByText('Żel pod prysznic')`, który znajdzie dwa elementy (komórkę tabeli i kafelek). Zawęź locator do tabeli: `page.getByRole('row').filter({ hasText: 'Żel pod prysznic' })`. W scenariuszu B koszyk ma kolumny Produkt, Cena, Ilość, Wartość, a po kliknięciu „Usuń” adres strony to `/koszyk?usunieto=1` (asercja `toHaveURL(/\/koszyk/)` przejdzie, `toHaveURL(/\/koszyk$/)` nie).
+
 Kolejność wyboru locatorów (z `CLAUDE.md`): `getByRole`, `getByLabel`, `getByText`, dopiero potem `getByTestId`. Bez selektorów CSS, XPath, `id` i klas.
 
 ## Kroki

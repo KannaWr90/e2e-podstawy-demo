@@ -37,6 +37,8 @@ Oczekiwany wynik:
 - komunikat „Dodano produkt: <nazwa>”;
 - na stronie „Produkty” wyszukiwarka znajduje ten produkt, z ceną „12,50 zł”, jako „Dostępny”, z aktywnym przyciskiem „Dodaj do koszyka”.
 
+Uwaga: pod tabelą są kafelki z tymi samymi nazwami i cenami, więc `getByText` z nazwą albo ceną znajdzie dwa elementy. Sprawdzaj w wierszu tabeli: `page.getByRole('row').filter({ hasText: nazwa })`.
+
 ### P4. Klient nie wejdzie do panelu administratora (E2E)
 
 Klient (`user`) po zalogowaniu otwiera adres `/admin`.

@@ -43,7 +43,7 @@ PowerShell, z katalogu głównego repo.
    ```powershell
    npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3
    ```
-   Oczekiwany wynik: `18 passed`. Otwórz http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":45`, tyle co przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
+   Oczekiwany wynik: `18 passed`. Otwórz http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":180`, tyle co przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
 
 ## Przykład wyniku
 
@@ -60,7 +60,7 @@ test('GET /api/products/999 zwraca 404', async ({ request }) => {
 ## Kryterium „gotowe”
 
 - [ ] `npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3` daje `18 passed`.
-- [ ] Po przebiegu `stock` produktu 20 wynosi 45 (http://localhost:4100/api/products/20).
+- [ ] Po przebiegu `stock` produktu 20 wynosi 180 (http://localhost:4100/api/products/20).
 - [ ] Każdy test negatywny sprawdza status i treść odpowiedzi. Pokazujesz palcem obie asercje.
 - [ ] Umiesz powiedzieć, dlaczego anulowanie jest w `afterEach`, a nie na końcu testu.
 

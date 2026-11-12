@@ -35,7 +35,7 @@ Sprawdzenie, że wszystko działa:
 npm run test:smoke
 ```
 
-Wynik `2 passed` oznacza, że środowisko jest gotowe.
+Wynik `4 passed` oznacza, że środowisko jest gotowe.
 
 ## Uruchomienie aplikacji
 
@@ -73,8 +73,10 @@ Konta są fikcyjne i istnieją tylko w lokalnej bazie:
 |---|---|---|
 | klient | `user` | `user123` |
 | administrator | `admin` | `admin123` |
+| klient firmowy „Biuro Mikołaja” | `biuro` | `biuro123` |
+| uczestnicy szkolenia | `tester01` … `tester12` | `czarny-piatek-2026` |
 
-Baza to plik `data/app.db`, tworzony przy pierwszym uruchomieniu. Zawiera 20 produktów (trzy niedostępne) i zamówienia `ZAM-1001` do `ZAM-1006`. Przywrócenie stanu startowego:
+Baza to plik `data/app.db`, tworzony przy pierwszym uruchomieniu. Na liście produktów jest 21 pozycji w 7 kategoriach (trzy niedostępne, trzy w promocji), a w bazie zamówienia `ZAM-1001` do `ZAM-1007`. Po zalogowaniu menu ma pozycje: Produkty, Koszyk, Moje zamówienia, Adres dostawy, Moje adresy (administrator także Panel admina). Przywrócenie stanu startowego:
 
 ```powershell
 npm run db:reset
@@ -86,12 +88,16 @@ Polecenie działa tylko przy zatrzymanej aplikacji. Jeśli aplikacja działa, `d
 
 | Adres | Co tam jest | Do czego na szkoleniu |
 |---|---|---|
-| `/` | Produkty: wyszukiwarka, kategorie, „Dodaj do koszyka”, produkty niedostępne | pierwsze testy, wybór lokatorów |
+| `/` | Produkty: wyszukiwarka, kategorie, sortowanie, „Dodaj do koszyka”, produkty niedostępne; pod tabelą kafelki z tymi samymi nazwami i cenami (`getByText` z nazwą produktu znajdzie dwa elementy: szukaj w wierszu tabeli albo w kafelku) i baner Czarnego Piątku | pierwsze testy, wybór lokatorów |
+| `/produkt/1` | Karta produktu: opis, cena (promocyjna: stara przekreślona i plakietka „-20%”), dostępność, pole „Ilość” (1–1000), „Dodaj do koszyka” | ceny w kilku miejscach, przycisk wyłączony |
 | `/logowanie` | Logowanie z komunikatem o błędzie | pierwszy test, `getByLabel`, `getByRole` |
-| `/koszyk` | Koszyk, suma, „Złóż zamówienie” | scenariusz od produktu do zamówienia |
+| `/koszyk` | Koszyk, suma, kod rabatowy, „Faktura na firmę” (NIP, nazwa firmy), „Złóż zamówienie” | scenariusz od produktu do zamówienia |
+| `/zamowienia/ZAM-1001` | Jedno zamówienie; przy zamówieniu na firmę „Pobierz fakturę” (plik HTML) | pobieranie pliku |
+| `/konto/adresy` | Moje adresy: lista, dodanie i usunięcie adresu, adres domyślny | formularze, stan po zmianie |
 | `/zamowienia` | Moje zamówienia: lista ładuje się 0,5–2 s ze wskaźnikiem „Ładowanie…”; komunikat po złożeniu zamówienia znika po kilku sekundach | czekanie na elementy, asercje |
 | `/konto/adres` | Zmiana adresu dostawy, walidacja po stronie serwera, błędy przy polach | formularze, komunikaty błędów |
 | `/admin/zamowienia` | Tabela zamówień: wyszukiwarka, „Anuluj” w każdym wierszu, id wierszy zmienia się przy każdym odświeżeniu | znajdowanie wiersza po treści |
+| `/admin/zamowienia/ZAM-1007` | Zamówienie w panelu admina: zmiana statusu Nowe → Opłacone → Wysłane | przepływ statusów |
 | `/admin/ustawienia` | Tryb konserwacji sklepu | stan globalny aplikacji |
 | `/api/docs` | Lista endpointów API (opis OpenAPI: `/api/openapi.json`) | testy API |
 | `/admin/zamowienia/potwierdzenie` | Anulowanie z oknem „Tak, anuluj / Wróć” | dla szybszych: okno dialogowe |
@@ -101,6 +107,26 @@ Polecenie działa tylko przy zatrzymanej aplikacji. Jeśli aplikacja działa, `d
 | `/admin/produkty` | Dodawanie produktu i import z pliku CSV (`tests/dane/produkty.csv`) | dla szybszych: wysyłanie pliku |
 
 Karty do płatności w ramce: `4111 1111 1111 1111` (płatność przyjęta), `4000 0000 0000 0002` (odrzucona).
+
+## Zmienne środowiskowe
+
+Domyślnie nic nie trzeba ustawiać. Zmienne przydają się trenerowi i w niektórych ćwiczeniach.
+
+| Zmienna | Co robi | Przykład |
+|---|---|---|
+| `APP_VERSION` | wersja aplikacji; bez zmiennej działa wersja zwykła. Trener powie, kiedy jej użyć | `hotfix` |
+| `NAMSSOR_TERAZ` | data, którą aplikacja uznaje za dzisiejszą (baner Czarnego Piątku, ważność kodów rabatowych). Dzięki niej test daje ten sam wynik każdego dnia | `2026-11-20` |
+| `BASE_URL` | adres aplikacji dla testów. Gdy wskazuje inny komputer niż `localhost`, Playwright nie uruchamia aplikacji lokalnie | `https://namssor.example.com` |
+| `PORT`, `NAMSSOR_DB` | port aplikacji (domyślnie 4100) i ścieżka pliku bazy (domyślnie `data/app.db`) | `4200`, `C:\e2e\app.db` |
+
+Zmienna działa w oknie PowerShell, w którym ją ustawisz, do jego zamknięcia:
+
+```powershell
+$env:NAMSSOR_TERAZ="2026-11-28"
+npm start
+```
+
+Wyłączenie: `Remove-Item Env:NAMSSOR_TERAZ`. Gdy aplikacja działa już w innym oknie, Playwright użyje działającej, więc zmienna ustawiona tylko przy `npx playwright test` nie zadziała. Zatrzymaj wtedy tamtą aplikację (`Ctrl+C`).
 
 ## Struktura repo
 
@@ -163,7 +189,7 @@ Get-NetTCPConnection -LocalPort 4100
 
 - **Loginy i hasła są wpisane w testach wprost. To celowe.** Ćwiczenie dnia 3 („porządek w projekcie”) przenosi je do zmiennych środowiskowych. Nazwy zmiennych są w `.env.example` (`APP_USER`, `APP_PASSWORD`, `APP_ADMIN_USER`, `APP_ADMIN_PASSWORD`); `.env` jest w `.gitignore`. Playwright sam nie czyta pliku `.env`. Bez dodatkowej biblioteki wystarczy w `playwright.config.ts` wywołać `process.loadEnvFile()` (Node ≥ 20.12), np. warunkowo, gdy plik istnieje.
 - Przed każdym dniem: zatrzymać aplikację, `npm run db:reset`. Testy anulowania i importu zmieniają dane.
-- Jedyny port to 4100 (`APP_PORT` zmienia go w aplikacji, ale `playwright.config.ts` ma 4100 wpisany na stałe).
+- Domyślny port to 4100. Inny port: zmienna `PORT` (działa i w aplikacji, i w `playwright.config.ts`).
 - Opóźnienie listy „Moje zamówienia” daje `GET /api/orders?opoznienie=1` (0,5–2 s). Bez parametru API odpowiada od razu.
 - Komunikat „flash” (`data-testid="flash"`) znika po 3–5 s. Komunikat sukcesu na `/konto/adres` (`data-testid="success"`) zostaje.
 - W tabeli `/admin/zamowienia` wiersze nie mają `data-testid`, a `id="row-…"` jest losowe przy każdym renderze. Przyciski mają tylko tekst „Anuluj”, bez numeru w `aria-label`. Wiersz znajdziemy przez `getByRole('row').filter({ hasText: 'ZAM-1003' })`.
