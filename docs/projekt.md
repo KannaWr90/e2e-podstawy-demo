@@ -1,8 +1,14 @@
-# Projekt w parach: pakiet scenariuszy biznesowych Namssor
+# Projekt w parach: pakiet regresji przed Czarnym Piątkiem
 
-Osiem scenariuszy z aplikacji Namssor do zamiany na testy automatyczne: cztery E2E w przeglądarce, trzy API i jeden łączony (API + E2E). Wybierzcie co najmniej cztery, w tym co najmniej jeden API i jeden z kontem `admin`. Numery wybranych scenariuszy wpiszcie w linii „Wybrane” pod nagłówkiem „Scenariusze”.
+Środa, dzień zamrożenia kodu. O 16:00 Bożena pyta: „wydajemy czy nie?”. Odpowiedź daje Wasz pakiet testów.
 
-Testy zapisujecie w folderze `tests/projekt/`, jeden scenariusz w jednym pliku: `tests/projekt/p1-zakup.spec.ts`, `tests/projekt/p5-api-katalog.spec.ts` itd.
+Scenariusze są w dwóch warstwach:
+- **P1–P12**: zamówione wcześniej. Osiem z pierwszej wersji projektu i cztery z Czarnego Piątku (karta produktu, kod rabatowy, faktura, drugi adres).
+- **P13–P16**: „scenariusze Bożeny”. Bożena zapowiada, że o 13:00 coś w nich zmieni.
+
+Wybierzcie co najmniej cztery scenariusze z P1–P12, w tym co najmniej jeden API i jeden z kontem `admin`. Numery wpiszcie w linii „Wybrane” pod nagłówkiem „Scenariusze”. Do P13–P16 przechodzicie, gdy pierwsza czwórka jest gotowa.
+
+Testy zapisujecie w folderze `tests/projekt/`, jeden scenariusz w jednym pliku: `tests/projekt/p1-zakup.spec.ts`, `tests/projekt/p9-cena-promocyjna.spec.ts` itd. Do logowania używajcie funkcji `zaloguj(page)` i `zalogujPrzezApi(request)` z `tests/pomocnicze/logowanie.ts` (ćwiczenie 11): wtedy ten sam test zadziała na wspólnym serwerze z kontem Waszej pary.
 
 ## Zasada pracy
 
@@ -10,7 +16,7 @@ Każdy test przechodzi review drugiej osoby z pary, zanim trafi do commita. Osob
 
 ## Scenariusze
 
-Wybrane: (np. P1, P3, P5, P7)
+Wybrane: (np. P3, P5, P9, P11)
 
 ### P1. Zakup z płatnością przy odbiorze (E2E)
 
@@ -83,22 +89,142 @@ Oczekiwany wynik:
 - `GET /api/orders/<numer>` zwraca `status` równy `"cancelled"`;
 - inne zamówienia nie zmieniły statusu.
 
+### P9. Ta sama cena promocyjna w trzech miejscach (E2E)
+
+Zalogowany klient otwiera stronę „Produkty”, kafelek „Krem do twarzy na dzień”, potem jego kartę produktu i dodaje krem do koszyka.
+
+Oczekiwany wynik:
+- na kafelku i na karcie produktu: stara cena „32,99 zł” przekreślona, nowa cena „26,39 zł”, plakietka „-20%”;
+- w koszyku w wierszu „Krem do twarzy na dzień” cena „26,39 zł”.
+
+Test na koniec usuwa krem z koszyka.
+
+### P10. Zamówienie na firmę i faktura (E2E)
+
+Biuro Mikołaja (`biuro` / `biuro123`) dodaje do koszyka „Kalendarz adwentowy 2026”, zaznacza „Faktura na firmę”, wpisuje NIP `101-202-30-36` i nazwę firmy „Biuro Mikołaja”, klika „Złóż zamówienie (płatność przy odbiorze)”.
+
+Oczekiwany wynik:
+- strona „Moje zamówienia”, a w adresie strony numer nowego zamówienia (`zlozono=ZAM-…`);
+- na stronie tego zamówienia: „Faktura na firmę: Biuro Mikołaja” i NIP `1012023036`;
+- „Pobierz fakturę” pobiera plik `faktura-ZAM-….html` z numerem faktury `FV/2026/ZAM-…`, danymi nabywcy i kwotą „Razem do zapłaty: 39,99 zł”;
+- NIP `101-202-30-37` (zła suma kontrolna) zatrzymuje zamówienie: komunikat „Nieprawidłowy NIP: błędna suma kontrolna”, klient zostaje w koszyku.
+
+### P11. Kod rabatowy w koszyku (E2E)
+
+Zalogowany klient ma w koszyku „Mydło w kostce” i wpisuje kod w pole „Kod rabatowy”.
+
+Oczekiwany wynik:
+- `CZARNY20`: komunikat „Kod CZARNY20 przyjęty: -20% na całe zamówienie.” i pod sumą linia „Przed rabatem: …, rabat (CZARNY20): -…”;
+- `NIEMA`: komunikat „Nie ma takiego kodu rabatowego: NIEMA”, bez rabatu;
+- `WLOSY15`, gdy w koszyku nie ma produktów z kategorii „Włosy”: komunikat „Kod WLOSY15 działa tylko na produkty z kategorii Włosy. W koszyku nie ma takich produktów.”
+
+Test na koniec usuwa kod i mydło z koszyka.
+
+### P12. Drugi adres w profilu (E2E)
+
+Zalogowany klient na stronie „Moje adresy” dodaje adres: nazwa unikalna (np. „Praca” z godziną), `ul. Biurowa 7`, `00-950`, `Warszawa`, `600 700 800`. Potem ustawia go jako domyślny.
+
+Oczekiwany wynik:
+- komunikat „Dodano adres: <nazwa>” i nowy adres na liście;
+- po kliknięciu „Ustaw jako domyślny” plakietka „Domyślny” jest przy nowym adresie i na stronie jest tylko jedna taka plakietka;
+- „Adres główny” nie ma przycisku „Usuń”.
+
+Test na koniec usuwa swój adres. Wtedy „Domyślny” wraca do „Adres główny”.
+
+## Scenariusze Bożeny (P13–P16)
+
+> Bożena, product ownerka: „Te cztery są już ostateczne. Najwyżej coś drobnego o 13:00. Ostatni raz, obiecuję.”
+
+### P13. Odliczanie do Czarnego Piątku (API)
+
+`GET /api/promocja` z nagłówkiem `X-Namssor-Teraz: 2026-11-20` (opis nagłówka w `/api/docs`).
+
+Oczekiwany wynik:
+- status 200, `days_left` równe 7, `message` równe „Czarny Piątek w Namssorze startuje 27.11.2026. Do startu promocji zostało 7 dni.”;
+- nagłówek `X-Namssor-Teraz: jutro` daje status 400.
+
+### P14. Zamówienie firmowe przez API (API)
+
+Biuro Mikołaja loguje się przez `POST /api/login` i składa `POST /api/business-orders` z treścią `{ "product_id": 21, "qty": 10, "nip": "101-202-30-36", "company": "Biuro Mikołaja" }`.
+
+Oczekiwany wynik:
+- status 201, `status` równy `"new"`, `qty` równe 10, `total_cents` równe 39990, `invoice.company` równe `"Biuro Mikołaja"`;
+- `GET /api/orders/<numer>/invoice` zwraca 200 i `invoice_number` równy `FV/2026/<numer>`;
+- `qty` równe 1001 daje 400, a w `errors` jest pole `qty`.
+
+### P15. Status zamówienia w panelu admina (API + E2E)
+
+Test składa zamówienie przez API jako klient. Administrator otwiera `/admin/zamowienia/<numer>`, wybiera w polu „Status zamówienia” „Opłacone” i klika „Zapisz status”, potem tak samo „Wysłane”.
+
+Oczekiwany wynik:
+- po każdym zapisie status na stronie zamówienia to odpowiednio „Opłacone” i „Wysłane”;
+- klient widzi w `GET /api/orders/<numer>` `status` równy `"shipped"`.
+
+### P16. Ilość z karty produktu (E2E)
+
+Zalogowany klient na karcie produktu „Żel pod prysznic” wpisuje w pole „Ilość” 3 i klika „Dodaj do koszyka”.
+
+Oczekiwany wynik:
+- w koszyku wiersz „Żel pod prysznic”: ilość 3, wartość „29,97 zł”;
+- suma „razem” w koszyku jest równa sumie kolumny „Wartość”.
+
 ## Dane i stan aplikacji
 
-- Konta: `user` / `user123`, `admin` / `admin123`. Jeśli macie już funkcję logowania z ćwiczenia 11, używajcie jej.
+- Konta lokalne: `user` / `user123`, `admin` / `admin123`, `biuro` / `biuro123`.
+- Na wspólnym serwerze każda osoba ma swoje konto `tester01`–`tester12` (hasło `czarny-piatek-2026`), a konta `admin` tam nie ma. Para ustawia konto w zmiennych przed uruchomieniem testów:
+  ```powershell
+  $env:APP_USER="tester05"
+  $env:APP_PASSWORD="czarny-piatek-2026"
+  ```
+  Testy z kontem `admin` uruchamiacie tylko lokalnie.
 - Opis API: http://localhost:4100/api/docs.
-- Koszyk należy do konta. Testy, które zmieniają koszyk konta `user`, mogą sobie przeszkadzać, gdy biegną równolegle. Jeśli test raz przechodzi, a raz nie, uruchomcie go z `--workers=1` i porównajcie wynik.
-- Testy, które dodają dane, używają unikalnych nazw albo po sobie sprzątają. Stan startowy przywraca `npm run db:reset` (przy zatrzymanej aplikacji).
+- Koszyk i adresy należą do konta. Testy, które zmieniają koszyk tego samego konta, przeszkadzają sobie, gdy biegną równolegle. Dlatego pakiet sprawdzacie z `--workers=1`, a testy z jednego pliku, które dzielą koszyk, oznaczacie `test.describe.configure({ mode: 'serial' });`.
+- Testy, które dodają dane, używają unikalnych nazw i po sobie sprzątają. Stan startowy lokalnie przywraca `npm run db:reset` (przy zatrzymanej aplikacji). Na wspólnym serwerze resetu nie ma: sprzątanie jest obowiązkowe.
 
 ## Kryteria oceny pary
 
 | Kryterium | Jak sprawdzić |
 |---|---|
-| Co najmniej 4 scenariusze, w tym 1 API i 1 z kontem `admin` | pliki w `tests/projekt/`, linia „Wybrane” wyżej |
-| Pakiet jest zielony za każdym razem | `npx playwright test tests/projekt --repeat-each=3` bez `failed` |
+| Co najmniej 4 scenariusze z P1–P12, w tym 1 API i 1 z kontem `admin` | pliki w `tests/projekt/`, linia „Wybrane” wyżej |
+| Pakiet jest zielony za każdym razem | `npx playwright test tests/projekt --repeat-each=3 --workers=1` bez `failed` |
 | Test pada, gdy wynik jest inny niż oczekiwany | para pokazuje: zmiana oczekiwanej wartości w jednej asercji daje `1 failed` |
 | Asercje sprawdzają wynik biznesowy ze scenariusza | każdy punkt „Oczekiwany wynik” ma swoją asercję albo komentarz, dlaczego jej nie ma |
 | Locatory odporne na zmiany UI | `getByRole`, `getByLabel`, `getByText`, potem `getByTestId`; bez CSS, XPath, `nth()` |
 | Bez stałych pauz | w kodzie nie ma `waitForTimeout` |
 | Każdy test po review drugiej osoby | w historii (`git log`) przy każdym teście linia `Review: OK` albo lista poprawek |
 | Nazwa testu mówi, co ma się stać | po samej nazwie w raporcie wiadomo, jaki wynik jest oczekiwany |
+| Test sprząta po sobie | drugi przebieg bez `db:reset` daje ten sam wynik |
+
+## Review krzyżowe: karta punktacji
+
+30 minut. Każda para robi review testów innej pary: trener podaje, czyje. Otwórzcie ich fork (`git clone` albo GitHub w przeglądarce) albo usiądźcie przy ich ekranie. Autorzy nie podpowiadają, odpowiadają tylko na pytania.
+
+Przejdźcie testy z listą kontrolną (`docs/lista-kontrolna-review.md`). Każde znalezisko wpiszcie do tabeli. Punkt liczy się, gdy autorzy się zgadzają albo gdy pokażecie to uruchomieniem testu.
+
+| Co znaleźliście | Waga |
+|---|---|
+| Punkt „Oczekiwany wynik” ze scenariusza nie ma asercji albo asercja sprawdza coś innego | 3 |
+| Test przechodzi także przy złym wyniku: po zmianie oczekiwanej wartości dalej `passed` | 3 |
+| Tekst albo wartość w asercji, której nie ma ani w aplikacji, ani w scenariuszu | 2 |
+| Test zależy od danych innego testu albo po sobie nie sprząta | 2 |
+| Stała pauza (`waitForTimeout`) albo `isVisible()` w `if` | 2 |
+| Locator CSS, XPath, `nth()` albo `first()` tam, gdzie wystarczy rola, etykieta albo tekst | 1 |
+| Nazwa testu nie mówi, jaki wynik jest oczekiwany | 1 |
+| Login i hasło wpisane w test zamiast `zaloguj()` | 1 |
+
+Tabela do wypełnienia:
+
+| Plik i linia | Co jest nie tak | Waga | Autorzy się zgadzają? |
+|---|---|---|---|
+| | | | |
+
+Suma wag to wynik pary recenzentów. Autorzy poprawiają znalezisko z najwyższą wagą i robią commit z linią `Review krzyżowe: …`.
+
+## Spotkanie „wydajemy czy nie”
+
+5 minut na parę, przy rzutniku. Kolejność podaje trener. Pary, które nie prezentują, pracują dalej.
+
+1. **Co pokrywa pakiet** (1,5 min): scenariusze, liczba testów, E2E i API. Czego pakiet nie sprawdza i dlaczego.
+2. **Co znaleźliśmy** (2 min): błędy z polowania (test czerwony na `rc`, zielony na wersji zwykłej), wynik po hotfiksie Mirka, najważniejsze znalezisko z review krzyżowego.
+3. **Rekomendacja** (1 min): „wydajemy”, „nie wydajemy” albo „wydajemy, jeśli…”. Uzasadnienie to nazwa testu i jego wynik, a nie opinia.
+4. **Pytanie od Bożeny** (0,5 min).
