@@ -13,7 +13,7 @@ Zgłoszenie od Mirka, 8:47:
 
 - `tests/pomocnicze/logowanie.ts`: gotowe funkcje `zaloguj(page)` i `zalogujPrzezApi(request)`.
 - `tests/czytanie/02-moje-zamowienia.spec.ts`: dwa testy, w każdym te same trzy linie logowania.
-- Adres wspólnego serwera: `https://namssor-376292984721.europe-central2.run.app`. W przeglÄdarce wystarczy krÃ³tki adres `namssor.prosit.cloud` (przekierowuje na ten). Do `BASE_URL` wpisz peÅny adres powyÅ¼ej.
+- Adres wspólnego serwera: `https://namssor-376292984721.europe-central2.run.app`. W przeglądarce wystarczy krótki adres `namssor.prosit.cloud` (przekierowuje na ten). Do `BASE_URL` wpisz pełny adres powyżej.
 
 ## Kroki
 
