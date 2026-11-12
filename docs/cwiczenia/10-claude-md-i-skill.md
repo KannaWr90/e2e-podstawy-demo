@@ -8,6 +8,10 @@ Umiesz zapisać zasady zespołu tak, żeby Claude stosował je bez przypominania
 
 ## Materiał wejściowy
 
+Wiadomość od Bożeny:
+
+> Klaudiusz pisze test w 30 sekund, a potem my przez pół godziny robimy z nim review i co rano poprawiamy te same błędy. `CLAUDE.md` to jego instrukcja obsługi: czyta ją przed każdą pracą. Wpiszcie mu tam zasady, których chcę pilnować: test sprząta po sobie, sprawdza efekt biznesowy, a oczekiwane wartości biorą się z wymagania, nie ze strony. I niech przestanie pisać „jestem pewien”.
+
 - `CLAUDE.md`: obecne zasady pisania testów w tym repo.
 - `docs/lista-kontrolna-review.md`: lista kontrolna z ćwiczenia 05 (z twoim dopisanym pytaniem).
 - Format skilla w Claude Code: folder `.claude/skills/<nazwa>/` z plikiem `SKILL.md`. Plik zaczyna się od nagłówka YAML między liniami `---` z polami `name` (nazwa polecenia po `/`) i `description` (co robi skill i kiedy go użyć; po tym opisie Claude sam decyduje, czy go wczytać). Pod nagłówkiem instrukcje w Markdown.
@@ -16,9 +20,9 @@ Umiesz zapisać zasady zespołu tak, żeby Claude stosował je bez przypominania
 
 PowerShell, z katalogu głównego repo.
 
-1. **Porównaj CLAUDE.md z listą kontrolną.** Przy każdym pytaniu z listy kontrolnej zaznacz, czy `CLAUDE.md` już je pokrywa. Oczekiwany wynik: lista pytań, których w `CLAUDE.md` brakuje (zwykle 4–6).
+1. **Porównaj CLAUDE.md z listą kontrolną.** Przy każdym pytaniu z listy kontrolnej zaznacz, czy `CLAUDE.md` już je pokrywa. Oczekiwany wynik: lista pytań, których w `CLAUDE.md` brakuje (zwykle 8–10 z 15).
 
-2. **Dopisz brakujące zasady do CLAUDE.md.** Dodaj sekcję `## Review i dane testowe`, najwyżej 8 punktów, każdy jednym zdaniem w trybie rozkazującym. Możesz poprosić Claude o propozycję, ale każdy punkt zatwierdzacie sami.
+2. **Dopisz brakujące zasady do CLAUDE.md.** Dodaj sekcję `## Review i dane testowe`, najwyżej 8 punktów, każdy jednym zdaniem w trybie rozkazującym. Trzy zasady Bożeny z wiadomości muszą się w niej znaleźć. Możesz poprosić Claude o propozycję, ale każdy punkt zatwierdzacie sami.
 
 3. **Utwórz skill.** Utwórz plik `.claude/skills/test-e2e/SKILL.md`. Nagłówek:
    ```markdown

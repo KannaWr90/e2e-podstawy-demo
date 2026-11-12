@@ -1,22 +1,26 @@
 # Ćwiczenie 08. Z przypadku testowego do testu: plan, review planu, test
 
-Blok 2.4 · 40 min · w parach, zmiana ról co blok
+Blok 2.4 · 70 min (część A 40 min, część B 30 min) · w parach, zmiana ról co blok
 
 ## Cel
 
-Umiesz dać Claude przypadek testowy jako wejście, sprawdzić jego plan testu przed napisaniem kodu i dostać test, który pokrywa każdy oczekiwany wynik z przypadku.
+Umiesz dać Claude przypadek testowy jako wejście, sprawdzić jego plan testu przed napisaniem kodu i dostać test, który pokrywa każdy oczekiwany wynik z przypadku. W części B zamieniasz ten sam przypadek zapisany w dwóch formatach (kroki z Azure Test Plans i Gherkin) na jeden test, który kończy się pobraniem pliku.
 
 ## Materiał wejściowy
+
+Wiadomość od Bożeny:
+
+> Klienci przed Czarnym Piątkiem masowo zmieniają adresy dostawy. Przypadek testowy jest od dawna w repo, a Klaudiusz dopisał wersję w Gherkinie. Ręcznie przechodzimy go co wydanie. Niech wreszcie przechodzi się sam.
 
 - `docs/scenariusze/zmiana-adresu.md`: przypadek testowy TC-ADR-01 (zmiana adresu dostawy) i negatywny TC-ADR-02 (błędny kod pocztowy), z krokami, danymi i oczekiwanym wynikiem.
 - `docs/scenariusze/zmiana-adresu.feature`: ten sam scenariusz w Gherkinie (słowa kluczowe po polsku).
 - `.mcp.json`: konfiguracja Playwright MCP. Dzięki niej Claude może sam otworzyć aplikację w przeglądarce i przejść scenariusz.
 
-## Kroki
+## Kroki: część A, zmiana adresu (40 min)
 
 PowerShell, z katalogu głównego repo.
 
-1. **Przeczytaj przypadek testowy.** Otwórz oba pliki z `docs/scenariusze/`. Zaznacz ołówkiem albo w notatce każdy oczekiwany wynik. Policz je: to twoja lista do review planu.
+1. **Przeczytaj przypadek testowy.** Otwórz oba pliki `zmiana-adresu` z `docs/scenariusze/`. Zaznacz ołówkiem albo w notatce każdy oczekiwany wynik. Policz je: to twoja lista do review planu.
 
 2. **Sprawdź, że Playwright MCP działa.** W drugim oknie uruchom aplikację (`npm start`). W pierwszym:
    ```powershell
@@ -27,7 +31,7 @@ PowerShell, z katalogu głównego repo.
 > **Serwer MCP nie startuje na Windows (`✘ Failed to connect`)**
 > W `.mcp.json` zamień `"command": "npx"` na `"command": "cmd"` i dodaj `"/c", "npx"` na początku listy `args`. Sprawdź jeszcze raz `claude mcp list`. Jeśli nadal nie działa (proxy, blokada pobierania), rób kroki 3–5 bez MCP: Claude napisze test z samego przypadku testowego i kodu aplikacji.
 
-3. **Poproś Claude o plan, bez kodu.** Uruchom `claude`. Wskaż oba pliki z `docs/scenariusze/` i poproś o plan testów w punktach: nazwy testów, kroki, asercje, dane i sprzątanie. Poproś, żeby przed planem przeszedł scenariusz w przeglądarce przez Playwright MCP i zapisał, jakie etykiety i komunikaty naprawdę widzi.
+3. **Poproś Claude o plan, bez kodu.** Uruchom `claude`. Wskaż oba pliki `zmiana-adresu` i poproś o plan testów w punktach: nazwy testów, kroki, asercje, dane i sprzątanie. Poproś, żeby przed planem przeszedł scenariusz w przeglądarce przez Playwright MCP i zapisał, jakie etykiety i komunikaty naprawdę widzi.
 
 4. **Zrób review planu.** Zestaw plan z listą oczekiwanych wyników z kroku 1 i z pytaniami z `docs/lista-kontrolna-review.md`. Dla każdego oczekiwanego wyniku wskaż punkt planu, który go sprawdza. Szczególnie: czy plan przywraca adres startowy po teście, czy sprawdza, że błędny adres się nie zapisał, czy używa konta `user`. Odpisz Claude listą poprawek.
 
@@ -41,9 +45,32 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik za każdym razem: wszystkie testy zielone, np. `4 passed` (jeden test zmiany adresu i trzy z tabeli Przykłady).
 
+## Kroki: część B, Biuro Mikołaja (30 min)
+
+Wiadomość od Bożeny, 13:30:
+
+> Dzwonił klient firmowy, Biuro Mikołaja. W zeszłym tygodniu zamówili 1000 kalendarzy adwentowych na fakturę (ZAM-1007) i chcą domówić. Ich księgowa, pani elfka, ma jedną prośbę: na fakturze ma być NIP Biura, a nie nasz. Przypadek testowy wpisałam do Azure Test Plans, Klaudiusz przepisał go na Gherkina „dla porządku”. Próbujcie na 10 kalendarzach. ZAM-1007 nie ruszać, to prawdziwe pieniądze (fikcyjne).
+
+- `docs/scenariusze/biuro-mikolaja.md`: przypadek TC-FV-01 w formacie Azure Test Plans: 10 kroków w kolumnach „Akcja” i „Oczekiwany wynik”, dane jako parametry `@nazwa`.
+- `docs/scenariusze/biuro-mikolaja.feature`: ten sam przypadek w Gherkinie.
+- `tests/cwiczenia/08-biuro-mikolaja.spec.ts`: szkielet z `test.fixme`. Krok 1 (logowanie i pusty koszyk) jest gotowy, kroki 2–10 jako TODO.
+
+6. **Zestaw oba formaty.** Przy każdym kroku z `biuro-mikolaja.md` wskaż linię `.feature`, która go opisuje. Zapisz, czego brakuje w Gherkinie, a czego w krokach Azure Test Plans. Oczekiwany wynik: co najmniej jedna różnica w każdą stronę.
+
+7. **Napisz test z Claude albo sam.** Wejściem jest przypadek testowy, nie Gherkin: każdy wiersz „Oczekiwany wynik” to co najmniej jedna asercja. Pobieranie faktury: najpierw `page.waitForEvent('download')` zapisane w zmiennej, potem kliknięcie „Pobierz fakturę”, na końcu `await` tej zmiennej. Zamień `test.fixme` na `test` i uruchom:
+   ```powershell
+   npx playwright test tests/cwiczenia/08-biuro-mikolaja.spec.ts
+   ```
+   Oczekiwany wynik: `1 passed`.
+
+> **Jeśli utknąłeś po 10 minutach**
+> Uruchom test z `--ui` i sprawdź, który krok pada. Numer zamówienia znajdziesz w adresie strony po złożeniu zamówienia (`?zlozono=ZAM-…`). Gdy nie wiesz, co jest w fakturze, otwórz pobrany plik w przeglądarce: to zwykła strona HTML.
+
+8. **Sprawdź, że test potrafi paść i nie rusza ZAM-1007.** Zmień w asercji NIP nabywcy na `1234563218` i uruchom test. Oczekiwany wynik: `1 failed`. Cofnij zmianę. Uruchom test drugi raz pod rząd: znowu `1 passed`, bo każdy przebieg zakłada nowe zamówienie. Na http://localhost:4100/zamowienia/ZAM-1007 (konto `biuro`) status to nadal „Opłacone”.
+
 ## Przykład wyniku
 
-Fragment planu po review (komentarze pary dopisane ręcznie):
+Fragment planu po review z części A (komentarze pary dopisane ręcznie):
 ```
 Test 1: poprawna zmiana adresu zapisuje nowy adres
   - zaloguj jako user, otwórz /konto/adres
@@ -57,26 +84,33 @@ Test 2: kod pocztowy 31001 blokuje zapis
   [review: brak sprawdzenia, że adres się nie zapisał (krok 4 z TC-ADR-02). Dopisać]
 ```
 
+Zestawienie z kroku 6 dla przypadku spoza ćwiczenia:
+
+| Krok w Azure Test Plans | Linia w Gherkinie | Różnica |
+|---|---|---|
+| 3. Kliknij „Zapisz adres” → komunikat „Zapisano adres dostawy.” | `Oraz kliknę "Zapisz adres"`, `Wtedy zobaczę komunikat "Zapisano adres dostawy."` | brak |
+| 4. Odśwież stronę → pola z nowym adresem | brak | Gherkin nie mówi o odświeżeniu |
+
 ## Kryterium „gotowe”
 
 - [ ] Każdy oczekiwany wynik z kroku 1 ma w teście asercję. Pokazujesz drugiej osobie pary, która linia sprawdza który wynik.
-- [ ] Plik testu uruchomiony dwa razy pod rząd daje za każdym razem same zielone testy.
-- [ ] Po teście adres konta `user` jest znowu startowy: na http://localhost:4100/konto/adres pole Miasto ma „Warszawa”.
+- [ ] Plik `08-zmiana-adresu.spec.ts` uruchomiony dwa razy pod rząd daje za każdym razem same zielone testy, a po teście adres konta `user` jest znowu startowy (pole Miasto: „Warszawa”).
 - [ ] Masz zapisaną co najmniej jedną poprawkę, którą wniosłeś do planu Claude.
+- [ ] Po części B: `08-biuro-mikolaja.spec.ts` dwa razy pod rząd daje `1 passed`, po zmianie NIP-u w asercji `1 failed`. Pokazujesz asercję na NIP nabywcy, ilość i sumę z pobranej faktury.
 
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Napisz przypadek testowy w tym samym formacie dla innego ekranu, np. wyszukiwarki produktów, i daj go drugiej parze jako wejście do kroków 3–5. Zapisz, co w twoim opisie było niejasne dla Claude. Dłuższe zadania: gałąź `extra/d2-iframe-dialog-pliki`.
+> Bożena dopisała: „Biuro pyta, czy kod CZARNY20 działa przy zamówieniu na firmę”. Dopisz drugi test: te same kroki, ale przed złożeniem zamówienia kod `CZARNY20` w koszyku. Policz sam, jaka będzie cena kalendarza i suma na fakturze, zanim uruchomisz test, i porównaj z wynikiem. Kod jest ważny do 30.11.2026. Potem napisz przypadek testowy w formacie z `docs/scenariusze/` dla innego ekranu, np. wyszukiwarki produktów, i daj go drugiej parze jako wejście do kroków 3–5. Dłuższe zadania: gałąź `extra/d2-iframe-dialog-pliki`.
 
 ## Artefakt do zabrania
 
-Format przypadku testowego z `docs/scenariusze/zmiana-adresu.md`, przejrzany plan i test `tests/cwiczenia/08-zmiana-adresu.spec.ts`.
+Format przypadku testowego z `docs/scenariusze/`, przejrzany plan, testy `tests/cwiczenia/08-zmiana-adresu.spec.ts` i `08-biuro-mikolaja.spec.ts`. Z części B wzorzec pobierania pliku: `waitForEvent('download')` przed kliknięciem i asercje na treści pliku.
 
 ## Rozwiązanie wzorcowe
 
 Gałąź `solution/08`, pokazywana po ćwiczeniu:
 ```powershell
 git fetch origin
-git diff main origin/solution/08 -- tests/cwiczenia/08-zmiana-adresu.spec.ts docs/odpowiedzi/08.md
+git diff main origin/solution/08 -- tests/cwiczenia docs/odpowiedzi/08.md
 ```

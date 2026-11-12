@@ -1,12 +1,16 @@
 # Ćwiczenie 09. Testy API i dane przygotowane przez API
 
-Blok 2.5 · 40 min · w parach, zmiana ról co blok
+Blok 2.5 · 30 min · w parach, zmiana ról co blok; krok 4 razem z całą grupą
 
 ## Cel
 
-Umiesz sprawdzić odpowiedź API (status i treść) dla ścieżki poprawnej i negatywnej. Umiesz przygotować dane przez API przed testem w przeglądarce i posprzątać je po teście, tak żeby test przechodził przy każdym uruchomieniu.
+Umiesz sprawdzić odpowiedź API (status i treść) dla ścieżki negatywnej. Umiesz przygotować dane przez API przed testem w przeglądarce i posprzątać je po teście, tak żeby test przechodził przy każdym uruchomieniu.
 
 ## Materiał wejściowy
+
+Wiadomość od Mirka:
+
+> Front przed Czarnym Piątkiem bywa wolny, ale API mam szybkie jak renifer. Zamiast klikać po panelu, testujcie API. U mnie wszystkie błędy zwracają ładny JSON.
 
 - http://localhost:4100/api/docs: lista endpointów z kodami odpowiedzi (pełny opis w `app/openapi.json`).
 - `tests/cwiczenia/09-api.spec.ts`: jeden gotowy test (`GET /api/orders`) jako wzór i pięć testów z `test.fixme` i TODO.
@@ -32,18 +36,18 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik: `1 passed` i `5 skipped`. Przeczytaj gotowy test: logowanie przez `POST /api/login`, token w nagłówku `Authorization`.
 
-3. **Napisz cztery testy API.** Według TODO w describe „API zamówień”: utworzenie zamówienia (z anulowaniem na końcu), 400, 401, 404. W ścieżkach negatywnych sprawdź status i całą treść odpowiedzi (`toEqual`). Zamień `test.fixme` na `test` i uruchom plik. Oczekiwany wynik: `5 passed` i `1 skipped`.
+3. **Napisz dwa testy ścieżek negatywnych: 401 i 400.** Według TODO w describe „API zamówień”: `GET /api/orders bez logowania` i `POST /api/orders z ilością 0`. Sprawdź status i całą treść odpowiedzi (`toEqual`). Zamień `test.fixme` na `test` i uruchom plik. Oczekiwany wynik: `3 passed` i `3 skipped`.
 
 > **Jeśli utknąłeś po 10 minutach**
 > Wyślij żądanie i wypisz odpowiedź, zanim napiszesz asercję: `console.log(odpowiedz.status(), await odpowiedz.json());`. Wynik zobaczysz w terminalu. Asercję przepisz z tego, co API naprawdę zwraca, i porównaj z tabelą kodów powyżej.
 
-4. **Przygotuj dane przez API dla testu w przeglądarce.** W describe „Anulowanie zamówienia przygotowanego przez API” uzupełnij `beforeEach` (nowe zamówienie przez API), `afterEach` (anulowanie przez API jako admin) i sam test (anulowanie w panelu admina). Uruchom plik. Oczekiwany wynik: `6 passed`.
+4. **Przygotuj dane przez API dla testu w przeglądarce (razem).** Ten krok robimy wspólnie, trener pisze na rzutniku, ty u siebie. W describe „Anulowanie zamówienia przygotowanego przez API” uzupełnij `beforeEach` (nowe zamówienie przez API), `afterEach` (anulowanie przez API jako admin) i sam test (anulowanie w panelu admina). Uruchom plik. Oczekiwany wynik: `4 passed` i `2 skipped`.
 
 5. **Sprawdź, że testy sprzątają po sobie.** Uruchom plik trzy razy w jednym poleceniu:
    ```powershell
    npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3
    ```
-   Oczekiwany wynik: `18 passed`. Otwórz http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":180`, tyle co przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
+   Oczekiwany wynik: `12 passed` i `6 skipped`. Otwórz http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":180`, tyle co przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
 
 ## Przykład wyniku
 
@@ -59,7 +63,7 @@ test('GET /api/products/999 zwraca 404', async ({ request }) => {
 
 ## Kryterium „gotowe”
 
-- [ ] `npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3` daje `18 passed`.
+- [ ] `npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3` daje `12 passed` i `6 skipped`.
 - [ ] Po przebiegu `stock` produktu 20 wynosi 180 (http://localhost:4100/api/products/20).
 - [ ] Każdy test negatywny sprawdza status i treść odpowiedzi. Pokazujesz palcem obie asercje.
 - [ ] Umiesz powiedzieć, dlaczego anulowanie jest w `afterEach`, a nie na końcu testu.
@@ -67,7 +71,7 @@ test('GET /api/products/999 zwraca 404', async ({ request }) => {
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Dopisz dwa testy: zwykły użytkownik wywołuje `GET /api/admin/orders` (oczekiwany kod 403) i admin anuluje to samo zamówienie dwa razy (drugi raz 409). Potem sprawdź, co się dzieje z danymi, gdy test w przeglądarce padnie: zmień na chwilę oczekiwany komunikat w teście E2E, uruchom plik, sprawdź `stock` produktu 20. Własne fixtures zamiast `beforeEach`: gałąź `extra/d3-page-object-fixtures`. Inne dłuższe zadania: `extra/d2-iframe-dialog-pliki`.
+> Zrób dwa pozostałe testy z describe „API zamówień”: utworzenie zamówienia (201, z anulowaniem na końcu) i 404 dla `ZAM-9999`. Potem zamówienie firmowe przez API: `POST /api/business-orders` z `{ "product_id": 21, "qty": 10, "nip": "2412241228", "company": "Biuro Mikołaja" }` jako `biuro` / `biuro123`, a następnie `GET /api/orders/<numer>/invoice`. Sprawdź w fakturze NIP nabywcy, ilość i `total_cents`. Na koniec anuluj zamówienie jako admin i sprawdź, że faktura zwraca teraz 404 z `{ "error": "To zamówienie nie ma faktury" }`. Własne fixtures zamiast `beforeEach`: gałąź `extra/d3-page-object-fixtures`.
 
 ## Artefakt do zabrania
 

@@ -100,8 +100,8 @@ Polecenie działa tylko przy zatrzymanej aplikacji. Jeśli aplikacja działa, `d
 | `/admin/zamowienia/ZAM-1007` | Zamówienie w panelu admina: zmiana statusu Nowe → Opłacone → Wysłane | przepływ statusów |
 | `/admin/ustawienia` | Tryb konserwacji sklepu | stan globalny aplikacji |
 | `/api/docs` | Lista endpointów API (opis OpenAPI: `/api/openapi.json`) | testy API |
-| `/admin/zamowienia/potwierdzenie` | Anulowanie z oknem „Tak, anuluj / Wróć” | dla szybszych: okno dialogowe |
-| `/koszyk/platnosc` | Bramka płatnicza w ramce (iframe) | dla szybszych: ramki |
+| `/admin/zamowienia/potwierdzenie` | Anulowanie z oknem „Tak, anuluj / Wróć” | okno dialogowe (ćw. 06, część B) |
+| `/koszyk/platnosc` | Bramka płatnicza w ramce (iframe) | ramki (ćw. 06, część B) |
 | `/regulamin` | Link „Regulamin” w stopce otwiera nową kartę | dla szybszych: nowa karta |
 | `/admin/zamowienia` | Link „Eksportuj do CSV” | dla szybszych: pobieranie pliku |
 | `/admin/produkty` | Dodawanie produktu i import z pliku CSV (`tests/dane/produkty.csv`) | dla szybszych: wysyłanie pliku |

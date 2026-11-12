@@ -1,6 +1,6 @@
-# Ćwiczenie 07. Trzy czerwone testy: najpierw diagnoza, potem poprawka
+# Ćwiczenie 07. Czerwone testy: najpierw diagnoza, potem poprawka
 
-Blok 2.3 · 25 min · w parach, zmiana ról co blok
+Blok 2.3 · 25 min, część B 15 min dla par, które skończyły część A · w parach, zmiana ról co blok
 
 ## Cel
 
@@ -8,7 +8,13 @@ Umiesz ustalić, dlaczego test padł, z komunikatu błędu i nagrania przebiegu 
 
 ## Materiał wejściowy
 
-- `tests/zepsute/01-wyszukiwarka-produktow.spec.ts`, `02-logowanie-admina.spec.ts`, `03-lista-zamowien.spec.ts`: trzy testy, które padają, każdy z innego powodu. Biegną tylko w osobnym projekcie Playwright `zepsute`, więc `npm test` ich nie uruchamia.
+Nocny build jest czerwony. Wiadomość od Mirka, wtorek, 7:58:
+
+> U mnie działa. Wszystkie testy przechodziły na moim laptopie, sprawdziłem dwa razy. Pewnie serwer buildów ma zły dzień. Zrestartujcie go i będzie zielono.
+
+- `tests/zepsute/01-wyszukiwarka-produktow.spec.ts`, `02-logowanie-admina.spec.ts`, `03-lista-zamowien.spec.ts`: trzy testy z części A, które padają, każdy z innego powodu.
+- `tests/zepsute/04-zapis-ustawien.spec.ts`, `05-zamowienie-z-koszyka.spec.ts`, `06-powrot-po-logowaniu.spec.ts`: trzy testy z części B.
+- Testy z `tests/zepsute` biegną tylko w osobnym projekcie Playwright `zepsute`, więc `npm test` ich nie uruchamia.
 
 Tabela do wypełnienia:
 
@@ -18,7 +24,7 @@ Tabela do wypełnienia:
 | 02 | | | |
 | 03 | | | |
 
-## Kroki
+## Kroki: część A (25 min)
 
 PowerShell, z katalogu głównego repo.
 
@@ -26,7 +32,7 @@ PowerShell, z katalogu głównego repo.
    ```powershell
    npx playwright test --project=zepsute
    ```
-   Oczekiwany wynik: `3 failed`. Jeden test czeka na swój błąd około 30 sekund. Przepisz do tabeli pierwszą linię `Error:` każdego testu.
+   Oczekiwany wynik: `6 failed`. Dwa testy czekają na swój błąd około 30 sekund. Przepisz do tabeli pierwszą linię `Error:` testów 01–03. Testami 04–06 zajmiesz się w części B.
 
 2. **Obejrzyj każdy test w UI mode.**
    ```powershell
@@ -46,13 +52,29 @@ PowerShell, z katalogu głównego repo.
 
 5. **Sprawdź poprawki.**
    ```powershell
-   npx playwright test --project=zepsute
+   npx playwright test --project=zepsute tests/zepsute/01 tests/zepsute/02 tests/zepsute/03
    ```
    Oczekiwany wynik: `3 passed`. Potem sprawdź, czy test z danymi ładowanymi z opóźnieniem jest stabilny:
    ```powershell
    npx playwright test --project=zepsute tests/zepsute/03-lista-zamowien.spec.ts --repeat-each=10
    ```
    Oczekiwany wynik: `10 passed`.
+
+## Kroki: część B, „u mnie działa” (15 min)
+
+Druga wiadomość od Mirka, 9:12:
+
+> Dopisałem jeszcze trzy testy: zapis ustawień, zamówienie z koszyka i powrót po logowaniu. U mnie wszystkie przechodzą. Na buildzie też przejdą, jestem prawie pewien.
+
+Dopisz do tabeli wiersze 04, 05 i 06.
+
+6. **Zdiagnozuj testy 04–06.** Ta sama metoda co w krokach 2–3: pierwsza linia błędu, trace w chwili błędu, przyczyna jednym zdaniem.
+   ```powershell
+   npx playwright test --project=zepsute tests/zepsute/04 tests/zepsute/05 tests/zepsute/06
+   ```
+   Oczekiwany wynik: `3 failed`. Przy każdym teście zapisz też, dlaczego Mirkowi test mógł przechodzić. W teście 05 obejrzyj w trace krok `click` i jego log.
+
+7. **Popraw testy 04–06 i uruchom je dwa razy pod rząd.** Tak jak w kroku 4: z przyczyną z tabeli, bez `waitForTimeout` i bez usuwania asercji. Uruchom polecenie z kroku 6 dwa razy. Oczekiwany wynik za każdym razem: `3 passed`.
 
 ## Przykład wyniku
 
@@ -64,10 +86,11 @@ Wiersz tabeli dla testu spoza tego ćwiczenia:
 
 ## Kryterium „gotowe”
 
-- [ ] Tabela ma trzy przyczyny, każda jednym zdaniem i każda inna.
+- [ ] Tabela ma trzy przyczyny (po części B sześć), każda jednym zdaniem i każda inna.
 - [ ] Umiesz pokazać drugiej osobie w UI mode albo w trace miejsce, z którego wzięła się przyczyna.
-- [ ] `npx playwright test --project=zepsute` daje `3 passed`, a `--repeat-each=10` dla testu 03 daje `10 passed`.
+- [ ] Polecenie z kroku 5 daje `3 passed`, a `--repeat-each=10` dla testu 03 daje `10 passed`.
 - [ ] Żadna poprawka nie usuwa asercji ani nie dodaje `waitForTimeout`.
+- [ ] Po części B: `npx playwright test --project=zepsute` daje `6 passed`, także przy drugim uruchomieniu pod rząd.
 
 ## Dla szybszych
 

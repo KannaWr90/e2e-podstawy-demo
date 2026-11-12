@@ -28,3 +28,9 @@ Przejdź ją przy każdym teście, zanim go zatwierdzisz, także przy teście na
 ## Weryfikacja
 
 12. **Czy widziałeś, że ten test potrafi paść?** Zmień na chwilę oczekiwany tekst albo pomiń akcję i uruchom test. Test, który nigdy nie był czerwony, niczego jeszcze nie udowodnił.
+
+## Asercje, które wyglądają na sprawdzenie
+
+13. **Czy asercja z `not` albo `toBeHidden()` szuka tekstu, który aplikacja naprawdę pokazuje?** Komunikat wymyślony przez autora nigdy się nie pojawi, więc „nie jest widoczny” przejdzie zawsze. Znajdź ten tekst w aplikacji, zanim uznasz asercję.
+14. **Czy każde sprawdzenie elementu ma postać `await expect(lokator).toX()`?** `expect(lokator).toBeTruthy()` sprawdza, że w kodzie jest obiekt lokatora, a nie że element jest na stronie. Bez `await` przed `expect(lokator)` test nie czeka na wynik sprawdzenia.
+15. **Czy oczekiwana wartość pochodzi z wymagania?** Cena albo tekst przepisane ze strony utrwalają to, co aplikacja pokazuje dziś, także jej błąd. Zestaw liczbę w asercji z liczbą w wymaganiu.
