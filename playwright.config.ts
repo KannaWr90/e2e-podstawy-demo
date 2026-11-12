@@ -16,7 +16,8 @@ export default defineConfig({
 
   use: {
     // Adres aplikacji. Dzięki temu w testach piszesz page.goto('/koszyk').
-    baseURL: 'http://localhost:4100',
+    // Inny adres (np. aplikacja w chmurze) ustawisz zmienną BASE_URL.
+    baseURL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 4100}`,
     // Nagranie przebiegu (trace) zostaje po każdym nieudanym teście.
     // Otwórz je z raportu HTML albo: npx playwright show-trace <plik.zip>
     trace: 'retain-on-failure',
@@ -60,10 +61,13 @@ export default defineConfig({
 
   // Playwright sam uruchamia aplikację przed testami i zamyka ją po nich.
   // Jeśli aplikacja już działa (npm start w innym oknie), użyje działającej.
-  webServer: {
-    command: 'node --disable-warning=ExperimentalWarning app/server.mjs',
-    url: 'http://localhost:4100/health',
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
-  },
+  // Gdy BASE_URL wskazuje inny komputer niż localhost, aplikacji lokalnie nie uruchamiamy.
+  webServer: /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(process.env.BASE_URL || 'http://localhost')
+    ? {
+        command: 'node --disable-warning=ExperimentalWarning app/server.mjs',
+        url: `http://localhost:${process.env.PORT || 4100}/health`,
+        reuseExistingServer: !process.env.CI,
+        timeout: 30_000,
+      }
+    : undefined,
 });

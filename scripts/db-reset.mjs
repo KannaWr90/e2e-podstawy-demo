@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import { dbPath, openDb, ensureSchema } from '../app/db.mjs';
 
-const PORT = Number(process.env.APP_PORT ?? 4100);
+const PORT = Number(process.env.PORT || process.env.APP_PORT || 4100);
 
 async function aplikacjaDziala() {
   try {

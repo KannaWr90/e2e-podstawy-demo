@@ -1,0 +1,12 @@
+.git
+.claude
+node_modules
+tests
+docs
+data
+test-results
+playwright-report
+blob-report
+.env
+*.md
+app/*.local.mjs
