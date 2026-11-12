@@ -7,6 +7,9 @@ import { test, expect } from '@playwright/test';
 const ADRES_STARTOWY = { ulica: 'ul. Przykładowa 12/3', kod: '00-001', miasto: 'Warszawa', telefon: '500 100 200' };
 
 test.describe('Zmiana adresu dostawy', () => {
+  // Wszystkie testy używają jednego konta user i jednego adresu: biegną po kolei, nie równolegle.
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
     // Założenia: zalogowany jako user, strona „Adres dostawy”
     await page.goto('/logowanie');
@@ -50,9 +53,9 @@ test.describe('Zmiana adresu dostawy', () => {
 
   // Szablon scenariusza „Błędne dane blokują zapis adresu”: jeden test na wiersz tabeli Przykłady
   const PRZYKLADY = [
-    { pole: 'Kod pocztowy', wartosc: '31001', komunikat: 'Kod pocztowy musi mieć format 00-000' },
-    { pole: 'Telefon', wartosc: '12345', komunikat: 'Telefon musi mieć 9 cyfr (opcjonalnie z +48)' },
-    { pole: 'Miasto', wartosc: '', komunikat: 'Podaj miasto' },
+    { pole: 'Kod pocztowy', wartosc: '31001', komunikat: 'Kod pocztowy musi mieć format 00-000', startowa: ADRES_STARTOWY.kod },
+    { pole: 'Telefon', wartosc: '12345', komunikat: 'Telefon musi mieć 9 cyfr (opcjonalnie z +48)', startowa: ADRES_STARTOWY.telefon },
+    { pole: 'Miasto', wartosc: '', komunikat: 'Podaj miasto', startowa: ADRES_STARTOWY.miasto },
   ];
 
   for (const przyklad of PRZYKLADY) {
@@ -65,9 +68,9 @@ test.describe('Zmiana adresu dostawy', () => {
       await expect(page.getByText(przyklad.komunikat, { exact: true })).toBeVisible();
       await expect(page.getByTestId('success')).toHaveCount(0);
 
-      // Adres zapisany na koncie się nie zmienił: po ponownym otwarciu nie ma błędnej wartości
+      // Adres zapisany na koncie się nie zmienił: po ponownym otwarciu pole ma wartość startową (np. 00-001)
       await page.goto('/konto/adres');
-      await expect(page.getByLabel(przyklad.pole)).not.toHaveValue(przyklad.wartosc);
+      await expect(page.getByLabel(przyklad.pole)).toHaveValue(przyklad.startowa);
     });
   }
 });
