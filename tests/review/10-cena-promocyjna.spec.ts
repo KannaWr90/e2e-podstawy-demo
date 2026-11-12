@@ -8,8 +8,9 @@ test('kafelek kremu do twarzy pokazuje cenę promocyjną', async ({ page }) => {
   await page.goto('/');
 
   const kafelek = page.getByRole('article', { name: 'Krem do twarzy na dzień' });
-  await expect(kafelek).toBeVisible();
-
-  // Cena promocyjna kremu
-  await expect(kafelek).toContainText('32,99 zł');
+  // Każda cena osobno. toContainText('32,99 zł') na całym kafelku przechodził,
+  // bo stara cena też jest w kafelku, choć przekreślona.
+  await expect(kafelek.getByTestId('tile-old-price')).toHaveText('32,99 zł');
+  await expect(kafelek.getByTestId('tile-price')).toHaveText('26,39 zł');
+  await expect(kafelek.getByTestId('tile-badge')).toHaveText('-20%');
 });

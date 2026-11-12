@@ -2,8 +2,10 @@ import { test, expect } from '@playwright/test';
 
 // Wymaganie: klient dodaje w „Moich adresach” adres „Praca” i może ustawić go
 // jako domyślny. Po usunięciu adresu domyślnego domyślny znowu jest „Adres główny”.
-
-// Testy biegną po kolei, jeden po drugim
+//
+// Każdy test przygotowuje swoje dane sam, więc działa także uruchomiony osobno
+// i w dowolnej kolejności. Oba testy używają konta tester09, więc biegną po kolei;
+// kolejność nie ma jednak znaczenia, bo żaden nie korzysta z danych drugiego.
 test.describe.configure({ mode: 'serial' });
 
 test.beforeEach(async ({ page }) => {
@@ -15,7 +17,17 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/konto/adresy');
 });
 
+test.afterEach(async ({ page }) => {
+  // Sprzątanie: usuń adres „Praca”, jeśli test go zostawił (np. padł w połowie).
+  const odpowiedz = await page.request.get('/api/account/addresses');
+  for (const adres of await odpowiedz.json()) {
+    if (adres.name === 'Praca') await page.request.delete(`/api/account/addresses/${adres.id}`);
+  }
+});
+
 test('dodanie adresu „Praca”', async ({ page }) => {
+  await expect(page.getByRole('article', { name: 'Praca' })).toHaveCount(0);
+
   await page.getByLabel('Nazwa adresu').fill('Praca');
   await page.getByLabel('Ulica i numer').fill('ul. Biurowa 3');
   await page.getByLabel('Kod pocztowy').fill('30-001');
@@ -27,6 +39,13 @@ test('dodanie adresu „Praca”', async ({ page }) => {
 });
 
 test('adres „Praca” jako domyślny, potem usunięty', async ({ page }) => {
+  // Własne dane: adres „Praca” dodany przez API, a nie przez poprzedni test
+  const dodanie = await page.request.post('/api/account/addresses', {
+    data: { name: 'Praca', street: 'ul. Biurowa 3', postal_code: '30-001', city: 'Kraków', phone: '600 300 400' },
+  });
+  expect(dodanie.status()).toBe(201);
+  await page.reload();
+
   const praca = page.getByRole('article', { name: 'Praca' });
   await page.getByRole('button', { name: 'Ustaw jako domyślny: Praca' }).click();
   await expect(praca.getByTestId('default-address')).toHaveText('Domyślny');
