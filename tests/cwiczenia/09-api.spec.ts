@@ -122,3 +122,46 @@ test.describe('Anulowanie zamówienia przygotowanego przez API', () => {
     await expect(wiersz).toContainText('Anulowane');
   });
 });
+
+// Dla szybszych: zamówienie firmowe i faktura przez API.
+test.describe('Zamówienie firmowe przez API', () => {
+  test('POST /api/business-orders tworzy zamówienie, a faktura ma NIP nabywcy', async ({ request }) => {
+    const logowanie = await request.post('/api/login', { data: { login: 'biuro', password: 'biuro123' } });
+    const { token } = await logowanie.json();
+    const naglowki = { Authorization: `Bearer ${token}` };
+
+    const odpowiedz = await request.post('/api/business-orders', {
+      headers: naglowki,
+      data: { product_id: 21, qty: 10, nip: '2412241228', company: 'Biuro Mikołaja' },
+    });
+    expect(odpowiedz.status()).toBe(201);
+    const zamowienie = await odpowiedz.json();
+    expect(zamowienie).toMatchObject({
+      product: 'Kalendarz adwentowy 2026',
+      qty: 10,
+      status: 'new',
+      invoice: { nip: '2412241228', company: 'Biuro Mikołaja' },
+    });
+
+    const faktura = await request.get(`/api/orders/${zamowienie.number}/invoice`, { headers: naglowki });
+    expect(faktura.status()).toBe(200);
+    expect(await faktura.json()).toMatchObject({
+      order_number: zamowienie.number,
+      buyer: { name: 'Biuro Mikołaja', nip: '2412241228' },
+      items: [{ name: 'Kalendarz adwentowy 2026', qty: 10, unit_price_cents: 3999, total_cents: 39990 }],
+      total_cents: 39990,
+    });
+
+    // Sprzątanie: admin anuluje zamówienie. Anulowane zamówienie nie ma już faktury.
+    const admin = await request.post('/api/login', { data: { login: 'admin', password: 'admin123' } });
+    const { token: tokenAdmina } = await admin.json();
+    const anulowanie = await request.post(`/api/admin/orders/${zamowienie.number}/cancel`, {
+      headers: { Authorization: `Bearer ${tokenAdmina}` },
+    });
+    expect(anulowanie.status()).toBe(200);
+
+    const bezFaktury = await request.get(`/api/orders/${zamowienie.number}/invoice`, { headers: naglowki });
+    expect(bezFaktury.status()).toBe(404);
+    expect(await bezFaktury.json()).toEqual({ error: 'To zamówienie nie ma faktury' });
+  });
+});
