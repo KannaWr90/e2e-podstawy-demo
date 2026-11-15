@@ -4,7 +4,7 @@ Zadanie dodatkowe · dzień 2 · ok. 70 min · w parach
 
 ## Cel
 
-Napiszesz testy dla elementów, na których zwykłe lokatory nie wystarczają: link otwierający nową kartę, pobieranie i wysyłanie pliku. Użyjesz miękkich asercji, żeby jeden przebieg pokazał wszystkie błędy naraz, i porównasz stronę ze zrzutem wzorcowym. Na koniec znajdziesz błędy w trzech testach, które wyglądają na poprawne nawet po review z listą kontrolną.
+Napiszesz testy dla elementów, na których zwykłe locatory nie wystarczają: link otwierający nową kartę, pobieranie i wysyłanie pliku. Użyjesz miękkich asercji, żeby jeden przebieg pokazał wszystkie błędy naraz, i porównasz stronę ze zrzutem wzorcowym. Na koniec znajdziesz błędy w trzech testach, które wyglądają na poprawne nawet po review z listą kontrolną.
 
 ## Materiał wejściowy
 
@@ -22,56 +22,80 @@ Wiadomość od Klaudiusza, wtorek, 15:20:
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo. Kroki 2–4 są niezależne, para może zacząć od dowolnego. Po każdym kroku uruchamiasz jeden plik i zamieniasz w nim `test.fixme` na `test`.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujesz w oknie testów. Kroki 3, 4 i 5–6 możesz robić w dowolnej kolejności. W każdym z nich zamieniasz w jednym pliku `test.fixme` na `test` i uruchamiasz ten plik.
 
-1. **Przełącz się na gałąź zadania.** Najpierw zrób commit swoich zmian, potem:
+1. **Zapisz swoje zmiany w git.** W oknie testów wpisz:
+   ```powershell
+   git add .
+   git commit -m "Moja praca przed zadaniem D2"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Moja praca przed zadaniem D2` (skrót będzie inny). Jeśli nie było zmian, zobaczysz `nothing to commit, working tree clean` i to też jest w porządku.
+
+2. **Przełącz się na gałąź zadania.** W oknie testów wpisz:
    ```powershell
    git fetch origin
    git switch extra/d2-iframe-dialog-pliki
    npx playwright test tests/extra/d2
    ```
-   Oczekiwany wynik: `3 passed` i `4 skipped`. Trzy zielone testy to partia Klaudiusza z kroku 5.
+   Oczekiwany wynik: `3 passed` i `4 skipped`. Trzy zielone testy to partia Klaudiusza z kroku 7.
 
-2. **Złap nową kartę i pobrany plik.** Zrób TODO w `karta-i-pobieranie.spec.ts`. Kolejność ma znaczenie: najpierw `page.waitForEvent('popup')` albo `page.waitForEvent('download')` zapisane w zmiennej, potem kliknięcie, na końcu `await` tej zmiennej. Wiersz `ZAM-1001` do asercji przepisz z pliku `zamowienia.csv`, który pobierzesz ręcznie z panelu admina (w drugim oknie `npm start`, konto `admin` / `admin123`).
+3. **Złap nową kartę i pobrany plik.**
+   a) Najpierw pobierz plik ręcznie. W oknie aplikacji uruchom `npm start`. W przeglądarce zaloguj się jako `admin` / `admin123`, otwórz http://localhost:4100/admin/zamowienia i kliknij „Eksportuj do CSV”.
+   b) Zrób TODO w `karta-i-pobieranie.spec.ts`. Wiersz `ZAM-1001` przepisz z pobranego pliku `zamowienia.csv` do asercji. Kolejność w teście ma znaczenie: najpierw `page.waitForEvent('popup')` albo `page.waitForEvent('download')` zapisane w zmiennej, potem kliknięcie, na końcu `await` tej zmiennej.
+   c) W oknie testów uruchom plik:
    ```powershell
    npx playwright test tests/extra/d2/karta-i-pobieranie.spec.ts
    ```
    Oczekiwany wynik: `2 passed`.
 
-3. **Wyślij plik i zbierz wszystkie błędy miękkimi asercjami.** Zrób TODO w pierwszym teście `import-i-wyglad.spec.ts`. Plik powstaje w pamięci (`setInputFiles` z `buffer`), więc nie potrzebujesz pliku na dysku. Uruchom test, gdy przejdzie, zepsuj na chwilę dwie z trzech asercji o wierszach (np. `Wiersz 2` zamień na `Wiersz 5`) i uruchom go jeszcze raz.
+4. **Wyślij plik i zbierz wszystkie błędy miękkimi asercjami.** Zrób TODO w pierwszym teście `import-i-wyglad.spec.ts`. Plik powstaje w pamięci (`setInputFiles` z `buffer`), więc nie potrzebujesz pliku na dysku. Uruchom test poleceniem poniżej. Gdy przejdzie, zepsuj dwie z trzech asercji o wierszach (np. `Wiersz 2` zamień na `Wiersz 5`) i uruchom go jeszcze raz.
    ```powershell
    npx playwright test tests/extra/d2/import-i-wyglad.spec.ts -g "pliku CSV"
    ```
-   Oczekiwany wynik: najpierw `1 passed`. Po zepsuciu `1 failed`, a w opisie błędu dwa osobne bloki `Error: expect(locator).toContainText(expected) failed`: test nie zatrzymał się na pierwszym. Przywróć asercje.
+   Oczekiwany wynik: najpierw `1 passed`. Po zepsuciu `1 failed`, a w opisie błędu dwa osobne bloki `Error: expect(locator).toContainText(expected) failed`: test nie zatrzymał się na pierwszym. Przywróć obie asercje i uruchom test jeszcze raz. Oczekiwany wynik: `1 passed`.
 
-4. **Porównaj stronę logowania ze zrzutem wzorcowym.** Zrób TODO w drugim teście `import-i-wyglad.spec.ts` i uruchom go dwa razy:
+5. **Zapisz zrzut wzorcowy strony logowania.** Zrób TODO w drugim teście `import-i-wyglad.spec.ts` i uruchom go w oknie testów dwa razy:
    ```powershell
    npx playwright test tests/extra/d2/import-i-wyglad.spec.ts -g "zrzucie"
    npx playwright test tests/extra/d2/import-i-wyglad.spec.ts -g "zrzucie"
    ```
-   Oczekiwany wynik pierwszego: `1 failed` i komunikat `Error: A snapshot doesn't exist at ...\logowanie-chromium-win32.png, writing actual.` Playwright zapisał właśnie zrzut wzorcowy w folderze `tests\extra\d2\import-i-wyglad.spec.ts-snapshots\`. Drugi przebieg: `1 passed`. Zmień w teście adres na `/logowanie?error=1` (strona pokaże czerwony komunikat), uruchom test i otwórz `npx playwright show-report`. Oczekiwany wynik: `1 failed`, `pixels (ratio ... of all image pixels) are different`, a w raporcie zakładki „Diff”, „Actual”, „Expected”. Przywróć adres.
+   Oczekiwany wynik pierwszego: `1 failed` i komunikat `Error: A snapshot doesn't exist at ...\logowanie-chromium-win32.png, writing actual.` Playwright zapisał właśnie zrzut wzorcowy w folderze `tests\extra\d2\import-i-wyglad.spec.ts-snapshots\`. Drugi przebieg: `1 passed`.
+
+6. **Sprawdź, że zrzut łapie różnicę.** Zmień w teście adres na `/logowanie?error=1` (strona pokaże czerwony komunikat) i uruchom test poleceniem z kroku 5. Potem w oknie testów otwórz raport:
+   ```powershell
+   npx playwright show-report
+   ```
+   Oczekiwany wynik: test kończy się `1 failed` z komunikatem `pixels (ratio ... of all image pixels) are different`, a w raporcie są zakładki „Diff”, „Actual”, „Expected”. Przywróć w teście adres `/logowanie` i uruchom test jeszcze raz. Oczekiwany wynik: `1 passed`.
 
 > **Pracujesz na Windows, a zrzut wzorcowy przyszedł z innego komputera**
 > Nazwa zrzutu zawiera przeglądarkę i system: `logowanie-chromium-win32.png` na Windows, `logowanie-chromium-darwin.png` na macOS, `-linux` na serwerze CI. Czcionki i wygładzanie różnią się między systemami, więc zrzut z macOS nie pasuje do Windows. Swój zrzut wzorcowy generujesz u siebie: `npx playwright test tests/extra/d2 --update-snapshots`. Zrzuty dla CI generuje się na tym samym systemie, na którym biegnie CI.
 
-5. **Zrób review trzeciej partii Klaudiusza.** Trzy testy w `tests/extra/d2/review/`. Każdy ma komentarz „Wymaganie: …” i każdy przechodzi. Błędy są subtelniejsze niż w ćwiczeniu 05: przy każdej asercji zapytaj, w jakiej sytuacji przejdzie, choć wymaganie nie jest spełnione. Wpisz do tabeli z ćwiczenia 05 wiersze R1–R3 i dla każdego udowodnij błąd zmianą w teście albo w danych.
+7. **Zrób review trzeciej partii Klaudiusza.** Trzy testy w `tests/extra/d2/review/`. Każdy ma komentarz „Wymaganie: …” i każdy przechodzi. Błędy są subtelniejsze niż w ćwiczeniu 05: przy każdej asercji zapytaj, w jakiej sytuacji przejdzie, choć wymaganie nie jest spełnione. Wpisz do tabeli z ćwiczenia 05 wiersze R1–R3 (pliki `review/01`–`03`) i dla każdego udowodnij błąd zmianą w teście albo w danych. W oknie testów uruchom:
    ```powershell
    npx playwright test tests/extra/d2/review
    ```
    Oczekiwany wynik: `3 passed`.
 
 > **Jeśli utknąłeś po 10 minutach**
-> R1: ile sztuk trafia do koszyka i czym wtedy różni się suma od ceny? R2: co pokaże ten test 1 grudnia? Zmienna `NAMSSOR_TERAZ` (README, „Zmienne środowiskowe”) zmienia datę, którą aplikacja uznaje za dzisiejszą. R3: w UI mode kliknij krok z asercją i zobacz, który element podświetla lokator.
+> R1: ile sztuk trafia do koszyka i czym wtedy różni się suma od ceny? R2: co pokaże ten test 1 grudnia? Zmienna `NAMSSOR_TERAZ` (README, „Zmienne środowiskowe”) zmienia datę, którą aplikacja uznaje za dzisiejszą. R3: w UI mode kliknij krok z asercją i zobacz, który element podświetla locator.
 
-6. **Uruchom cały zestaw dwa razy.**
+8. **Uruchom cały zestaw dwa razy.** W oknie testów wpisz:
    ```powershell
    npx playwright test tests/extra/d2 --repeat-each=2 --workers=1
    ```
-   Oczekiwany wynik, gdy kroki 2–4 są zrobione: `14 passed`. `--workers=1`, bo testy z `review/` korzystają z koszyków kont `tester07` i `biuro`, a dwie kopie tego samego testu naraz przeszkadzają sobie w jednym koszyku.
+   Oczekiwany wynik, gdy kroki 3–6 są zrobione: `14 passed`. `--workers=1`, bo testy z `review/` korzystają z koszyków kont `tester07` i `biuro`, a dwie kopie tego samego testu naraz przeszkadzają sobie w jednym koszyku.
+
+9. **Wróć do projektu.** Zapisz pracę na gałęzi zadania i przełącz się z powrotem. W oknie testów wpisz:
+   ```powershell
+   git add .
+   git commit -m "Zadanie D2: nowa karta, pliki, review R1-R3"
+   git switch main
+   ```
+   Oczekiwany wynik ostatniego polecenia: `Switched to branch 'main'`.
 
 ## Przykład wyniku
 
-Wynik kroku 6 dla jednego powtórzenia (czasy i kolejność u ciebie będą inne):
+Wynik kroku 8 dla jednego powtórzenia (czasy i kolejność u ciebie będą inne):
 ```
   ✓  1 [chromium] › tests/extra/d2/import-i-wyglad.spec.ts:6:5 › import pliku CSV z błędami pokazuje wszystkie błędne wiersze (393ms)
   ✓  2 [chromium] › tests/extra/d2/import-i-wyglad.spec.ts:32:5 › strona logowania wygląda tak jak na zrzucie wzorcowym (202ms)
@@ -88,9 +112,9 @@ Wiersz tabeli review dla testu spoza tego zadania:
 ## Kryterium „gotowe”
 
 - [ ] `npx playwright test tests/extra/d2 --repeat-each=2 --workers=1` daje `14 passed`.
-- [ ] W `tests\extra\d2\import-i-wyglad.spec.ts-snapshots\` jest twój zrzut z `win32` w nazwie. Pokazujesz drugiej osobie zakładkę „Diff” z kroku 4.
+- [ ] W `tests\extra\d2\import-i-wyglad.spec.ts-snapshots\` jest twój zrzut z `win32` w nazwie. Pokazujesz drugiej osobie zakładkę „Diff” z kroku 6.
 - [ ] Zmieniasz w teście pobierania oczekiwaną nazwę pliku na `zamowienia.xlsx`: test pada, a w opisie błędu jest `Expected: "zamowienia.xlsx"` i `Received: "zamowienia.csv"`. Przywracasz nazwę.
-- [ ] Tabela ma wiersze R1–R3, każdy z dowodem: zmiana, po której test powinien paść, a przechodzi, albo przebieg, który pokazuje, kiedy test padnie bez błędu w aplikacji.
+- [ ] Tabela ma wiersze R1–R3 (pliki `review/01`–`03`), każdy z dowodem: zmiana, po której test powinien paść, a przechodzi, albo przebieg, który pokazuje, kiedy test padnie bez błędu w aplikacji.
 
 ## Dla szybszych
 
@@ -108,4 +132,4 @@ Gałąź `solution/extra-d2`:
 git fetch origin
 git diff origin/extra/d2-iframe-dialog-pliki origin/solution/extra-d2 -- tests/extra/d2 docs/odpowiedzi/extra-d2.md
 ```
-Zrzut wzorcowy na tej gałęzi ma nazwę `logowanie-chromium-darwin.png` (zrobiony na macOS). Na Windows test zrzutu za pierwszym razem padnie z `A snapshot doesn't exist`, tak jak w kroku 4.
+Zrzut wzorcowy na tej gałęzi ma nazwę `logowanie-chromium-darwin.png` (zrobiony na macOS). Na Windows test zrzutu za pierwszym razem padnie z `A snapshot doesn't exist`, tak jak w kroku 5.
