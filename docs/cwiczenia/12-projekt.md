@@ -16,12 +16,12 @@ Wiadomość od Bożeny, 9:38:
 - `tests/pomocnicze/logowanie.ts`: `zaloguj(page)` i `zalogujPrzezApi(request)` z ćwiczenia 11.
 - Opis API: http://localhost:4100/api/docs (po `npm start`).
 
-Projekt ma warstwy. Robicie je po kolei, a godziny z nawiasów obowiązują wszystkich:
+Projekt ma etapy. Etapy 1–4 robicie po kolei. Godziny z kolumny „Kiedy” obowiązują wszystkich. Polowanie (etap 5) trwa obok, od 11:00.
 
-| Warstwa | Co | Kiedy |
+| Etap | Co | Kiedy |
 |---|---|---|
 | 1 | Scenariusze P1–P12, kroki 1–5 tej karty | od 9:40 |
-| 2 | Scenariusze Bożeny P13–P16 | gdy warstwa 1 ma co najmniej 4 testy |
+| 2 | Scenariusze Bożeny P13–P16 | gdy etap 1 ma co najmniej 4 testy |
 | 2b | Zmiana wymagań: karta `12b-zmiana-wymagan.md` | 13:00 |
 | 3 | Review krzyżowe z kartą punktacji z `docs/projekt.md` | 13:30–14:00 |
 | 4 | Hotfix Mirka: karta `12c-hotfix.md` | 14:00–14:20 |
@@ -30,7 +30,7 @@ Projekt ma warstwy. Robicie je po kolei, a godziny z nawiasów obowiązują wszy
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujecie w oknie testów, rozmowę z Claude prowadzicie w oknie Claude.
 
 1. **Wybierzcie scenariusze i jedno repo.** Przeczytajcie `docs/projekt.md`. Wybierzcie co najmniej 4 scenariusze z P1–P12, w tym co najmniej 1 API i 1 z kontem `admin`. Wpiszcie numery w linii „Wybrane”. Pracujecie w jednym repo, na laptopie jednej osoby, i tam robicie commity:
    ```powershell
@@ -45,7 +45,15 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik: wszystkie testy z pliku `passed` (tu przykład dla P5).
 
-3. **Zróbcie review i weryfikację.** Klawiaturę bierze osoba B. Przechodzi test z listą kontrolną review i mówi, co poprawić. Potem sprawdza, że test potrafi paść: zmienia oczekiwaną wartość w jednej asercji, uruchamia (oczekiwany wynik `1 failed`), przywraca. Dopiero wtedy commit z wynikiem review w drugiej linii opisu:
+3. **Zróbcie review i weryfikację.** Klawiaturę bierze osoba B.
+
+   a) B czyta test z listą kontrolną review i mówi, co poprawić.
+
+   b) B zmienia oczekiwaną wartość w jednej asercji i uruchamia to samo polecenie co w kroku 2. Oczekiwany wynik: `1 failed`.
+
+   c) B przywraca tę wartość i uruchamia polecenie jeszcze raz. Oczekiwany wynik: wszystkie testy z pliku `passed`.
+
+   d) Commit z wynikiem review w drugiej linii opisu:
    ```powershell
    git add tests/projekt
    git commit -m "Projekt P5: katalog produktów w API" -m "Review: OK"
@@ -61,12 +69,12 @@ PowerShell, z katalogu głównego repo.
    ```powershell
    npx playwright test tests/projekt --repeat-each=3 --workers=1
    ```
-   Oczekiwany wynik: żadnego `failed`. `--workers=1` uruchamia testy po kolei: tak sprawdzacie, czy test po sobie sprząta, bez kłótni dwóch kopii tego samego testu o jeden koszyk. Jeśli test przechodzi tylko za pierwszym razem, zostawia dane, które psują drugi przebieg.
+   Oczekiwany wynik: żadnego `failed`. `--workers=1` uruchamia testy jeden po drugim. Dwie kopie tego samego testu nie zmieniają wtedy naraz jednego koszyka. Jeśli test przechodzi tylko za pierwszym razem, zostawia dane, które psują drugi przebieg.
 
 6. **Przygotujcie 5 minut na spotkanie „wydajemy czy nie”.** Szablon jest na końcu `docs/projekt.md`: co pokrywa pakiet, co znaleźliście, rekomendacja. Pokazujecie jeden test zielony i ten sam test celowo czerwony.
 
 > **Pracujecie na wspólnym serwerze, nie na swoim komputerze**
-> Ustawcie konto pary i adres serwera przed uruchomieniem: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"`. Testy z kontem `admin` uruchamiajcie lokalnie: na serwerze hasło tego konta zna tylko trener. Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
+> Przed uruchomieniem ustawcie w oknie testów konto pary i adres serwera: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"`. Zamiast `tester05` wpiszcie swój numer. Testy z kontem `admin` uruchamiajcie lokalnie: na serwerze hasło tego konta zna tylko trener. Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
 
 ## Przykład wyniku
 
