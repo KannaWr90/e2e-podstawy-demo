@@ -30,7 +30,7 @@ PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git �
 1. **Zapiszcie, co się zmienia.** Dla P13 i P16 wypiszcie w dwóch kolumnach, na kartce albo w notatniku: linie testu, które zostają, i linie do zmiany. Nie zmieniajcie jeszcze kodu.
 
 > **Nie macie jeszcze P13 ani P16**
-> Napiszcie od razu wersję po zmianie, ale w dwóch commitach: najpierw test według `docs/projekt.md`, potem zmiana według tej karty. Historia ma pokazać zmianę wymagania.
+> Najpierw napiszcie test według pierwotnego wymagania z `docs/projekt.md` i zróbcie commit. Potem zmieńcie go według tej karty i zróbcie drugi commit. Historia ma pokazać zmianę wymagania.
 
 2. **Poprawcie P13.** Zmieniajcie istniejący plik, nie twórzcie nowego. Zróbcie dwa testy, po jednym na datę. Nazwa testu ma mówić, którą datę sprawdza.
    ```powershell
@@ -51,7 +51,7 @@ PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git �
 
    a) W P13 zamieńcie `2026-11-26` na `2026-11-25` i uruchomcie polecenie z kroku 2. Oczekiwany wynik: `1 failed`. Przywróćcie datę `2026-11-26`.
 
-   b) W P16 zamieńcie ilość 24 na 23 i uruchomcie polecenie z kroku 3. Oczekiwany wynik: `1 failed`. Przywróćcie ilość 24.
+   b) W P16 zostawcie dodawanie 24 sztuk. Tylko w asercji oczekiwanej ilości wpiszcie 23 i uruchomcie polecenie z kroku 3. Oczekiwany wynik: `1 failed`. Przywróćcie w asercji 24.
 
 5. **Zróbcie commit z powodem zmiany.**
    ```powershell
