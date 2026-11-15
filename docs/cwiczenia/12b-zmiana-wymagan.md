@@ -1,6 +1,6 @@
-# Ćwiczenie 12b. Zmiana wymagań o 13:00: poprawiasz test, który już masz
+# Ćwiczenie 12b. Zmiana wymagań o 13:00: poprawiacie test, który już macie
 
-Blok 3.2, warstwa 2b · 30 min (13:00–13:30) · w parach, klawiaturę ma osoba, która nie pisała P13 ani P16
+Blok 3.2, etap 2b · 30 min (13:00–13:30) · w parach, klawiaturę ma osoba, która nie pisała P13 ani P16
 
 ## Cel
 
@@ -25,11 +25,14 @@ Wiadomość od Bożeny, 12:58:
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujecie w oknie testów.
 
-1. **Zapiszcie, co się zmienia.** Dla P13 i P16 wypiszcie w dwóch kolumnach: linie testu, które zostają, i linie do zmiany. Nie zmieniajcie jeszcze kodu.
+1. **Zapiszcie, co się zmienia.** Dla P13 i P16 wypiszcie w dwóch kolumnach, na kartce albo w notatniku: linie testu, które zostają, i linie do zmiany. Nie zmieniajcie jeszcze kodu.
 
-2. **Poprawcie P13.** Ten sam plik, ten sam test albo dwa testy w jednej pętli po danych. Nazwa testu ma mówić, którą datę sprawdza.
+> **Nie macie jeszcze P13 ani P16**
+> Napiszcie od razu wersję po zmianie, ale w dwóch commitach: najpierw test według `docs/projekt.md`, potem zmiana według tej karty. Historia ma pokazać zmianę wymagania.
+
+2. **Poprawcie P13.** Zmieniajcie istniejący plik, nie twórzcie nowego. Zróbcie dwa testy, po jednym na datę. Nazwa testu ma mówić, którą datę sprawdza.
    ```powershell
    npx playwright test tests/projekt/p13
    ```
@@ -44,7 +47,11 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik: wszystkie testy z pliku `passed`.
 
-4. **Sprawdźcie, że poprawione testy potrafią paść.** W P13 zamieńcie `2026-11-26` na `2026-11-25`, w P16 ilość 24 na 23. Oczekiwany wynik po każdej zmianie: `1 failed`. Przywróćcie wartości.
+4. **Sprawdźcie, że poprawione testy potrafią paść.**
+
+   a) W P13 zamieńcie `2026-11-26` na `2026-11-25` i uruchomcie polecenie z kroku 2. Oczekiwany wynik: `1 failed`. Przywróćcie datę `2026-11-26`.
+
+   b) W P16 zamieńcie ilość 24 na 23 i uruchomcie polecenie z kroku 3. Oczekiwany wynik: `1 failed`. Przywróćcie ilość 24.
 
 5. **Zróbcie commit z powodem zmiany.**
    ```powershell
@@ -53,9 +60,6 @@ PowerShell, z katalogu głównego repo.
    git show --stat HEAD
    ```
    Oczekiwany wynik `git show --stat`: zmienione tylko dwa istniejące pliki, żaden nowy (`create mode` nie występuje).
-
-> **Nie macie jeszcze P13 ani P16**
-> Napiszcie od razu wersję po zmianie, ale w dwóch commitach: najpierw test według `docs/projekt.md`, potem zmiana według tej karty. Historia ma pokazać zmianę wymagania.
 
 ## Przykład wyniku
 
@@ -81,7 +85,7 @@ commit 4e1d2c3...
 ## Dla szybszych
 
 > **Skończyliście wcześniej**
-> W P16 dopiszcie przypadek graniczny z karty produktu: ilość 1001 daje komunikat „Ilość musi być liczbą całkowitą od 1 do 1000.”, a koszyk się nie zmienia. Potem zastanówcie się w parze, które asercje w waszych innych testach zależą od konkretnej daty albo ilości i padną przy następnej zmianie Bożeny. Wpiszcie je do notatek na prezentację.
+> W P16 dopiszcie przypadek graniczny z karty produktu: ilość 1001 daje komunikat „Ilość musi być liczbą całkowitą od 1 do 1000.”, a koszyk się nie zmienia. Potem wypiszcie do notatek na prezentację asercje z waszych innych testów, które zależą od konkretnej daty albo ilości i padną przy następnej zmianie Bożeny.
 
 ## Artefakt do zabrania
 
