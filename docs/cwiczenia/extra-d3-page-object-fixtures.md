@@ -16,53 +16,90 @@ Gałąź `extra/d3-page-object-fixtures`. Nowe pliki są w `tests/extra/d3/`:
 | Plik | Co w nim jest |
 |---|---|
 | `strony/koszyk.ts` | klasa `StronaKoszyka`: gotowa metoda `dodajProdukt` i TODO dla pozostałych |
-| `fixtures.ts` | `test.extend` z gotową fixture `stronaKlienta` (zalogowany `user`) i TODO dla czterech kolejnych |
-| `koszyk.spec.ts`, `panel-zamowien.spec.ts`, `faktura.spec.ts` | po dwa testy z `test.fixme` i TODO |
-| `api-negatywne.spec.ts` | `interface`, jeden przypadek 401 i pętla, która z każdego przypadku robi test |
+| `fixtures.ts` | `test.extend` (dopisuje do `test` własne fixtures) z gotową fixture `stronaKlienta` (zalogowany `user`) i TODO dla czterech kolejnych |
+| `koszyk.spec.ts`, `panel-zamowien.spec.ts`, `faktura.spec.ts` | po dwa testy z `test.fixme` (test do dokończenia: Playwright go pomija i liczy jako `skipped`) i TODO |
+| `api-negatywne.spec.ts` | `interface` (opis pól, które ma każdy przypadek), jeden przypadek 401 i pętla, która z każdego przypadku robi test |
 
 Zasada z `CLAUDE.md` („bez Page Object i własnych fixtures”) dotyczy reszty repo. W `tests/extra/d3` budujesz je celowo.
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujesz w oknie testów.
 
-1. **Przełącz się na gałąź zadania i dokończ Page Object koszyka.** Najpierw zrób commit swoich zmian, potem:
+1. **Zapisz swoją pracę w git.** Zadanie jest na osobnej gałęzi, więc najpierw commit tego, co masz na `main`:
+   ```powershell
+   git add .
+   git commit -m "Praca przed zadaniem D3"
+   ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Praca przed zadaniem D3` (skrót będzie inny) albo `nothing to commit, working tree clean`, jeśli nie było zmian.
+
+2. **Przełącz się na gałąź zadania.**
    ```powershell
    git fetch origin
    git switch extra/d3-page-object-fixtures
    npx playwright test tests/extra/d3
    ```
-   Oczekiwany wynik: `1 passed` i `6 skipped`. Dopisz w `strony/koszyk.ts` metody z TODO 1–4. Dopisz w `fixtures.ts` fixture `koszyk` (TODO 1). W `koszyk.spec.ts` zmień parametr testów na `({ koszyk })` i napisz testy samymi metodami klasy, bez `page`.
+   Oczekiwany wynik: `1 passed` i `6 skipped`.
+
+3. **Dokończ Page Object koszyka.**
+
+   a) Dopisz w `strony/koszyk.ts` metody z TODO 1–4.
+
+   b) Dopisz w `fixtures.ts` fixture `koszyk` (TODO 1).
+
+   c) W `koszyk.spec.ts` zmień parametr testów na `({ koszyk })` i napisz testy samymi metodami klasy, bez `page`.
+
+   d) Uruchom testy koszyka:
    ```powershell
    npx playwright test tests/extra/d3/koszyk.spec.ts
    ```
    Oczekiwany wynik: `2 passed`.
 
 > **Jeśli utknąłeś po 10 minutach**
-> Metoda zwracająca locator nie ma `async` ani `await`: `pozycja(nazwa: string): Locator { return this.page.getByTestId('cart-item').filter({ hasText: nazwa }); }`. `async` i `await` mają tylko metody, które coś robią na stronie (`otworz`, `usun`). Błąd `Property 'koszyk' does not exist` oznacza, że `koszyk` nie jest jeszcze w typie `MojeFixtures`.
+> Metoda zwracająca locator nie ma `async` ani `await`: `pozycja(nazwa: string): Locator { return this.page.getByTestId('cart-item').filter({ hasText: nazwa }); }`. `async` i `await` mają tylko metody, które coś robią na stronie (`otworz`, `usun`). Typ `MojeFixtures` na początku `fixtures.ts` to lista fixtures z ich typami. Błąd `Property 'koszyk' does not exist` oznacza, że `koszyk` nie jest jeszcze w tym typie.
 
-2. **Zbuduj Page Object panelu admina i fixture z danymi z API.** Utwórz `strony/panel-zamowien.ts` z klasą `PanelZamowien` i metodami `otworz()`, `szukaj(tekst)`, `wiersz(numer)`, `anuluj(numer)`. Dopisz fixtures `panelZamowien` i `noweZamowienie` (TODO 2 i 3). `noweZamowienie` robi to, co w ćwiczeniu 09 robiły `beforeEach` i `afterEach`: kod przed `await use(numer)` biegnie przed testem, kod po nim po teście.
+4. **Zbuduj Page Object panelu admina i fixture z danymi z API.** Utwórz `strony/panel-zamowien.ts` z klasą `PanelZamowien` i metodami `otworz()`, `szukaj(tekst)`, `wiersz(numer)`, `anuluj(numer)`. Dopisz fixtures `panelZamowien` i `noweZamowienie` (TODO 2 i 3). `noweZamowienie` robi to, co w ćwiczeniu 09 robiły `beforeEach` i `afterEach`: kod przed `await use(numer)` biegnie przed testem, kod po nim po teście.
    ```powershell
    npx playwright test tests/extra/d3/panel-zamowien.spec.ts
    ```
-   Oczekiwany wynik: `2 passed`. W http://localhost:4100/admin/zamowienia (w drugim oknie `npm start`) oba zamówienia utworzone przez testy mają status „Anulowane”.
+   Oczekiwany wynik: `2 passed`. Uruchom aplikację w oknie aplikacji (`npm start`) i otwórz http://localhost:4100/admin/zamowienia. Oba zamówienia utworzone przez testy mają status „Anulowane”.
 
-3. **Przygotuj zamówienie firmowe w fixture.** Dopisz w `fixtures.ts` fixture `zamowienieFirmowe` (TODO 4): przed testem loguje `biuro` przez API i składa `POST /api/business-orders`, przekazuje numer, po teście anuluje zamówienie jako admin. W `faktura.spec.ts` zamień `test.fixme` na `test` i dokończ oba testy według TODO. Test nie składa zamówienia i nie sprząta: robi to fixture.
+5. **Przygotuj zamówienie firmowe w fixture.** Dopisz w `fixtures.ts` fixture `zamowienieFirmowe` (TODO 4): przed testem loguje `biuro` przez API i składa `POST /api/business-orders`, przekazuje numer, po teście anuluje zamówienie jako admin. W `faktura.spec.ts` zamień `test.fixme` na `test` i dokończ oba testy według TODO. Test nie składa zamówienia i nie sprząta: robi to fixture.
    ```powershell
    npx playwright test tests/extra/d3/faktura.spec.ts
    ```
    Oczekiwany wynik: `2 passed`. W http://localhost:4100/admin/zamowienia oba zamówienia firmowe z testów mają status „Anulowane”.
 
-4. **Zbierz ścieżki negatywne API w jednej tabeli.** W `api-negatywne.spec.ts` dopisz co najmniej 10 przypadków według TODO. Kody i treści sprawdź w http://localhost:4100/api/docs i w `app/openapi.json`, a treść odpowiedzi przepisz z tego, co API naprawdę zwraca.
+6. **Zbierz ścieżki negatywne API w jednej tabeli.** W `api-negatywne.spec.ts` dopisz co najmniej 10 przypadków według TODO. Kody i treści sprawdź w http://localhost:4100/api/docs i w `app/openapi.json`, a treść odpowiedzi przepisz z tego, co API naprawdę zwraca.
    ```powershell
    npx playwright test tests/extra/d3/api-negatywne.spec.ts
    ```
    Oczekiwany wynik: co najmniej `11 passed`. Każdy test ma w nazwie kod i opis, np. `403: klient anuluje zamówienie`.
 
 > **Pracujesz z testami API, nie z przeglądarką**
-> Zamiast kroków 1 i 2 zrób krok 3 i rozbuduj krok 4: dodaj przypadki dla `POST /api/account/address` (400 dla każdego z czterech pól, 401 bez logowania) i `PUT /api/settings/maintenance` (400 dla `enabled: "tak"`, 401, 403). Metodę `PUT` dopisz do typu pola `metoda`.
+> Zrób kroki 1 i 2, pomiń kroki 3 i 4. W kroku 5 zrób tylko pierwszy test (drugi potrzebuje `panelZamowien` z kroku 4). Rozbuduj krok 6: dodaj przypadki dla `POST /api/account/address` (400 dla każdego z czterech pól, 401 bez logowania) i `PUT /api/settings/maintenance` (400 dla `enabled: "tak"`, 401, 403). Metodę `PUT` dopisz do typu pola `metoda`.
 
-5. **Opisz w skillu, jak pisać Page Object w tym repo.** Utwórz `.claude/skills/page-object/SKILL.md` (format jak w ćwiczeniu 10: nagłówek YAML z `name` i `description`, pod nim kroki). Skill ma powiedzieć Claude: gdzie leżą klasy i fixtures, jak nazywać klasy i metody, które asercje są w klasie, a które w teście, czego nie robić. Kroki jako polecenia, nie opisy. Na końcu kroków: uruchom testy dwa razy i pokaż wynik. Claude nie musisz uruchamiać. Skill wypróbujesz w swoim repo.
+7. **Opisz w skillu, jak pisać Page Object w tym repo.** Utwórz `.claude/skills/page-object/SKILL.md` (format jak w ćwiczeniu 10: nagłówek YAML z `name` i `description`, pod nim kroki). Skill ma powiedzieć Claude: gdzie leżą klasy i fixtures, jak nazywać klasy i metody, które asercje są w klasie, a które w teście, czego nie robić. Kroki jako polecenia, nie opisy. Ostatni krok skilla ma brzmieć: „uruchom testy dwa razy i pokaż wynik”. Samego Claude nie musisz teraz uruchamiać. Skill wypróbujesz w swoim repo.
+
+8. **Sprawdź, że locator zmieniasz w jednym miejscu.**
+
+   a) W `strony/koszyk.ts` zmień testid `cart-item` na `cart-row` i uruchom testy koszyka:
+   ```powershell
+   npx playwright test tests/extra/d3/koszyk.spec.ts
+   ```
+   Oczekiwany wynik: `1 failed` i `1 did not run`. Testy biegną po kolei, więc po błędzie drugi się nie uruchamia.
+
+   b) Przywróć testid `cart-item` w `strony/koszyk.ts` i uruchom to samo polecenie. Oczekiwany wynik: `2 passed`.
+
+   c) Szczoteczka z nieudanego testu zostaje w koszyku. Usuń ją ręcznie w przeglądarce albo zatrzymaj aplikację w oknie aplikacji (`Ctrl+C`) i w oknie testów wpisz `npm run db:reset`.
+
+9. **Zapisz zadanie i wróć do projektu.**
+   ```powershell
+   git add .
+   git commit -m "Zadanie D3: Page Object, fixtures, ścieżki negatywne API"
+   git switch main
+   ```
+   Oczekiwany wynik ostatniej linii: `Switched to branch 'main'`.
 
 ## Przykład wyniku
 
@@ -83,7 +120,7 @@ test('zapisany adres zostaje w formularzu', async ({ adres }) => {
 });
 ```
 
-Fragment wyniku kroku 4 (kolejność u ciebie będzie inna):
+Fragment wyniku kroku 6 (kolejność u ciebie będzie inna):
 ```
   ✓   6 [chromium] › tests/extra/d3/api-negatywne.spec.ts:82:7 › 403: klient pobiera listę wszystkich zamówień (22ms)
   ✓   7 [chromium] › tests/extra/d3/api-negatywne.spec.ts:82:7 › 404: zamówienie, którego nie ma (22ms)
@@ -95,7 +132,7 @@ Fragment wyniku kroku 4 (kolejność u ciebie będzie inna):
 
 - [ ] `npx playwright test tests/extra/d3 --repeat-each=3` przechodzi bez błędów (dla 11 przypadków API: `51 passed`).
 - [ ] W `koszyk.spec.ts`, `panel-zamowien.spec.ts` i `faktura.spec.ts` nie ma ani jednego `page.` ani `getBy`. Pokazujesz to drugiej osobie przez `Select-String -Path tests\extra\d3\*.spec.ts -Pattern "page\.|getBy"` (wynik: pusty).
-- [ ] Zmieniasz w `strony/koszyk.ts` testid `cart-item` na `cart-row` i uruchamiasz `koszyk.spec.ts`: wynik `1 failed` i `1 did not run` (testy biegną po kolei, więc po błędzie drugi się nie uruchamia). Przywracasz testid w jednym miejscu, oba testy znów przechodzą. Szczoteczka z nieudanego testu zostaje w koszyku: usuń ją ręcznie albo `npm run db:reset`.
+- [ ] Po zmianie testid w jednym miejscu (`strony/koszyk.ts`) `koszyk.spec.ts` pada, a po przywróceniu przechodzi (krok 8).
 - [ ] `.claude/skills/page-object/SKILL.md` ma nagłówek z `name` i `description` i co najmniej pięć kroków. Druga osoba czyta go i bez pytania mówi, gdzie Claude zapisze nową klasę.
 
 ## Dla szybszych

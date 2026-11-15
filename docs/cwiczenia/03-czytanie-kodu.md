@@ -13,10 +13,11 @@ Przeczytasz test Playwright bez uruchamiania go i powiesz własnymi słowami, co
 - `tests/czytanie/01-wyszukiwarka.spec.ts`
 - `tests/czytanie/02-moje-zamowienia.spec.ts`
 - `tests/czytanie/03-produkt-niedostepny.spec.ts`
-- Aplikacja: http://localhost:4100 po `npm start` (do sprawdzania, co jest na ekranie).
+- Aplikacja: http://localhost:4100 po `npm start` w oknie aplikacji (do sprawdzania, co jest na ekranie).
 
 > **Słowniczek**
-> - `const nazwa = …`: stała, czyli nazwa nadana wartości albo lokatorowi, żeby użyć jej dalej w teście.
+> - locator: sposób wskazania elementu strony, np. `page.getByLabel('Szukaj produktu')`.
+> - `const nazwa = …`: stała, czyli nazwa nadana wartości albo locatorowi, żeby użyć jej dalej w teście.
 > - `await`: czekaj, aż ta linia się skończy (strona się załaduje, kliknięcie się wykona, oczekiwanie się spełni), dopiero potem idź dalej.
 > - `test.beforeEach`: kroki wykonywane przed każdym testem w pliku albo w grupie.
 > - `for (const produkt of produkty)`: pętla, która powtarza blok kodu dla każdego elementu listy.
@@ -31,25 +32,33 @@ Tabela do wypełnienia w `notatki.md` (skopiuj nagłówek):
 
 ## Kroki
 
-1. **Przeczytaj `01-wyszukiwarka.spec.ts` i wypełnij dwa wiersze tabeli.** Nie uruchamiaj jeszcze testów. Przy okazji zapisz odpowiedzi:
+PowerShell, z folderu repo. Polecenia `npx` i `git` wpisujesz w oknie testów.
+
+1. **Uruchom aplikację w oknie aplikacji.** Otwórz drugie okno PowerShell w folderze repo i wpisz:
+   ```powershell
+   npm start
+   ```
+   Oczekiwany wynik: `Namssor działa: http://localhost:4100  (baza: …)` i `Zatrzymanie: Ctrl+C`. To okno zostaw otwarte do końca ćwiczenia.
+
+2. **Przeczytaj `01-wyszukiwarka.spec.ts` i wypełnij dwa wiersze tabeli.** Nie uruchamiaj jeszcze testów. Przy okazji zapisz odpowiedzi:
    - Co robi blok `test.beforeEach` i ile razy wykona się przy uruchomieniu tego pliku?
    - Co jest w stałej `wyszukiwarka`: pole na stronie czy tekst wpisany w pole? Najedź na nią kursorem w VS Code i przeczytaj typ w podpowiedzi.
    - Dlaczego przy nazwach produktów jest `exact: true`? Podpowiedź: w tym samym wierszu tabeli jest przycisk, którego nazwa zawiera nazwę produktu.
 
-2. **Przeczytaj `02-moje-zamowienia.spec.ts` i wypełnij dwa wiersze.** Odpowiedz:
+3. **Przeczytaj `02-moje-zamowienia.spec.ts` i wypełnij dwa wiersze.** Odpowiedz:
    - Pod jaką nazwą zobaczysz każdy z tych testów w raporcie? Co zmienia `test.describe`?
    - Test otwiera `/zamowienia`, a zaraz potem wypełnia pole „Login”. Skąd na tej stronie pole „Login”? Sprawdź w aplikacji bez logowania.
-   - W drugim teście co by się stało, gdyby usunąć linię z `ZAM-1001`? Strona ładuje listę zamówień 0,5–2 s.
+   - Co by się stało w drugim teście po usunięciu linii z `ZAM-1001`? Podpowiedź: lista zamówień ładuje się od 0,5 do 2 s.
 
-3. **Przeczytaj `03-produkt-niedostepny.spec.ts` i wypełnij jeden wiersz.** Porównaj nazwę testu z jego asercjami (linie z `expect`). W kolumnie „Czego test nie sprawdza” wpisz to, co obiecuje nazwa, a czego nie sprawdza żadna asercja.
+4. **Przeczytaj `03-produkt-niedostepny.spec.ts` i wypełnij jeden wiersz.** Porównaj nazwę testu z jego asercjami (linie z `expect`). W kolumnie „Czego test nie sprawdza” wpisz to, co obiecuje nazwa, a czego nie sprawdza żadna asercja.
 
-4. **Znajdź każde `await` w trzech plikach.** Policz je i odpowiedz w parze: na co czeka każda linia z `await`? Która z nich czeka na przeglądarkę, a która na spełnienie oczekiwania?
+5. **Znajdź każde `await` w trzech plikach.** Policz je. Oczekiwany wynik: 28 linii z `await` (9 w `01`, 16 w `02`, 3 w `03`). Odpowiedz w parze: na co czeka każda linia z `await`? Która z nich czeka na przeglądarkę, a która na spełnienie oczekiwania?
 
-5. **Uruchom testy i porównaj z tabelą.**
+6. **Uruchom testy i porównaj z tabelą.**
    ```powershell
    npx playwright test tests/czytanie/01 tests/czytanie/02 tests/czytanie/03
    ```
-   Oczekiwany wynik: `5 passed`, także test z kroku 3. Przy każdym wierszu tabeli zapisz, czy zielony wynik potwierdza to, co obiecuje nazwa testu.
+   Oczekiwany wynik: `5 passed`, także test z kroku 4. Przy każdym wierszu tabeli zapisz, czy zielony wynik potwierdza to, co obiecuje nazwa testu.
 
 ## Runda 2 (03b): trzy testy od Klaudiusza · 20 min
 
@@ -71,25 +80,29 @@ Druga tabela w `notatki.md`:
 | 06-filtr-kategorii (jeden wiersz na cały plik) | | |
 ```
 
-6. **Przeczytaj trzy pliki i wypełnij drugą tabelę.** Nie uruchamiaj testów. Zapisz odpowiedzi:
+7. **Przeczytaj trzy pliki i wypełnij drugą tabelę.** Nie uruchamiaj testów. Zapisz odpowiedzi:
    - `04`: ile testów powstanie z tego pliku i jakie będą miały nazwy? Nazwa obiecuje cenę „obniżoną o 20%”: która linia to sprawdza?
    - `05`: co robi funkcja `otworzKarteProduktu`, zanim test dojdzie do swoich linii z `expect`? Ile asercji ma drugi test razem z tymi w funkcji? Co o funkcjach pomocniczych mówi `CLAUDE.md` w repo?
    - `06`: ile testów powstanie i jak brzmi pełna nazwa jednego z nich w raporcie? W jakiej kolejności wykonają się oba `beforeEach` przed testem „licznik…” dla kategorii Dom?
 
-7. **Sprawdź liczby i nazwy bez uruchamiania testów.**
+8. **Sprawdź liczby i nazwy bez uruchamiania testów.**
    ```powershell
    npx playwright test tests/czytanie/04 tests/czytanie/05 tests/czytanie/06 --list
    ```
-   Oczekiwany wynik na końcu: `Total: 12 tests in 3 files`. Porównaj nazwy z listy ze swoimi odpowiedziami z kroku 6. Potem uruchom te same pliki bez `--list`: oczekiwany wynik `12 passed`.
+   Oczekiwany wynik na końcu: `Total: 12 tests in 3 files`. Porównaj nazwy z listy ze swoimi odpowiedziami z kroku 7. Potem uruchom te same pliki bez `--list`:
+   ```powershell
+   npx playwright test tests/czytanie/04 tests/czytanie/05 tests/czytanie/06
+   ```
+   Oczekiwany wynik: `12 passed`.
 
-8. **Napisz jedno zdanie do Klaudiusza.** Wybierz najpoważniejszą lukę z drugiej tabeli i zapisz w `notatki.md` komentarz, jaki zostawiłbyś w review: który test, czego nie sprawdza, jaka asercja by to naprawiła.
+9. **Napisz jedno zdanie do Klaudiusza.** Wybierz najpoważniejszą lukę z drugiej tabeli i zapisz w `notatki.md` komentarz, jaki zostawiłbyś w review: który test, czego nie sprawdza, jaka asercja by to naprawiła.
 
-9. **Zapisz pracę w git.**
+10. **Zapisz pracę w git.**
    ```powershell
    git add .
    git commit -m "Ćwiczenie 03: opisy testów w notatkach"
    ```
-   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 03: opisy testów w notatkach` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 03: opisy testów w notatkach` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Jeśli masz fork (ścieżka A z ćwiczenia 01), wpisz jeszcze `git push`.
 
 ## Przykład wyniku
 
@@ -104,7 +117,7 @@ Wiersz dla testu, którego nie ma w tym ćwiczeniu (`tests/przyklady/logowanie.s
 - [ ] Pierwsza tabela ma 5 wierszy, druga 5 wierszy, każda kolumna wypełniona.
 - [ ] Dla testu z `03-produkt-niedostepny.spec.ts` wskazujesz palcem brakującą asercję i mówisz, jaką linią kodu byś ją dopisał.
 - [ ] Druga osoba z pary wskazuje dowolną linię z `await`, a ty mówisz, na co ta linia czeka.
-- [ ] Twoja liczba testów z kroku 6 zgadza się z `Total: 12 tests in 3 files` z kroku 7, a w drugim teście z `05` pokazujesz palcem asercję, która siedzi w funkcji pomocniczej.
+- [ ] Twoja liczba testów z kroku 7 zgadza się z `Total: 12 tests in 3 files` z kroku 8, a w drugim teście z `05` pokazujesz palcem asercję, która siedzi w funkcji pomocniczej.
 
 ## Dla szybszych
 
