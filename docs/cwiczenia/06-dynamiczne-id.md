@@ -18,49 +18,56 @@ Wiadomość od Bożeny:
 > **Słowniczek**
 > - `page.getByRole('row').filter({ hasText: 'ZAM-1003' })`: wszystkie wiersze tabeli zawężone do tych, w których jest tekst `ZAM-1003`.
 > - `wiersz.getByRole(...)`: szukanie tylko wewnątrz elementu ze zmiennej `wiersz`, a nie na całej stronie.
-> - `toHaveCount(1)`: asercja, że lokator pasuje do dokładnie tylu elementów. `toHaveCount(0)` sprawdza, że elementu nie ma.
+> - `toHaveCount(1)`: asercja, że locator pasuje do dokładnie tylu elementów. `toHaveCount(0)` sprawdza, że elementu nie ma.
 > - `let numer: string;`: zmienna, której wartość ustawi się później (tu w `beforeEach`). `const` nie pozwala zmienić wartości, `let` pozwala.
 > - `` `Bearer ${token}` ``: nagłówek z tokenem logowania API. W miejsce `${token}` wstawia się token z odpowiedzi `POST /api/login`.
 > - `contentFrame()`: wejście do wnętrza ramki `<iframe>`, żeby szukać w niej pól i przycisków.
 
 ## Kroki: część A, tabela (35 min)
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujesz w oknie testów.
 
-1. **Zobacz, jak zmienia się id wiersza.** W drugim oknie PowerShell uruchom aplikację:
+1. **Zobacz, jak zmienia się id wiersza.**
+   a) W oknie aplikacji uruchom aplikację:
    ```powershell
    npm start
    ```
-   Zaloguj się jako `admin`, otwórz http://localhost:4100/admin/zamowienia. Kliknij prawym przyciskiem wiersz ZAM-1003 i wybierz „Zbadaj” (Inspect). Zanotuj `id` elementu `<tr>`, np. `row-3fa9c21b`. Odśwież stronę (F5) i sprawdź jeszcze raz. Oczekiwany wynik: inne `id`. Przycisk „Anuluj” nie zawiera numeru zamówienia.
+   b) W przeglądarce zaloguj się jako `admin` / `admin123` i otwórz http://localhost:4100/admin/zamowienia.
+   c) Kliknij prawym przyciskiem wiersz ZAM-1003 i wybierz „Zbadaj” (Inspect). Zanotuj `id` elementu `<tr>`, np. `row-3fa9c21b`.
+   d) Odśwież stronę (F5) i porównaj `id` z zanotowanym. Oczekiwany wynik: inne `id`.
 
-2. **Uruchom szkielet.**
+   Zobacz też przycisk „Anuluj”: nie ma w nim numeru zamówienia.
+
+2. **Uruchom szkielet.** W oknie testów wpisz:
    ```powershell
    npx playwright test tests/cwiczenia/06-admin-zamowienia.spec.ts
    ```
    Oczekiwany wynik: `3 skipped`.
 
-3. **Napisz test anulowania ZAM-1003.** Sam albo z Claude, według TODO w pierwszym teście. Zamień `test.fixme` na `test`. Przycisk „Anuluj” szukaj wewnątrz lokatora wiersza. Uruchom plik jak w kroku 2. Oczekiwany wynik: `1 passed` i `2 skipped`.
+3. **Napisz test anulowania ZAM-1003.** Sam albo z Claude, według TODO w pierwszym teście. Zamień `test.fixme` na `test`. Przycisku „Anuluj” szukaj tylko w wierszu, czyli zacznij od zmiennej z locatorem wiersza (np. `wiersz`, jak w słowniczku). Uruchom plik jak w kroku 2. Oczekiwany wynik: `1 passed` i `2 skipped`.
 
 > **Jeśli utknąłeś po 10 minutach**
-> Lokator może zaczynać się od innego lokatora: `wiersz.getByRole(...)` szuka tylko w środku wiersza. Na ile przycisków „Anuluj” pasuje `page.getByRole('button', { name: 'Anuluj' })`, a na ile ten sam lokator wewnątrz wiersza?
+> Locator może zaczynać się od innego locatora: `wiersz.getByRole(...)` szuka tylko w środku wiersza. Na ile przycisków „Anuluj” pasuje `page.getByRole('button', { name: 'Anuluj' })`, a na ile ten sam locator wewnątrz wiersza?
 
-4. **Przywróć dane przed kolejnym uruchomieniem.** Test anulowania zmienia bazę: po pierwszym przebiegu ZAM-1003 jest już anulowane i test padnie na sprawdzeniu statusu „Nowe”. Zatrzymaj aplikację w drugim oknie (`Ctrl+C`), potem:
+4. **Przywróć dane przed kolejnym uruchomieniem.** Test anulowania zmienia bazę: po pierwszym przebiegu ZAM-1003 jest już anulowane i test padnie na sprawdzeniu statusu „Nowe”. W oknie aplikacji zatrzymaj aplikację (`Ctrl+C`) i w tym samym oknie wpisz:
    ```powershell
    npm run db:reset
    ```
-   Oczekiwany wynik zaczyna się od `Baza odtworzona z danymi startowymi`.
+   Oczekiwany wynik zaczyna się od `Baza odtworzona z danymi startowymi`. Potem uruchom ją znowu: `npm start`. Działająca aplikacja jest potrzebna przeglądarce. Testy jej nie wymagają: Playwright sam uruchamia aplikację, gdy nie działa.
 
-5. **Napisz dwa testy wyszukiwania.** Według TODO w drugim i trzecim teście. Uruchamiaj tylko testy wyszukiwania, żeby każde uruchomienie nie anulowało ZAM-1003:
+5. **Napisz dwa testy wyszukiwania.** Według TODO w drugim i trzecim teście. Uruchamiaj w oknie testów tylko testy wyszukiwania, żeby każde uruchomienie nie anulowało ZAM-1003:
    ```powershell
    npx playwright test tests/cwiczenia/06-admin-zamowienia.spec.ts -g "wyszukanie"
    ```
    Oczekiwany wynik: `2 passed`.
 
-6. **Sprawdź, że test liczenia potrafi paść.** W teście „Mydło” zmień oczekiwaną liczbę wierszy z 1 na 2 i uruchom tylko ten test:
+6. **Sprawdź, że test liczenia potrafi paść.** W teście „Mydło” zmień oczekiwaną liczbę wierszy z 1 na 2 i uruchom w oknie testów tylko ten test:
    ```powershell
    npx playwright test tests/cwiczenia/06-admin-zamowienia.spec.ts -g "zostawia jedno"
    ```
-   Oczekiwany wynik: `1 failed`, w komunikacie `Expected: 2` i `Received: 1`. Cofnij zmianę, zrób `npm run db:reset` (przy zatrzymanej aplikacji) i uruchom cały plik jeszcze raz: `3 passed`.
+   Oczekiwany wynik: `1 failed`, w komunikacie `Expected: 2` i `Received: 1`.
+
+7. **Przywróć liczbę 1 w teście „Mydło” i dane.** Zmień w teście liczbę wierszy z powrotem na 1. W oknie aplikacji zatrzymaj aplikację (`Ctrl+C`), wpisz `npm run db:reset`, a potem znowu `npm start`. Następnie w oknie testów uruchom cały plik jak w kroku 2. Oczekiwany wynik: `3 passed`.
 
 ## Kroki: część B, okno „Czy na pewno?” i ramka płatności (20 min)
 
@@ -71,31 +78,31 @@ Druga wiadomość od Bożeny:
 - `tests/cwiczenia/06-okno-anulowania.spec.ts`: ekran `/admin/zamowienia/potwierdzenie`, gdzie „Anuluj” otwiera okno z przyciskami „Wróć” i „Tak, anuluj”. Zamówienie do anulowania i sprzątanie przez API są gotowe w `beforeEach` i `afterEach`.
 - `tests/cwiczenia/06-platnosc-w-ramce.spec.ts`: ekran `/koszyk/platnosc`, formularz karty w ramce „Bramka płatnicza”. Konto `tester07` / `czarny-piatek-2026`, z koszykiem tylko dla tego pliku. Karty testowe: `4111 1111 1111 1111` (płatność przyjęta), `4000 0000 0000 0002` (odrzucona).
 
-7. **Obsłuż okno potwierdzenia.** Zrób TODO w obu testach `06-okno-anulowania.spec.ts`. Okno znajdziesz przez `page.getByRole('dialog')`. To element strony (`<dialog>`), więc działa na nim każdy lokator i asercja. `page.on('dialog')` z dokumentacji Playwright dotyczy tylko okien przeglądarki (`alert`, `confirm`, `prompt`) i tutaj nic nie zrobi.
+8. **Obsłuż okno potwierdzenia.** Zrób TODO w obu testach `06-okno-anulowania.spec.ts`. Okno znajdziesz przez `page.getByRole('dialog')`. To element strony (`<dialog>`), więc działa na nim każdy locator i asercja. `page.on('dialog')` z dokumentacji Playwright dotyczy tylko okien przeglądarki (`alert`, `confirm`, `prompt`) i tutaj nic nie zrobi. Uruchom plik w oknie testów:
    ```powershell
    npx playwright test tests/cwiczenia/06-okno-anulowania.spec.ts
    ```
    Oczekiwany wynik: `2 passed`.
 
-8. **Zapłać w ramce.** Przejdź płatność raz ręcznie (konto `tester07`, coś w koszyku, „Zapłać kartą online”). Potem zrób TODO w `06-platnosc-w-ramce.spec.ts`. Do wnętrza ramki wchodzisz przez `page.getByTitle('Bramka płatnicza').contentFrame()`.
+9. **Zapłać w ramce.** Przejdź płatność raz ręcznie w przeglądarce (konto `tester07`, coś w koszyku, „Zapłać kartą online”). Potem zrób TODO w `06-platnosc-w-ramce.spec.ts`. Do wnętrza ramki wchodzisz przez `page.getByTitle('Bramka płatnicza').contentFrame()`. Uruchom plik w oknie testów:
    ```powershell
    npx playwright test tests/cwiczenia/06-platnosc-w-ramce.spec.ts
    ```
    Oczekiwany wynik: `2 passed`. Uruchom plik drugi raz: znowu `2 passed`, bo testy sprzątają koszyk i anulują swoje zamówienia.
 
 > **Jeśli utknąłeś po 10 minutach**
-> Gdy `getByLabel('Numer karty')` czeka 5 s i pada z `element(s) not found`, szukasz pola na stronie głównej, a ono jest w ramce. Każdy lokator elementu z formularza karty, także komunikat i nagłówek po płatności, musi zaczynać się od zmiennej z `contentFrame()`.
+> Gdy `getByLabel('Numer karty')` czeka 5 s i pada z `element(s) not found`, szukasz pola na stronie głównej, a ono jest w ramce. Każdy locator elementu z formularza karty, także komunikat i nagłówek po płatności, musi zaczynać się od zmiennej z `contentFrame()`.
 
-9. **Zapisz pracę w git.**
+10. **Zapisz pracę w git.** W oknie testów wpisz:
    ```powershell
    git add .
    git commit -m "Ćwiczenie 06: wiersz po treści, okno potwierdzenia, ramka płatności"
    ```
-   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 06: wiersz po treści, okno potwierdzenia, ramka płatności` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 06: wiersz po treści, okno potwierdzenia, ramka płatności` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Jeśli masz fork (ścieżka A z ćwiczenia 01), wpisz jeszcze `git push`.
 
 ## Przykład wyniku
 
-Przebieg całego pliku z kroku 6 (kolejność, numery linii i czasy mogą się różnić). W klasycznej konsoli PowerShell zamiast `✓` i `✘` zobaczysz `ok` i `x`:
+Przebieg całego pliku z kroku 7 (kolejność, numery linii i czasy mogą się różnić). W klasycznej konsoli PowerShell zamiast `✓` i `✘` zobaczysz `ok` i `x`:
 ```
   ✓  1 [chromium] › tests/cwiczenia/06-admin-zamowienia.spec.ts:16:7 › Panel admina: zamówienia › anulowanie ZAM-1003 zmienia jego status na „Anulowane” (251ms)
   ✓  2 [chromium] › tests/cwiczenia/06-admin-zamowienia.spec.ts:29:7 › Panel admina: zamówienia › wyszukanie „Mydło” zostawia jedno zamówienie, ZAM-1006 (219ms)
@@ -104,7 +111,7 @@ Przebieg całego pliku z kroku 6 (kolejność, numery linii i czasy mogą się r
   3 passed (1.1s)
 ```
 
-Lokator w ramce na innym przykładzie (ramka o tytule „Mapa”, której w tej aplikacji nie ma):
+Locator w ramce na innym przykładzie (ramka o tytule „Mapa”, której w tej aplikacji nie ma):
 ```ts
 const mapa = page.getByTitle('Mapa').contentFrame();
 await mapa.getByRole('button', { name: 'Powiększ' }).click();
@@ -114,9 +121,9 @@ await expect(mapa.getByText('Skala 1:500')).toBeVisible();
 ## Kryterium „gotowe”
 
 - [ ] `npx playwright test tests/cwiczenia/06-admin-zamowienia.spec.ts` po `npm run db:reset` daje `3 passed`.
-- [ ] W kodzie nie ma `id`, `#row-`, klas CSS ani `nth-child`. Pokazujesz palcem, gdzie lokator łączy wiersz (`filter({ hasText })`) z przyciskiem w środku.
+- [ ] W kodzie nie ma `id`, `#row-`, klas CSS ani `nth-child`. Pokazujesz palcem, gdzie locator łączy wiersz (`filter({ hasText })`) z przyciskiem w środku.
 - [ ] Test anulowania sprawdza stan przed akcją („Nowe”) i po niej („Anulowane”, brak „Anuluj”).
-- [ ] Krok 6 zrobiony: test liczenia padł po zmianie oczekiwanej liczby.
+- [ ] Pokazujesz drugiej osobie, że test „Mydło” pada po zmianie 1 na 2 (`Expected: 2`, `Received: 1`).
 - [ ] Po części B: `npx playwright test tests/cwiczenia/06-okno-anulowania.spec.ts tests/cwiczenia/06-platnosc-w-ramce.spec.ts` uruchomione dwa razy pod rząd daje za każdym razem `4 passed`.
 
 ## Dla szybszych
