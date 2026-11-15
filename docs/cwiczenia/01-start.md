@@ -16,11 +16,11 @@ Uruchomisz testy repo Namssor na swoim laptopie i zapiszesz w nim pierwszą zmia
 
 ## Kroki
 
-PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
+Na zajęciach pracujesz w trzech oknach PowerShell, każde otwarte w folderze repo. **Okno aplikacji**: tu działa `npm start`. **Okno testów**: tu wpisujesz `npx playwright …` i `git …`. **Okno Claude**: tu działa `claude`. W tym ćwiczeniu wystarczy okno testów. Każde polecenie wpisz w osobnej linii i zatwierdź Enterem.
 
-1. **Pobierz repo do folderu poza OneDrive.** Wybierz jedną ścieżkę.
+1. **Pobierz repo do folderu poza OneDrive.** Repo to folder projektu razem z historią wszystkich zmian. Wybierz jedną ścieżkę.
 
-   **A. Masz konto GitHub: własna kopia (fork).** Otwórz https://github.com/agentGreg/e2e-podstawy-demo i kliknij **Fork**. Na ekranie „Create a new fork” **odznacz** pole „Copy the `main` branch only”, bo potrzebujesz też gałęzi z rozwiązaniami. Kliknij **Create fork**. `<twój-login>` zamień na swój login z GitHuba:
+   **A. Masz konto GitHub. Zrobisz fork, czyli własną kopię repo na swoim koncie.** Otwórz https://github.com/agentGreg/e2e-podstawy-demo i kliknij **Fork**. Na ekranie „Create a new fork” **odznacz** pole „Copy the `main` branch only”, bo potrzebujesz też gałęzi z rozwiązaniami. Gałąź to osobna wersja plików w tym samym repo. Kliknij **Create fork**. Potem sklonuj fork, czyli pobierz jego kopię na laptop. `<twój-login>` zamień na swój login z GitHuba:
    ```powershell
    New-Item -ItemType Directory -Force C:\e2e
    cd C:\e2e
@@ -28,7 +28,7 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
    cd e2e-podstawy-demo
    ```
 
-   **B. Nie masz konta GitHub: klon repo trenera.**
+   **B. Nie masz konta GitHub. Sklonujesz repo trenera, czyli pobierzesz jego kopię na laptop.**
    ```powershell
    New-Item -ItemType Directory -Force C:\e2e
    cd C:\e2e
@@ -44,7 +44,7 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
    ```
    Oczekiwany wynik `npm ci`: `added 6 packages, and audited 7 packages in …` i `found 0 vulnerabilities`. `npx playwright install chromium` pobiera ok. 150 MB i kończy się bez słowa `Error`.
 
-> **Jeśli utknąłeś po 10 minutach**
+> **Jeśli polecenie kończy się błędem**
 > Komunikat `running scripts is disabled on this system`: zamiast `npm` i `npx` wpisz `npm.cmd` i `npx.cmd`, np. `npm.cmd ci`. Komunikat z `ETIMEDOUT`, `ECONNRESET` albo `SELF_SIGNED_CERT_IN_CHAIN`: to firmowe proxy. Ustaw je według sekcji „Firmowe proxy” w `README.md`, w tym samym oknie PowerShell, i powtórz polecenie.
 
 3. **Uruchom wszystkie testy.**
@@ -58,7 +58,15 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
    ```
    Czas będzie inny. `skipped` to szkielety ćwiczeń, które wypełnisz później. Słowa `failed` być nie może.
 
-4. **Zapisz pierwszą zmianę w git.** Otwórz folder w VS Code (`code .`). Jeśli PowerShell nie zna polecenia `code`, uruchom VS Code z menu Start i wybierz File › Open Folder… › `C:\e2e\e2e-podstawy-demo`. Utwórz w głównym folderze repo plik `notatki.md` i wpisz w nim jedną linię: `Środowisko działa, npm test bez błędów.` Zapisz plik. Potem w PowerShell:
+4. **Otwórz repo w VS Code.**
+   ```powershell
+   code .
+   ```
+   Oczekiwany wynik: okno VS Code z plikami repo w panelu po lewej, m.in. `README.md`. Jeśli PowerShell nie zna polecenia `code`, uruchom VS Code z menu Start i wybierz File › Open Folder… › `C:\e2e\e2e-podstawy-demo`.
+
+5. **Utwórz plik `notatki.md`.** W VS Code utwórz w głównym folderze repo plik `notatki.md`, wpisz w nim jedną linię: `Środowisko działa, npm test bez błędów.` i zapisz plik (`Ctrl+S`).
+
+6. **Zapisz zmianę w git.** Commit to zapisana wersja plików, do której da się wrócić. W oknie testów:
    ```powershell
    git add notatki.md
    git commit -m "Pierwszy commit: środowisko działa"
@@ -69,7 +77,7 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
     1 file changed, 1 insertion(+)
     create mode 100644 notatki.md
    ```
-   Skrót `1a2b3c4` będzie inny. Ścieżka A: wyślij commit na swój fork poleceniem `git push`. Przy pierwszym pushu otworzy się okno logowania do GitHuba, a wynik kończy się linią `main -> main`. Ścieżka B: bez `git push`. Do repo trenera nie masz prawa zapisu, więc commity zostają na twoim laptopie.
+   Skrót `1a2b3c4` będzie inny.
 
 > **Git prosi o `user.name` i `user.email`**
 > Komunikat `Please tell me who you are` przy `git commit` znaczy, że ten laptop jeszcze nie zna twojego podpisu. Ustaw go raz i powtórz `git commit`:
@@ -78,6 +86,12 @@ PowerShell. Każde polecenie w osobnej linii, zatwierdzone Enterem.
 > git config --global user.email "login@users.noreply.github.com"
 > ```
 > Bez konta GitHub wpisz dowolny adres, np. służbowy. Z kontem: adres `…@users.noreply.github.com` znajdziesz na GitHubie w Settings › Emails.
+
+7. **Tylko ścieżka A: wyślij commit na swój fork.** `git push` wysyła commity z laptopa na GitHub.
+   ```powershell
+   git push
+   ```
+   Oczekiwany wynik: przy pierwszym pushu otworzy się okno logowania do GitHuba, a wynik kończy się linią `main -> main`. Ścieżka B pomija ten krok. Do repo trenera nie masz prawa zapisu, więc commity zostają na twoim laptopie.
 
 ## Przykład wyniku
 
@@ -97,7 +111,7 @@ Tak wygląda ścieżka A po `git push`. W ścieżce B w nawiasie jest tylko `HEA
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Uruchom aplikację (`npm start`) i otwórz http://localhost:4100. Zaloguj się jako `user` / `user123` i przejdź ręcznie ścieżkę klienta Czarnego Piątku: kafelek „Krem do twarzy na dzień” pod tabelą produktów, karta produktu, „Dodaj do koszyka”, koszyk, kod rabatowy `CZARNY20`. Zapisz w `notatki.md`, w ilu miejscach widzisz cenę kremu i jaką. Zatrzymaj aplikację `Ctrl+C`. Potem `npm run test:smoke` (oczekiwany wynik `4 passed`) i znajdź test dymny, który sprawdza fragment tej ścieżki. Dłuższe zadania na dzień 1: gałąź `extra/d1-przegladarki-i-dane`.
+> Otwórz drugie okno PowerShell w folderze repo (okno aplikacji) i uruchom w nim aplikację: `npm start`. Otwórz http://localhost:4100. Zaloguj się jako `user` / `user123` i przejdź ręcznie ścieżkę klienta Czarnego Piątku: kafelek „Krem do twarzy na dzień” pod tabelą produktów, karta produktu, „Dodaj do koszyka”, koszyk, kod rabatowy `CZARNY20`. Zapisz w `notatki.md`, w ilu miejscach widzisz cenę kremu i jaką. Zatrzymaj aplikację w oknie aplikacji: `Ctrl+C`. Potem w oknie testów uruchom `npm run test:smoke` (oczekiwany wynik `4 passed`) i znajdź test dymny, który sprawdza fragment tej ścieżki. Dłuższe zadania na dzień 1: gałąź `extra/d1-przegladarki-i-dane`.
 
 ## Artefakt do zabrania
 
@@ -105,4 +119,4 @@ Repo z pierwszym commitem `notatki.md`: w ścieżce A na twoim forku na GitHubie
 
 ## Rozwiązanie wzorcowe
 
-Brak. To ćwiczenie sprawdza lista „gotowe”.
+Brak. Wynik sprawdzasz z listą „gotowe”.

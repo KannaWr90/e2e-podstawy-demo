@@ -33,35 +33,37 @@ Kody błędów w tym API:
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujesz w oknie testów.
 
-1. **Znajdź endpointy w dokumentacji.** W drugim oknie `npm start`, otwórz http://localhost:4100/api/docs. Znajdź `POST /api/orders` i `POST /api/admin/orders/{number}/cancel`. Oczekiwany wynik: dla `POST /api/orders` kolumna „Kody odpowiedzi” pokazuje `201, 400, 401, 404, 409, 503`.
+1. **Znajdź endpointy w dokumentacji.** W oknie aplikacji uruchom `npm start`. W przeglądarce otwórz http://localhost:4100/api/docs. Znajdź `POST /api/orders` i `POST /api/admin/orders/{number}/cancel`. Oczekiwany wynik: dla `POST /api/orders` kolumna „Kody odpowiedzi” pokazuje `201, 400, 401, 404, 409, 503`.
 
-2. **Uruchom szkielet.**
+2. **Uruchom szkielet.** W oknie testów wpisz:
    ```powershell
    npx playwright test tests/cwiczenia/09-api.spec.ts
    ```
    Oczekiwany wynik: `1 passed` i `5 skipped`. Przeczytaj gotowy test: logowanie przez `POST /api/login`, token w nagłówku `Authorization`.
 
-3. **Napisz dwa testy ścieżek negatywnych: 401 i 400.** Według TODO w describe „API zamówień”: `GET /api/orders bez logowania` i `POST /api/orders z ilością 0`. Sprawdź status i całą treść odpowiedzi (`toEqual`). Zamień `test.fixme` na `test` i uruchom plik. Oczekiwany wynik: `3 passed` i `3 skipped`.
+3. **Napisz dwa testy ścieżek negatywnych: 401 i 400.** Według TODO w grupie testów (`describe`) „API zamówień”: `GET /api/orders bez logowania` i `POST /api/orders z ilością 0`. Sprawdź status i całą treść odpowiedzi (`toEqual`). Zamień `test.fixme` na `test` i uruchom plik poleceniem z kroku 2. Oczekiwany wynik: `3 passed` i `3 skipped`.
 
 > **Jeśli utknąłeś po 10 minutach**
 > Wyślij żądanie i wypisz odpowiedź, zanim napiszesz asercję: `console.log(odpowiedz.status(), await odpowiedz.json());`. Wynik zobaczysz w terminalu. Asercję przepisz z tego, co API naprawdę zwraca, i porównaj z tabelą kodów powyżej.
 
-4. **Przygotuj dane przez API dla testu w przeglądarce (razem).** Ten krok robimy wspólnie, trener pisze na rzutniku, ty u siebie. W describe „Anulowanie zamówienia przygotowanego przez API” uzupełnij `beforeEach` (nowe zamówienie przez API), `afterEach` (anulowanie przez API jako admin) i sam test (anulowanie w panelu admina). Uruchom plik. Oczekiwany wynik: `4 passed` i `2 skipped`.
+4. **Przygotuj dane przez API dla testu w przeglądarce (razem).** Ten krok robimy wspólnie, trener pisze na rzutniku, ty u siebie. W grupie testów (`describe`) „Anulowanie zamówienia przygotowanego przez API” uzupełnij `beforeEach` (nowe zamówienie przez API), `afterEach` (anulowanie przez API jako admin) i sam test (anulowanie w panelu admina). Uruchom plik poleceniem z kroku 2. Oczekiwany wynik: `4 passed` i `2 skipped`.
 
-5. **Sprawdź, że testy sprzątają po sobie.** Uruchom plik trzy razy w jednym poleceniu:
+5. **Sprawdź, że testy sprzątają po sobie.** W oknie testów uruchom plik trzy razy w jednym poleceniu:
    ```powershell
    npx playwright test tests/cwiczenia/09-api.spec.ts --repeat-each=3
    ```
-   Oczekiwany wynik: `12 passed` i `6 skipped`. Otwórz http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":180`, tyle co przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
+   Oczekiwany wynik: `12 passed` i `6 skipped`.
 
-6. **Zapisz pracę w git.**
+   Potem otwórz w przeglądarce http://localhost:4100/api/products/20. Oczekiwany wynik: `"stock":180`. Tyle było przed testami, bo każde zamówienie testowe zostało anulowane i towar wrócił na stan.
+
+6. **Zapisz pracę w git.** W oknie testów wpisz:
    ```powershell
    git add .
    git commit -m "Ćwiczenie 09: testy API i dane przez API"
    ```
-   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 09: testy API i dane przez API` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 09: testy API i dane przez API` (skrót będzie inny), a `git status` pokazuje potem `nothing to commit, working tree clean`. Jeśli masz fork (ścieżka A z ćwiczenia 01), wpisz jeszcze `git push`.
 
 ## Przykład wyniku
 
@@ -85,7 +87,12 @@ test('GET /api/products/999 zwraca 404', async ({ request }) => {
 ## Dla szybszych
 
 > **Skończyłeś wcześniej**
-> Zrób dwa pozostałe testy z describe „API zamówień”: utworzenie zamówienia (201, z anulowaniem na końcu) i 404 dla `ZAM-9999`. Potem zamówienie firmowe przez API: `POST /api/business-orders` z `{ "product_id": 21, "qty": 10, "nip": "2412241228", "company": "Biuro Mikołaja" }` jako `biuro` / `biuro123`, a następnie `GET /api/orders/<numer>/invoice`. Sprawdź w fakturze NIP nabywcy, ilość i `total_cents`. Na koniec anuluj zamówienie jako admin i sprawdź, że faktura zwraca teraz 404 z `{ "error": "To zamówienie nie ma faktury" }`. Własne fixtures zamiast `beforeEach`: gałąź `extra/d3-page-object-fixtures`.
+> 1. Zrób dwa pozostałe testy z grupy „API zamówień”: utworzenie zamówienia (201, z anulowaniem na końcu) i 404 dla `ZAM-9999`.
+> 2. Złóż zamówienie firmowe przez API: `POST /api/business-orders` z `{ "product_id": 21, "qty": 10, "nip": "2412241228", "company": "Biuro Mikołaja" }` jako `biuro` / `biuro123`.
+> 3. Pobierz fakturę: `GET /api/orders/<numer>/invoice`. Sprawdź w niej NIP nabywcy, ilość i `total_cents`.
+> 4. Anuluj zamówienie jako admin i sprawdź, że faktura zwraca teraz 404 z `{ "error": "To zamówienie nie ma faktury" }`.
+>
+> Własne fixtures zamiast `beforeEach` ćwiczysz na gałęzi `extra/d3-page-object-fixtures`.
 
 ## Artefakt do zabrania
 
