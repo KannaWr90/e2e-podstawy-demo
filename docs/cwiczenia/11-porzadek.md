@@ -17,17 +17,22 @@ Zgłoszenie od Mirka, 8:47:
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git …` wpisujesz w oknie testów.
 
 1. **Przeczytaj funkcję logowania.** Otwórz `tests/pomocnicze/logowanie.ts` i odpowiedz drugiej osobie na trzy pytania:
    - którym kontem loguje `await zaloguj(page);`, gdy nie ustawisz żadnej zmiennej;
    - jak zalogować inne konto bez zmiany pliku funkcji (są dwa sposoby);
    - co się stanie w teście, gdy hasło jest złe, i która linia funkcji o tym decyduje.
 
-2. **Użyj funkcji w teście i oznacz testy tagiem.** W `tests/czytanie/02-moje-zamowienia.spec.ts`:
-   - dopisz import pod pierwszą linią: `import { zaloguj } from '../pomocnicze/logowanie';`;
-   - w obu testach zamień trzy linie logowania na `await zaloguj(page);` i przenieś je przed `await page.goto('/zamowienia');`;
-   - dodaj tag do grupy: `test.describe('Moje zamówienia', { tag: '@zamowienia' }, () => {`.
+2. **Użyj funkcji w teście i oznacz testy tagiem.** Otwórz `tests/czytanie/02-moje-zamowienia.spec.ts`.
+
+   a) Pod pierwszą linią dopisz import: `import { zaloguj } from '../pomocnicze/logowanie';`
+
+   b) W obu testach usuń trzy linie logowania (`Login`, `Hasło`, przycisk `Zaloguj`). Nad linią `await page.goto('/zamowienia');` wpisz `await zaloguj(page);`
+
+   c) Dodaj tag do grupy. Linia `test.describe('Moje zamówienia', () => {` ma brzmieć `test.describe('Moje zamówienia', { tag: '@zamowienia' }, () => {`
+
+   d) Uruchom plik:
    ```powershell
    npx playwright test tests/czytanie/02-moje-zamowienia.spec.ts
    ```
@@ -53,12 +58,16 @@ PowerShell, z katalogu głównego repo.
    npx playwright test tests/smoke.spec.ts
    Remove-Item Env:BASE_URL
    ```
-   Oczekiwany wynik: `4 passed`. Zmienna działa w tym oknie PowerShell do `Remove-Item` albo do zamknięcia okna.
+   Oczekiwany wynik: `4 passed`. Zmienna działa w oknie testów do `Remove-Item` albo do zamknięcia okna.
 
-> **Pracujesz bez dostępu do wspólnego serwera**
-> Gdy w tym oknie PowerShell jest ustawione `$env:HTTPS_PROXY` (sekcja „Firmowe proxy” w `README.md`), Playwright łączy się przez to proxy: przeglądarka i testy API. Adresy z `$env:NO_PROXY` (bez tej zmiennej: `localhost,127.0.0.1`) idą bez proxy. Tego ustawienia nie sprawdziliśmy jeszcze za prawdziwym firmowym proxy. Jeśli test kończy się błędem `net::ERR_PROXY_CONNECTION_FAILED`, `net::ERR_TIMED_OUT` albo `net::ERR_NAME_NOT_RESOLVED`, firmowe proxy nie przepuszcza adresu serwera. Błąd `net::ERR_CERT_AUTHORITY_INVALID` znaczy, że proxy podmienia certyfikat serwera: ustaw `$env:NODE_EXTRA_CA_CERTS` na plik certyfikatu firmy, jak w `README.md`, i powtórz. W każdym z tych przypadków zgłoś to trenerowi i zrób ten krok z aplikacją na innym porcie. W drugim oknie PowerShell: `$env:PORT="4200"`, potem `npm start`. W pierwszym oknie: `$env:BASE_URL="http://localhost:4200"` i to samo polecenie testów. Oczekiwany wynik też `4 passed`.
+> **Błąd zaczyna się od `net::ERR_`**
+> Firmowe proxy nie przepuszcza adresu serwera (szczegóły w sekcji „Firmowe proxy” w `README.md`). Zawołaj trenera i zrób ten krok lokalnie:
+> 1. W oknie aplikacji zatrzymaj aplikację (`Ctrl+C`), jeśli działa. Wpisz `$env:PORT="4200"`, potem `npm start`.
+> 2. W oknie testów wpisz `$env:BASE_URL="http://localhost:4200"` i to samo polecenie testów.
+>
+> Oczekiwany wynik też `4 passed`. Potem w oknie testów `Remove-Item Env:BASE_URL`, a w oknie aplikacji `Ctrl+C` i `Remove-Item Env:PORT`.
 
-5. **Zaloguj testy kontem twojej pary.** Na wspólnym serwerze każda osoba ma konto `tester01`–`tester12` (numer poda trener), hasło `czarny-piatek-2026`. To samo konto jest w twojej lokalnej aplikacji. Funkcja `zaloguj` bierze konto ze zmiennych:
+5. **Uruchom testy na koncie swojej pary (te testy mają paść).** Na wspólnym serwerze każda osoba ma konto `tester01`–`tester12` (numer poda trener), hasło `czarny-piatek-2026`. To samo konto jest w twojej lokalnej aplikacji. Funkcja `zaloguj` bierze konto ze zmiennych. W oknie testów wpisz poniższe polecenia. Zamiast `tester05` wpisz swój numer.
    ```powershell
    $env:APP_USER="tester05"
    $env:APP_PASSWORD="czarny-piatek-2026"
@@ -73,7 +82,7 @@ PowerShell, z katalogu głównego repo.
    git add .
    git commit -m "Ćwiczenie 11: logowanie funkcją zaloguj, tag @zamowienia"
    ```
-   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 11: logowanie funkcją zaloguj, tag @zamowienia` (skrót będzie inny), a `git status` potem pokazuje `nothing to commit, working tree clean`. Masz fork (ścieżka A z ćwiczenia 01): dopisz `git push`.
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 11: logowanie funkcją zaloguj, tag @zamowienia` (skrót będzie inny), a `git status` potem pokazuje `nothing to commit, working tree clean`. Jeśli masz fork (ścieżka A z ćwiczenia 01), wpisz jeszcze `git push`.
 
 ## Przykład wyniku
 
