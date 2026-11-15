@@ -12,7 +12,7 @@ Przejdź ją przy każdym teście, zanim go zatwierdzisz, także przy teście na
 
 ## Jak test znajduje elementy
 
-6. **Czy lokatory opisują to, co widzi użytkownik?** `getByRole`, `getByLabel`, `getByText`. Selektor CSS z `nth-child`, klasą albo `id` rozsypie się po zmianie wyglądu.
+6. **Czy locatory opisują to, co widzi użytkownik?** `getByRole`, `getByLabel`, `getByText`. Selektor CSS z `nth-child`, klasą albo `id` rozsypie się po zmianie wyglądu.
 7. **Czy `.first()`, `.nth()` albo `.last()` nie ukrywa niejednoznaczności?** Zapytaj, które elementy pasują i czy test bierze właściwy. Element w wierszu tabeli szukaj wewnątrz tego wiersza.
 
 ## Czekanie
@@ -32,5 +32,5 @@ Przejdź ją przy każdym teście, zanim go zatwierdzisz, także przy teście na
 ## Asercje, które wyglądają na sprawdzenie
 
 13. **Czy asercja z `not` albo `toBeHidden()` szuka tekstu, który aplikacja naprawdę pokazuje?** Komunikat wymyślony przez autora nigdy się nie pojawi, więc „nie jest widoczny” przejdzie zawsze. Znajdź ten tekst w aplikacji, zanim uznasz asercję.
-14. **Czy każde sprawdzenie elementu ma postać `await expect(lokator).toX()`?** `expect(lokator).toBeTruthy()` sprawdza, że w kodzie jest obiekt lokatora, a nie że element jest na stronie. Bez `await` przed `expect(lokator)` test nie czeka na wynik sprawdzenia.
+14. **Czy każde sprawdzenie elementu ma postać `await expect(locator).toX()`?** `expect(locator).toBeTruthy()` sprawdza, że w kodzie jest obiekt locatora, a nie że element jest na stronie. Bez `await` przed `expect(locator)` test nie czeka na wynik sprawdzenia.
 15. **Czy oczekiwana wartość pochodzi z wymagania?** Cena albo tekst przepisane ze strony utrwalają to, co aplikacja pokazuje dziś, także jej błąd. Zestaw liczbę w asercji z liczbą w wymaganiu.

@@ -74,7 +74,7 @@ PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git �
 6. **Przygotujcie 5 minut na spotkanie „wydajemy czy nie”.** Szablon jest na końcu `docs/projekt.md`: co pokrywa pakiet, co znaleźliście, rekomendacja. Pokazujecie jeden test zielony i ten sam test celowo czerwony.
 
 > **Pracujecie na wspólnym serwerze, nie na swoim komputerze**
-> Przed uruchomieniem ustawcie w oknie testów konto pary i adres serwera: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"`. Zamiast `tester05` wpiszcie swój numer. Testy z kontem `admin` uruchamiajcie lokalnie: na serwerze hasło tego konta zna tylko trener. Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
+> Przed uruchomieniem ustawcie w oknie testów konto pary i adres serwera: `$env:APP_USER="tester05"`, `$env:APP_PASSWORD="czarny-piatek-2026"`, `$env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"`. Zamiast `tester05` wpiszcie swój numer. Testy z kontem `admin` uruchamiajcie lokalnie: na serwerze hasło tego konta zna tylko trener. Serwer działa tylko w czasie szkolenia (16–18.11.2026). Kolizje z danymi innych par są tam normalne: test, który tworzy własne dane i po sobie sprząta, ich nie odczuje.
 
 ## Przykład wyniku
 

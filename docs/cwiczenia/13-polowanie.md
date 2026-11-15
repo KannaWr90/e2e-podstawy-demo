@@ -25,7 +25,7 @@ Bożena, 10:57:
 | Tablica wyników (rzutnik) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica` |
 | Zgłoszenia (błędy i flagi) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica/zglos` |
 
-W przeglądarce wystarczą krótkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowują na adresy z tabeli). Do `BASE_URL` wpisujcie pełne adresy z tabeli: skopiujcie je z tego pliku w repo.
+W przeglądarce wystarczą krótkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowują na adresy z tabeli). Do `BASE_URL` wpisujcie pełne adresy z tabeli: skopiujcie je z tego pliku w repo. Serwery i tablica działają tylko w czasie szkolenia (16–18.11.2026). Polowanie wymaga wersji `rc`, której nie ma w repo.
 
 ## Zasady gry
 
