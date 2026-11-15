@@ -1,6 +1,6 @@
 # Ćwiczenie 13. Polowanie na błędy w kandydacie do wydania
 
-Blok 3.2, warstwa 5 · od 11:00 do 14:55, równolegle z projektem · w parach, klawiaturę ma osoba, która nie pisała ostatniego testu
+Blok 3.2, etap 5 · od 11:00 do 14:55, równolegle z projektem · w parach, klawiaturę ma osoba, która nie pisała ostatniego testu
 
 ## Cel
 
@@ -25,14 +25,14 @@ Bożena, 10:57:
 | Tablica wyników (rzutnik) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica` |
 | Zgłoszenia (błędy i flagi) | `https://namssor-rc-376292984721.europe-central2.run.app/tablica/zglos` |
 
-W przeglądarce wystarczą krótkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowują na adresy z tabeli). Do `BASE_URL` wpisuj pełne adresy z tabeli: skopiuj je z tego pliku w repo.
+W przeglądarce wystarczą krótkie adresy: `namssor-rc.prosit.cloud`, `namssor.prosit.cloud`, `tablica.prosit.cloud` (przekierowują na adresy z tabeli). Do `BASE_URL` wpisujcie pełne adresy z tabeli: skopiujcie je z tego pliku w repo.
 
 ## Zasady gry
 
 - **Czarna skrzynka.** Nie czytacie kodu w folderze `app/`. Claude też nie: na początku rozmowy napiszcie mu, że folder `app/` jest zakazany, a aplikację poznajecie tylko przez przeglądarkę, `/api/docs` i odpowiedzi API. Para, która użyje kodu aplikacji, traci punkty za ten błąd.
 - **Punkt za błąd** dostajecie tylko za test, który **pada na `rc`** i **przechodzi na wersji zwykłej**. Zgłaszacie go na tablicy, wklejając cały plik testu (krok 4). Sprawdza go Klaudiusz-sędzia, a trener ma ostatnie słowo. Sam opis błędu, bez testu, nie daje punktu. Jeden błąd to jeden punkt, nawet jeśli łapie go kilka waszych testów. Para, która zgłosi dany błąd jako pierwsza, dostaje +1 bonus.
 - **Punkt za niespodziankę Klaudiusza:** znaleziona niespodzianka pokazuje kod flagi, np. `FLAGA-7K2QM`. Wpiszcie go na stronie zgłoszeń w polu „Flaga”: punkt dostajecie od razu, a pierwsza para także +1 bonus. Flaga jest taka sama na obu adresach. Aplikacja na waszym komputerze pokazuje `FLAGA-LOKALNA`: takiej flagi nie da się zgłosić, szukajcie na serwerze.
-- **Niespodzianka czy błąd.** Niespodzianka to coś nietypowego w sklepie, co wygląda tak samo na wersji zwykłej i na `rc`. Błąd jest tylko na `rc`. Zanim zgłosicie znalezisko, sprawdźcie je na obu adresach: jest na obu, to niespodzianka; jest tylko na `rc`, to błąd.
+- **Niespodzianka czy błąd.** Niespodzianka to coś nietypowego w sklepie, co wygląda tak samo na wersji zwykłej i na `rc`. Błąd jest tylko na `rc`. Zanim zgłosicie znalezisko, sprawdźcie je na obu adresach. Jest na obu adresach: niespodzianka. Jest tylko na `rc`: błąd.
 - **Fair play na wspólnych danych.** Serwer i baza są wspólne dla wszystkich par:
   - tworzycie własne dane (produkt w koszyku, adres, zamówienie) i nie zakładacie, że ktoś inny ich nie zmienił;
   - sprzątacie po sobie: koszyk, dodane adresy, kod rabatowy;
@@ -42,9 +42,9 @@ W przeglądarce wystarczą krótkie adresy: `namssor-rc.prosit.cloud`, `namssor.
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polujcie w osobnym oknie PowerShell (okno polowania). `BASE_URL` z tego okna nie może trafić do testów projektu, więc projekt dalej uruchamiacie w oknie testów.
 
-1. **Ustawcie konto pary i sprawdźcie, czy serwer odpowiada.**
+1. **Ustawcie konto pary i sprawdźcie, czy serwer odpowiada.** Otwórzcie nowe okno PowerShell (okno polowania) i przejdźcie w nim do katalogu repo. Wpiszcie poniższe polecenia. Zamiast `tester05` wpiszcie swój numer.
    ```powershell
    $env:APP_USER="tester05"
    $env:APP_PASSWORD="czarny-piatek-2026"
@@ -53,35 +53,8 @@ PowerShell, z katalogu głównego repo.
    ```
    Oczekiwany wynik: `4 passed`. W stopce strony `rc` widać „Wersja: rc”.
 
-2. **Wybierzcie obszar i szukajcie ręcznie, potem testem.** Obszary warte sprawdzenia: ceny i promocje, kody rabatowe, faktura, koszyk, sortowanie i filtrowanie, walidacja formularzy, adresy w profilu, odpowiedzi API (statusy i treść), statusy zamówień. Przejdźcie scenariusz ręcznie na `rc` i na wersji zwykłej, porównajcie ekrany i odpowiedzi, a dopiero potem piszcie test w `tests/polowanie/`.
-
-> **Jeśli utknęliście po 15 minutach**
-> Weźcie test z waszego pakietu, który już przechodzi, i uruchomcie go na `rc`. Potem zadajcie pytania, których test nie zadaje: co, jeśli klient zrobi to dwa razy, cofnie się, wpisze wartość graniczną, usunie ostatnią rzecz? Co pokazuje API, gdy poprosi o coś, czego nie ma?
-
-3. **Udowodnijcie błąd dwoma uruchomieniami.** Ten sam test, dwa adresy:
-   ```powershell
-   $env:BASE_URL="https://namssor-rc-376292984721.europe-central2.run.app"
-   npx playwright test tests/polowanie/rabat-dla-wlosow.spec.ts
-   $env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"
-   npx playwright test tests/polowanie/rabat-dla-wlosow.spec.ts
-   ```
-   Oczekiwany wynik: pierwsze uruchomienie `1 failed`, drugie `1 passed`. Jeśli oba przechodzą, test nie widzi różnicy. Jeśli oba padają, test jest zły albo dane zmieniła inna para.
-
-4. **Zgłoście test na tablicę i zróbcie commit.** Otwórzcie stronę zgłoszeń (adres w tabeli wyżej) i zalogujcie się kontem pary. Wybierzcie obszar, wklejcie **cały plik testu** (do 20 000 znaków) i kliknijcie „Wyślij do Klaudiusza-sędziego”. Wynik:
-   - „Zaliczony błąd #N”: punkt jest już na tablicy;
-   - „Zgłoszenie czeka na trenera”: Klaudiusz nie jest pewien. Pokażcie trenerowi oba uruchomienia z kroku 3;
-   - „nie rozpoznano błędu wersji rc”: test nie łapie żadnego z błędów. Sprawdźcie, czy asercja dotyczy wartości, która różni się między wersjami, i poprawcie test.
-
-   Jedno zgłoszenie co 30 s, najwyżej 40 dziennie na konto. Potem:
-   ```powershell
-   git add tests/polowanie
-   git commit -m "Polowanie: <co jest źle, jednym zdaniem>" -m "Review: OK"
-   ```
-
-5. **Sprzątnijcie po sobie przed kolejnym polowaniem.** Sprawdźcie na `rc` swoim kontem koszyk i „Moje adresy”. Usuńcie to, co zostało po nieudanych testach.
-
 > **Pracujecie bez wspólnego serwera**
-> Gdy serwer nie odpowiada przez proxy, trener udostępni plik wersji `rc`. Zapiszcie go poza folderem repo, np. `C:\e2e\wydanie\`, i nie otwierajcie go. W drugim oknie PowerShell uruchomcie `rc` na porcie 4200 z osobną bazą:
+> Gdy serwer nie odpowiada przez proxy, trener udostępni plik wersji `rc`. Zapiszcie go poza folderem repo, np. `C:\e2e\wydanie\`, i nie otwierajcie go. Otwórzcie jeszcze jedno okno PowerShell (okno `rc`), przejdźcie do katalogu repo i uruchomcie `rc` na porcie 4200 z osobną bazą:
 > ```powershell
 > $env:APP_VERSION="rc"
 > $env:NAMSSOR_RC_MODULE="C:\e2e\wydanie\<plik od trenera>"
@@ -89,7 +62,37 @@ PowerShell, z katalogu głównego repo.
 > $env:NAMSSOR_DB="data\rc.db"
 > npm start
 > ```
-> W kroku 3 pierwsze uruchomienie z `$env:BASE_URL="http://localhost:4200"`, drugie po `Remove-Item Env:BASE_URL` (wersja zwykła na waszym komputerze). Konto `user` też działa, bo cała baza jest wasza. Gdy serwer `rc` nie działa, tablica też: punkty zapisuje trener ręcznie po pokazaniu obu uruchomień.
+> W kroku 3 w oknie polowania pierwsze uruchomienie z `$env:BASE_URL="http://localhost:4200"`, drugie po `Remove-Item Env:BASE_URL` (wersja zwykła na waszym komputerze). Konto `user` też działa, bo cała baza jest wasza. Gdy serwer `rc` nie działa, tablica też: punkty zapisuje trener ręcznie po pokazaniu obu uruchomień.
+
+2. **Wybierzcie obszar i szukajcie ręcznie, potem testem.** Obszary warte sprawdzenia: ceny i promocje, kody rabatowe, faktura, koszyk, sortowanie i filtrowanie, walidacja formularzy, adresy w profilu, odpowiedzi API (statusy i treść), statusy zamówień. Przejdźcie scenariusz ręcznie na `rc` i na wersji zwykłej, porównajcie ekrany i odpowiedzi, a dopiero potem piszcie test w `tests/polowanie/`.
+
+> **Jeśli utknęliście po 15 minutach**
+> Weźcie test z waszego pakietu, który już przechodzi, i uruchomcie go na `rc`. Potem zadajcie pytania, których test nie zadaje: co, jeśli klient zrobi to dwa razy, cofnie się, wpisze wartość graniczną, usunie ostatnią rzecz? Co pokazuje API, gdy poprosi o coś, czego nie ma?
+
+3. **Udowodnijcie błąd dwoma uruchomieniami.** Ten sam test, dwa adresy, w oknie polowania. Zamiast `<wasz-plik>` wpiszcie nazwę swojego pliku.
+   ```powershell
+   $env:BASE_URL="https://namssor-rc-376292984721.europe-central2.run.app"
+   npx playwright test tests/polowanie/<wasz-plik>.spec.ts
+   $env:BASE_URL="https://namssor-376292984721.europe-central2.run.app"
+   npx playwright test tests/polowanie/<wasz-plik>.spec.ts
+   ```
+   Oczekiwany wynik: pierwsze uruchomienie `1 failed`, drugie `1 passed`. Jeśli oba przechodzą, test nie widzi różnicy. Jeśli oba padają, test jest zły albo dane zmieniła inna para.
+
+4. **Zgłoście test na tablicę.** Otwórzcie stronę zgłoszeń (adres w tabeli wyżej) i zalogujcie się kontem pary. Wybierzcie obszar, wklejcie **cały plik testu** (do 20 000 znaków) i kliknijcie „Wyślij do Klaudiusza-sędziego”. Wynik:
+   - „Zaliczony błąd #N”: punkt jest już na tablicy;
+   - „Zgłoszenie czeka na trenera”: Klaudiusz nie jest pewien. Pokażcie trenerowi oba uruchomienia z kroku 3;
+   - „nie rozpoznano błędu wersji rc”: test nie łapie żadnego z błędów. Sprawdźcie, czy asercja dotyczy wartości, która różni się między wersjami, i poprawcie test.
+
+   Jedno zgłoszenie co 30 s, najwyżej 40 dziennie na konto.
+
+5. **Zróbcie commit testu.** W oknie polowania:
+   ```powershell
+   git add tests/polowanie
+   git commit -m "Polowanie: <co jest źle, jednym zdaniem>" -m "Review: OK"
+   ```
+   Oczekiwany wynik: pierwsza linia zaczyna się od `[main` i kończy waszym opisem.
+
+6. **Sprzątnijcie po sobie przed kolejnym polowaniem.** Sprawdźcie na `rc` swoim kontem koszyk i „Moje adresy”. Usuńcie to, co zostało po nieudanych testach. Wróćcie do kroku 2.
 
 ## Tablica wyników
 
@@ -102,7 +105,7 @@ Remis rozstrzyga godzina ostatniego punktu: wyżej jest konto, które zdobyło g
 
 ## Przykład wyniku
 
-Para łapie błąd, którego w `rc` nie ma: kod `WLOSY15` działa na koszyk bez produktów do włosów. Test w `tests/polowanie/rabat-dla-wlosow.spec.ts` zna oczekiwany komunikat z wersji zwykłej. Na `rc` przechodzi, więc punktu nie ma. W klasycznej konsoli PowerShell zamiast `✓` i `✘` zobaczysz `ok` i `x`:
+Para podejrzewa błąd, którego w `rc` nie ma: kod `WLOSY15` działa na koszyk bez produktów do włosów. Test w `tests/polowanie/rabat-dla-wlosow.spec.ts` zna oczekiwany komunikat z wersji zwykłej. Na `rc` przechodzi, więc punktu nie ma. W klasycznej konsoli PowerShell zamiast `✓` i `✘` zobaczycie `ok` i `x`:
 ```
 PS C:\e2e\e2e-podstawy-demo> npx playwright test tests/polowanie/rabat-dla-wlosow.spec.ts
 
