@@ -13,7 +13,7 @@ Zgłoszenie od Mirka, 8:47:
 
 - `tests/pomocnicze/logowanie.ts`: gotowe funkcje `zaloguj(page)` i `zalogujPrzezApi(request)`.
 - `tests/czytanie/02-moje-zamowienia.spec.ts`: dwa testy, w każdym te same trzy linie logowania.
-- Adres wspólnego serwera: `https://namssor-376292984721.europe-central2.run.app`. W przeglądarce wystarczy krótki adres `namssor.prosit.cloud` (przekierowuje na ten). Do `BASE_URL` wpisz pełny adres powyżej.
+- Adres wspólnego serwera: `https://namssor-376292984721.europe-central2.run.app`. W przeglądarce wystarczy krótki adres `namssor.prosit.cloud` (przekierowuje na ten). Do `BASE_URL` wpisz pełny adres powyżej. Wspólne serwery działają tylko w czasie szkolenia (16–18.11.2026); po nim mogą być wyłączone. Wtedy rób ćwiczenia lokalnie według `README.md`.
 
 ## Kroki
 
@@ -63,9 +63,9 @@ PowerShell, z katalogu głównego repo. Polecenia `npx playwright …` i `git �
 > **Błąd zaczyna się od `net::ERR_`**
 > Firmowe proxy nie przepuszcza adresu serwera (szczegóły w sekcji „Firmowe proxy” w `README.md`). Zawołaj trenera i zrób ten krok lokalnie:
 > 1. W oknie aplikacji zatrzymaj aplikację (`Ctrl+C`), jeśli działa. Wpisz `$env:PORT="4200"`, potem `npm start`.
-> 2. W oknie testów wpisz `$env:BASE_URL="http://localhost:4200"` i to samo polecenie testów.
+> 2. W oknie testów wpisz w osobnych liniach `$env:PORT="4200"` i `$env:BASE_URL="http://localhost:4200"`, potem to samo polecenie testów.
 >
-> Oczekiwany wynik też `4 passed`. Potem w oknie testów `Remove-Item Env:BASE_URL`, a w oknie aplikacji `Ctrl+C` i `Remove-Item Env:PORT`.
+> Oczekiwany wynik też `4 passed`. Potem w oknie testów `Remove-Item Env:BASE_URL` i `Remove-Item Env:PORT`, a w oknie aplikacji `Ctrl+C` i `Remove-Item Env:PORT`.
 
 5. **Uruchom testy na koncie swojej pary (te testy mają paść).** Na wspólnym serwerze każda osoba ma konto `tester01`–`tester12` (numer poda trener), hasło `czarny-piatek-2026`. To samo konto jest w twojej lokalnej aplikacji. Funkcja `zaloguj` bierze konto ze zmiennych. W oknie testów wpisz poniższe polecenia. Zamiast `tester05` wpisz swój numer.
    ```powershell
