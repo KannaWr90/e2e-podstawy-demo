@@ -2,7 +2,7 @@
 
 Repo do warsztatu „Od testów manualnych do automatycznych: Playwright i TypeScript z Claude Code”.
 
-W środku jest aplikacja **Namssor**, fikcyjna drogeria internetowa: sklep, panel administratora i API. Na niej piszemy, czytamy i poprawiamy testy. Aplikacja i jej dane są przykładowe, żadne dane nie trafiają poza twój komputer.
+W środku jest aplikacja **Namssor**, fikcyjna drogeria internetowa: sklep, panel administratora i API. Na niej piszemy, czytamy i poprawiamy testy. Aplikacja i jej dane są przykładowe. Przy uruchomieniu lokalnym dane aplikacji zostają na twoim komputerze. Ćwiczenia ze wspólnym serwerem (dzień 3) wysyłają dane testowe na ten serwer; serwery działają tylko w czasie szkolenia (16–18.11.2026).
 
 ## Wymagania
 
@@ -21,11 +21,13 @@ Każde polecenie wpisz w osobnej linii i zatwierdź Enterem. Folder `C:\e2e` to 
 ```powershell
 New-Item -ItemType Directory -Force C:\e2e
 cd C:\e2e
-git clone <adres repo od trenera> e2e-podstawy-demo
+git clone https://github.com/agentGreg/e2e-podstawy-demo.git e2e-podstawy-demo
 cd e2e-podstawy-demo
 npm ci
 npx playwright install chromium
 ```
+
+Jeśli chcesz wysyłać swoje rozwiązania na własny GitHub, zamiast klonu zrób fork według karty `docs/cwiczenia/01-start.md`.
 
 `npm ci` instaluje Playwright i TypeScript w folderze `node_modules`. `npx playwright install chromium` pobiera przeglądarkę, którą sterują testy (ok. 150 MB).
 
@@ -88,7 +90,7 @@ Polecenie działa tylko przy zatrzymanej aplikacji. Jeśli aplikacja działa, `d
 
 | Adres | Co tam jest | Do czego na szkoleniu |
 |---|---|---|
-| `/` | Produkty: wyszukiwarka, kategorie, sortowanie, „Dodaj do koszyka”, produkty niedostępne; pod tabelą kafelki z tymi samymi nazwami i cenami (`getByText` z nazwą produktu znajdzie dwa elementy: szukaj w wierszu tabeli albo w kafelku) i baner Czarnego Piątku | pierwsze testy, wybór lokatorów |
+| `/` | Produkty: wyszukiwarka, kategorie, sortowanie, „Dodaj do koszyka”, produkty niedostępne; pod tabelą kafelki z tymi samymi nazwami i cenami (`getByText` z nazwą produktu znajdzie dwa elementy: szukaj w wierszu tabeli albo w kafelku) i baner Czarnego Piątku | pierwsze testy, wybór locatorów |
 | `/produkt/1` | Karta produktu: opis, cena (promocyjna: stara przekreślona i plakietka „-20%”), dostępność, pole „Ilość” (1–1000), „Dodaj do koszyka” | ceny w kilku miejscach, przycisk wyłączony |
 | `/logowanie` | Logowanie z komunikatem o błędzie | pierwszy test, `getByLabel`, `getByRole` |
 | `/koszyk` | Koszyk, suma, kod rabatowy, „Faktura na firmę” (NIP, nazwa firmy), „Złóż zamówienie” | scenariusz od produktu do zamówienia |
@@ -168,7 +170,7 @@ Gdy `HTTPS_PROXY` jest ustawione, Playwright też łączy się przez to proxy: p
 ## Problemy i rozwiązania
 
 **`npm : File ... npm.ps1 cannot be loaded because running scripts is disabled`**
-PowerShell blokuje skrypty. Użyj `npm.cmd` zamiast `npm` (np. `npm.cmd ci`) albo uruchom raz:
+PowerShell blokuje skrypty. Używaj `npm.cmd` zamiast `npm` i `npx.cmd` zamiast `npx` (np. `npm.cmd ci`, `npx.cmd playwright install chromium`) albo uruchom raz:
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
@@ -201,3 +203,7 @@ Get-NetTCPConnection -LocalPort 4100
 
 - Testy bezpieczeństwa aplikacji (zepsute ciasteczko, przekierowanie po logowaniu) są w `tests/bezpieczenstwo/` i nie biegną domyślnie: `npx playwright test --project=bezpieczenstwo`.
 - Tablica wyników gry „polowanie na błędy” (karta 13): `/tablica` (rzutnik), `/tablica/zglos` (zgłoszenia testów i flag z kont `tester01`–`tester12`), `/tablica/trener` (panel: konto `trener` albo token z `NAMSSOR_RESET_TOKEN`). Zmienne: `NAMSSOR_FLAGA_SEKRET` (flagi niespodzianek; bez niej aplikacja pokazuje `FLAGA-LOKALNA`), `OPENROUTER_API_KEY`, `NAMSSOR_LLM_MODEL` (`atrapa` = bez sieci), `NAMSSOR_LLM_LIMIT_USD`, `NAMSSOR_LLM_CENA`, `NAMSSOR_DRUZYNY`, `NAMSSOR_TABLICA_URL`, `NAMSSOR_BLEDY_PLIK`; opis w `app/tablica.mjs` i `app/sedzia.mjs`. Testy tablicy nie biegną w `npm test`: `npx playwright test --project=tablica`.
+
+## Licencja
+
+Kod (aplikacja Namssor, testy, skrypty, konfiguracja) jest na licencji MIT, zobacz [`LICENSE`](LICENSE). Treści szkoleniowe (`docs/`, w tym karty ćwiczeń, oraz ten plik) są na licencji [Creative Commons Uznanie autorstwa 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.pl), zobacz [`LICENSE-docs.md`](LICENSE-docs.md). Autor: Grzegorz Brzezinka, Prosit AS, [https://agentgreg.ai](https://agentgreg.ai).
