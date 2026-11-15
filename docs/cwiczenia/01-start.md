@@ -42,7 +42,7 @@ Na zajęciach pracujesz w trzech oknach PowerShell, każde otwarte w folderze re
    npm ci
    npx playwright install chromium
    ```
-   Oczekiwany wynik `npm ci`: `added 6 packages, and audited 7 packages in …` i `found 0 vulnerabilities`. `npx playwright install chromium` pobiera ok. 150 MB i kończy się bez słowa `Error`.
+   Oczekiwany wynik `npm ci`: `added 6 packages, and audited 7 packages in …` i podsumowanie audytu (np. `found 0 vulnerabilities`; liczba może się z czasem zmienić). `npx playwright install chromium` pobiera ok. 150 MB i kończy się bez słowa `Error`.
 
 > **Jeśli polecenie kończy się błędem**
 > Komunikat `running scripts is disabled on this system`: zamiast `npm` i `npx` wpisz `npm.cmd` i `npx.cmd`, np. `npm.cmd ci`. Komunikat z `ETIMEDOUT`, `ECONNRESET` albo `SELF_SIGNED_CERT_IN_CHAIN`: to firmowe proxy. Ustaw je według sekcji „Firmowe proxy” w `README.md`, w tym samym oknie PowerShell, i powtórz polecenie.
