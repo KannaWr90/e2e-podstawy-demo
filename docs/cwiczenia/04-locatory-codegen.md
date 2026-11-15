@@ -1,4 +1,4 @@
-# Ćwiczenie 04. Scenariusze nagrane Codegenem i poprawione do odpornych locatorów, cena promocyjna w trzech miejscach
+# Ćwiczenie 04. Testy z Codegena z odpornymi locatorami
 
 Blok 1.4 · 50 min + 30 min karta produktu (04b) · w parach, zmiana ról co scenariusz
 
@@ -21,17 +21,19 @@ Szkielety z `test.fixme` i listą kroków w komentarzach TODO:
 
 Kolejność wyboru locatorów (z `CLAUDE.md`): `getByRole`, `getByLabel`, `getByText`, dopiero potem `getByTestId`. Bez selektorów CSS, XPath, `id` i klas.
 
-Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codegen może nagrać `getByText('Żel pod prysznic')`, który znajdzie dwa elementy (komórkę tabeli i kafelek). Zawęź locator do tabeli: `page.getByRole('row').filter({ hasText: 'Żel pod prysznic' })`. W scenariuszu B koszyk ma kolumny Produkt, Cena, Ilość, Wartość, a po kliknięciu „Usuń” adres strony to `/koszyk?usunieto=1` (asercja `toHaveURL(/\/koszyk/)` przejdzie, `toHaveURL(/\/koszyk$/)` nie).
+Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codegen może nagrać `getByText('Żel pod prysznic')`, który znajdzie dwa elementy (komórkę tabeli i kafelek). Zawęź locator do tabeli: `page.getByRole('row').filter({ hasText: 'Żel pod prysznic' })`.
 
 ## Kroki
 
-1. **Uruchom aplikację w osobnym oknie.** Otwórz drugie okno PowerShell w folderze repo:
+PowerShell, z folderu repo. Polecenia `npx` i `git` wpisujesz w oknie testów.
+
+1. **Uruchom aplikację w oknie aplikacji.** Otwórz drugie okno PowerShell w folderze repo i wpisz:
    ```powershell
    npm start
    ```
    Oczekiwany wynik: `Namssor działa: http://localhost:4100  (baza: …)` i `Zatrzymanie: Ctrl+C`. To okno zostaw otwarte do końca ćwiczenia.
 
-2. **Nagraj scenariusz A.** W pierwszym oknie:
+2. **Nagraj scenariusz A.** W oknie testów:
    ```powershell
    npx playwright codegen http://localhost:4100
    ```
@@ -46,7 +48,7 @@ Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codege
 > **Jeśli utknąłeś po 10 minutach**
 > Najpierw przeczytaj komunikat błędu od góry: który locator, co było oczekiwane. `strict mode violation … resolved to 2 elements` znaczy, że locator pasuje do dwóch elementów: zobacz, które dwa wypisał Playwright i co je różni. Pomaga `exact: true` albo zawężenie do fragmentu strony, w którym element jest tylko raz: do wiersza tabeli (`page.getByRole('row').filter({ hasText: '…' })`) albo do kafelka.
 
-4. **Nagraj i popraw scenariusz B, potem C.** Zmiana osoby przy klawiaturze. Ten sam rytm: Codegen, wklejenie, review locatorów, uruchomienie. W B i C nagrywasz także logowanie. W C sprawdź oba komunikaty błędu i to, że komunikat „Zapisano adres dostawy.” się nie pojawił.
+4. **Nagraj i popraw scenariusz B, potem C.** Zmiana osoby przy klawiaturze. Ten sam rytm: Codegen, wklejenie, review locatorów, uruchomienie. W B i C nagrywasz także logowanie. W B koszyk ma kolumny Produkt, Cena, Ilość, Wartość, a po kliknięciu „Usuń” adres strony to `/koszyk?usunieto=1`: asercja `toHaveURL(/\/koszyk/)` przejdzie, `toHaveURL(/\/koszyk$/)` nie. W C sprawdź oba komunikaty błędu i to, że komunikat „Zapisano adres dostawy.” się nie pojawił.
    ```powershell
    npx playwright test tests/cwiczenia/04-koszyk-usuwanie.spec.ts
    npx playwright test tests/cwiczenia/04-adres-walidacja.spec.ts
@@ -57,14 +59,25 @@ Uwaga: pod tabelą produktów są kafelki z tymi samymi nazwami i cenami. Codege
 > Uruchom `npx playwright test --ui`, wybierz swój test i użyj przycisku **Pick locator** (ikona celownika): kliknięty element daje gotowy locator do skopiowania. Kod testu piszesz wtedy sam, krok po kroku według TODO.
 
 5. **Sprawdź, że testy są stabilne i potrafią paść.**
+
+   a) Uruchom trzy scenariusze po trzy razy:
    ```powershell
    npx playwright test tests/cwiczenia/04- --repeat-each=3 --workers=1
    ```
-   Oczekiwany wynik: `3 skipped` i `9 passed`. `skipped` to szkielet 04b, który zrobisz w następnym kroku. Potem w scenariuszu C zmień oczekiwany komunikat przy polu na „Kod pocztowy musi mieć format 00-0000”, uruchom C i zobacz `1 failed`. Przywróć i zapisz pracę:
+   Oczekiwany wynik: `3 skipped` i `9 passed`. `skipped` to szkielet 04b, który zrobisz w kolejnych krokach.
+
+   b) W scenariuszu C zmień oczekiwany komunikat przy polu na „Kod pocztowy musi mieć format 00-0000” i uruchom C:
+   ```powershell
+   npx playwright test tests/cwiczenia/04-adres-walidacja.spec.ts
+   ```
+   Oczekiwany wynik: `1 failed`.
+
+   c) Cofnij zmianę komunikatu, uruchom C jeszcze raz (oczekiwany wynik `1 passed`) i zapisz pracę:
    ```powershell
    git add tests/cwiczenia
    git commit -m "Ćwiczenie 04: trzy scenariusze z Codegena"
    ```
+   Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 04: trzy scenariusze z Codegena` (skrót będzie inny). Jeśli masz fork (ścieżka A z ćwiczenia 01), wpisz jeszcze `git push`.
 
 ### Część 04b. Karta produktu · 30 min
 
@@ -83,11 +96,24 @@ Produkt: „Krem do twarzy na dzień”, cena regularna 32,99 zł, promocyjna 26
 > **Jeśli utknąłeś po 10 minutach**
 > Błąd `strict mode violation: getByText('Krem do twarzy na dzień') resolved to 2 elements` wypisuje oba elementy: komórkę tabeli (`<td …>`) i link w kafelku (`<a href="/produkt/5">`). Każdy kafelek to osobny element z nazwą produktu. Zbuduj najpierw locator całego kafelka kremu (Pick locator w `--ui` podpowie jego rolę), a ceny i plakietki szukaj już w nim, tak jak w scenariuszu B szukałeś przycisku w wierszu.
 
-8. **Sprawdź, że test pilnuje każdego z trzech miejsc.** Zmień oczekiwaną cenę `26,39 zł` na `26,40 zł` tylko w asercji koszyka i uruchom test: oczekiwany wynik `1 failed`, a w opisie błędu locator z koszyka. Przywróć. Test padł przed usunięciem kremu, więc krem został w koszyku `tester11`. Zaloguj się w przeglądarce jako `tester11`, otwórz koszyk i kliknij „Usuń” przy kremie. Oczekiwany wynik: „Koszyk jest pusty.”. Uruchom test dwa razy z rzędu:
+8. **Zepsuj cenę w asercji koszyka.** Zmień oczekiwaną cenę `26,39 zł` na `26,40 zł` tylko w asercji koszyka i uruchom test:
    ```powershell
-   npx playwright test tests/cwiczenia/04-karta-produktu.spec.ts --repeat-each=2 --workers=1
+   npx playwright test tests/cwiczenia/04-karta-produktu.spec.ts
    ```
-   Oczekiwany wynik: `2 passed`. Zapisz pracę: `git add tests/cwiczenia`, `git commit -m "Ćwiczenie 04b: cena promocyjna w trzech miejscach"`.
+   Oczekiwany wynik: `1 failed`, a w opisie błędu locator z koszyka. Cofnij zmianę ceny w asercji (z powrotem `26,39 zł`) i zapisz plik. Test uruchomisz w kroku 10, po sprzątaniu koszyka.
+
+9. **Posprzątaj koszyk `tester11`.** Test padł przed usunięciem kremu, więc krem został w koszyku `tester11`. Zaloguj się w przeglądarce jako `tester11`, otwórz koszyk i kliknij „Usuń” przy kremie. Oczekiwany wynik: „Koszyk jest pusty.”.
+
+10. **Uruchom test dwa razy i zapisz pracę.**
+    ```powershell
+    npx playwright test tests/cwiczenia/04-karta-produktu.spec.ts --repeat-each=2 --workers=1
+    ```
+    Oczekiwany wynik: `2 passed`. Zapisz pracę w git:
+    ```powershell
+    git add tests/cwiczenia
+    git commit -m "Ćwiczenie 04b: cena promocyjna w trzech miejscach"
+    ```
+    Oczekiwany wynik: pierwsza linia `[main 1a2b3c4] Ćwiczenie 04b: cena promocyjna w trzech miejscach` (skrót będzie inny). Jeśli masz fork (ścieżka A z ćwiczenia 01), wpisz jeszcze `git push`.
 
 ## Przykład wyniku
 
@@ -96,7 +122,7 @@ Ten sam przycisk dwa razy (inny produkt niż w ćwiczeniu). Pierwsza linia to se
 await page.locator('tbody > tr:nth-child(10) > td:nth-child(6) > form > button').click();
 await page.getByRole('button', { name: 'Dodaj do koszyka: Pasta do zębów' }).click();
 ```
-Wynik kroku 5 (fragment, czasy będą inne):
+Wynik kroku 5a (fragment, czasy będą inne):
 ```
   3 skipped
   9 passed (3.3s)

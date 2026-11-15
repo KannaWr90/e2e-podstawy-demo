@@ -2,7 +2,7 @@
 
 Środa, dzień zamrożenia kodu. O 15:00 Bożena pyta: „wydajemy czy nie?”. Odpowiedź daje wasz pakiet testów.
 
-Scenariusze są w dwóch warstwach:
+Scenariusze są w dwóch grupach:
 - **P1–P12**: zamówione wcześniej. Osiem z pierwszej wersji projektu i cztery z Czarnego Piątku (karta produktu, kod rabatowy, faktura, drugi adres).
 - **P13–P16**: „scenariusze Bożeny”. Bożena zapowiada, że o 13:00 coś w nich zmieni.
 
@@ -171,7 +171,7 @@ Oczekiwany wynik:
 ## Dane i stan aplikacji
 
 - Konta lokalne: `user` / `user123`, `admin` / `admin123`, `biuro` / `biuro123`.
-- Na wspólnym serwerze każda osoba ma swoje konto `tester01`–`tester12` (hasło `czarny-piatek-2026`), a konta `admin` tam nie ma. Para ustawia konto w zmiennych przed uruchomieniem testów:
+- Na wspólnym serwerze każda osoba ma swoje konto `tester01`–`tester12` (hasło `czarny-piatek-2026`). Konto `admin` tam jest, ale jego hasło zna tylko trener. Para ustawia konto w oknie testów, zanim uruchomi testy. Zamiast `tester05` wpiszcie swój numer:
   ```powershell
   $env:APP_USER="tester05"
   $env:APP_PASSWORD="czarny-piatek-2026"
