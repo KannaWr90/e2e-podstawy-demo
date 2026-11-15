@@ -1,10 +1,10 @@
 # Ćwiczenie 12c. Hotfix Mirka o 14:00: test do poprawy czy błąd do zgłoszenia
 
-Blok 3.2, warstwa 4 · 20 min (14:00–14:20) · w parach, klawiaturę ma osoba, która robiła review krzyżowe
+Blok 3.2, etap 4 · 20 min (14:00–14:20) · w parach, klawiaturę ma osoba, która robiła review krzyżowe
 
 ## Cel
 
-Umiesz po czerwonym przebiegu rozdzielić testy, które padły, bo aplikacja zmieniła wygląd (test do poprawy), od testów, które padły, bo aplikacja działa źle (błąd do zgłoszenia). Umiesz napisać zgłoszenie błędu, którego dowodem jest test.
+Gdy testy padają po zmianie w aplikacji, umiecie ustalić przyczynę każdego. Zmienił się tekst na ekranie: poprawiacie test. Aplikacja działa źle: zgłaszacie błąd. Umiecie napisać zgłoszenie błędu, którego dowodem jest test.
 
 ## Materiał wejściowy
 
@@ -19,14 +19,17 @@ Wiadomość od Klaudiusza, 14:00:
 
 ## Kroki
 
-PowerShell, z katalogu głównego repo.
+PowerShell, z katalogu głównego repo. Polecenia `npm run db:reset`, `npx playwright …` i `git …` wpisujecie w oknie testów.
 
-1. **Zapiszcie wynik przed hotfiksem.** Zamknijcie aplikację uruchomioną przez `npm start`, jeśli działa w innym oknie (`Ctrl+C`). Potem:
+1. **Zapiszcie wynik przed hotfiksem.** Jeśli w oknie aplikacji działa `npm start`, zatrzymajcie aplikację (`Ctrl+C`). Potem w oknie testów:
    ```powershell
    npm run db:reset
    npx playwright test --workers=1
    ```
    Oczekiwany wynik `npm run db:reset`: linia zaczyna się od `Baza odtworzona z danymi startowymi`. Zapiszcie liczby `passed`, `failed` i `skipped`. Oczekiwany wynik testów: bez `failed`.
+
+> **Pracujecie na wspólnym serwerze, nie lokalnie**
+> W oknie testów zamiast `$env:APP_VERSION` ustawcie `$env:BASE_URL` na adres serwera `namssor` i konto pary w `APP_USER` i `APP_PASSWORD`. Kroku `npm run db:reset` na serwerze nie ma. Na serwerze hasło konta `admin` zna tylko trener, więc testy z kontem `admin` padną tam przy logowaniu. Wpiszcie je do tabeli jako „nie dotyczy” i sprawdźcie je lokalnie.
 
 2. **Uruchomcie testy na wersji z hotfiksem.**
    ```powershell
@@ -34,7 +37,7 @@ PowerShell, z katalogu głównego repo.
    $env:APP_VERSION="hotfix"
    npx playwright test --workers=1
    ```
-   Oczekiwany wynik `npm run db:reset`: znowu `Baza odtworzona z danymi startowymi`, bo krok 1 zmienił dane. Oczekiwany wynik testów: kilka testów `failed`. Na dole strony sklepu widać „Wersja: hotfix”. Jeśli wszystko jest zielone, sprawdźcie, czy w innym oknie nie działa stara aplikacja: Playwright używa działającej i nie uruchamia nowej.
+   Oczekiwany wynik `npm run db:reset`: znowu `Baza odtworzona z danymi startowymi`, bo krok 1 zmienił dane. Oczekiwany wynik testów: kilka testów `failed`. Jeśli wszystko jest zielone, sprawdźcie, czy w oknie aplikacji nie działa stara aplikacja. Playwright używa działającej i nie uruchamia nowej.
 
 3. **Zdiagnozujcie każdy czerwony test.** Dla każdego testu `failed` otwórzcie błąd w raporcie (`npx playwright show-report`) albo w trace i wypełnijcie tabelę. Nie zmieniajcie jeszcze kodu.
 
@@ -42,7 +45,12 @@ PowerShell, z katalogu głównego repo.
    |---|---|---|---|
    | | | zmieniony tekst, etykieta albo układ / aplikacja liczy albo zapisuje źle | test do poprawy / błąd do zgłoszenia Mirkowi |
 
-   Przy każdym teście sprawdźcie ręcznie w przeglądarce (`npm start` w drugim oknie, z tą samą zmienną), co widzi klient. Komunikat „element not found” mówi tylko, że czegoś nie ma. Przyczynę mówi dopiero ekran.
+   Przy każdym teście sprawdźcie ręcznie w przeglądarce, co widzi klient. Wersję z hotfiksem uruchomcie w oknie aplikacji:
+   ```powershell
+   $env:APP_VERSION="hotfix"
+   npm start
+   ```
+   Oczekiwany wynik: na dole strony http://localhost:4100 widać „Wersja: hotfix”. Komunikat „element not found” mówi tylko, że czegoś nie ma. Przyczynę zobaczycie dopiero na ekranie.
 
 > **Jeśli utknęliście po 5 minutach**
 > Dla każdego czerwonego testu zadajcie dwa pytania. Czy klient zrobi zakupy z nowym tekstem na ekranie? Czy liczby, które widzi klient, zgadzają się z tym, co zamówił? Jedno „nie” na drugie pytanie wystarczy, żeby to był błąd.
@@ -60,13 +68,11 @@ PowerShell, z katalogu głównego repo.
    git switch main
    Remove-Item Env:APP_VERSION
    ```
-
-> **Pracujecie na wspólnym serwerze, nie lokalnie**
-> Zamiast `$env:APP_VERSION` ustawcie `$env:BASE_URL` na adres serwera `namssor` i konto pary w `APP_USER` i `APP_PASSWORD`. Kroku `npm run db:reset` na serwerze nie ma. Testy z kontem `admin` padną tam przy logowaniu, bo tego konta na serwerze nie ma. Wpiszcie je do tabeli jako „nie dotyczy” i sprawdźcie je lokalnie.
+   W oknie aplikacji zatrzymajcie aplikację (`Ctrl+C`) i wpiszcie `Remove-Item Env:APP_VERSION`. Bez tego testy dalej trafiają do wersji z hotfiksem.
 
 ## Przykład wyniku
 
-Wiersz tabeli z innego wydania Mirka, sprzed tygodnia (przycisk „Zaloguj” dostał napis „Zaloguj się”, ale tylko w teście):
+Wiersz tabeli dla testu z ćwiczenia 07. Test szuka przycisku „Zaloguj się”, a na ekranie przycisk ma napis „Zaloguj”. Aplikacja działa dobrze, więc poprawić trzeba test. Plik i linię przepisujecie z nagłówka błędu w raporcie: `:5:5` to linia 5 (tu zaczyna się test) i kolumna 5.
 ```
   1) [chromium] › tests/zepsute/02-logowanie-admina.spec.ts:5:5 › administrator widzi link do panelu admina
 
@@ -77,7 +83,7 @@ Wiersz tabeli z innego wydania Mirka, sprzed tygodnia (przycisk „Zaloguj” do
 
 | Test (plik i linia) | Pierwsza linia błędu | Przyczyna | Decyzja |
 |---|---|---|---|
-| `tests/zepsute/02-logowanie-admina.spec.ts:10` | `locator.click: Test timeout of 30000ms exceeded`, czeka na przycisk „Zaloguj się” | na ekranie przycisk „Zaloguj”: zmieniony tekst | test do poprawy |
+| `tests/zepsute/02-logowanie-admina.spec.ts:5` | `locator.click: Test timeout of 30000ms exceeded`, czeka na przycisk „Zaloguj się” | na ekranie przycisk „Zaloguj”: zmieniony tekst | test do poprawy |
 
 Zgłoszenie (format):
 ```
