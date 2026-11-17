@@ -16,3 +16,43 @@
 | 05 › cena na karcie produktu jest taka sama jak na kafelku | | |
 | 05 › produktu niedostępnego nie da się dodać do koszyka z karty produktu | | |
 | 06-filtr-kategorii (jeden wiersz na cały plik) | | |
+## Ćwiczenie 08: oczekiwane wyniki ze scenariuszy zmiany adresu
+
+### docs/scenariusze/zmiana-adresu.md (11)
+
+TC-ADR-01: zmiana adresu dostawy
+- [ ] 1. W nagłówku napis „Zalogowano jako user (user)”
+- [ ] 2. Nagłówek strony „Zmiana adresu dostawy”
+- [ ] 3. Pola zawierają adres startowy (ul. Przykładowa 12/3, 00-001, Warszawa, 500 100 200)
+- [ ] 4. Pola pokazują wpisane wartości (ul. Lipowa 7, 31-001, Kraków, 600 200 300)
+- [ ] 5. Komunikat „Zapisano adres dostawy.”
+- [ ] 6. Po odświeżeniu (F5) pola nadal zawierają nowy adres
+
+TC-ADR-02: błędny kod pocztowy `31001`
+- [ ] 7. Formularz z adresem startowym
+- [ ] 8. Na górze komunikat „Popraw błędy w formularzu (1).”
+- [ ] 9. Pod polem Kod pocztowy: „Kod pocztowy musi mieć format 00-000”
+- [ ] 10. Brak komunikatu „Zapisano adres dostawy.”
+- [ ] 11. Po ponownym otwarciu „Adres dostawy” kod pocztowy to nadal `00-001`
+
+### docs/scenariusze/zmiana-adresu.feature (11)
+
+Scenariusz: Zapisanie poprawnego adresu
+- [ ] 12. Komunikat „Zapisano adres dostawy.”
+- [ ] 13. Po odświeżeniu strony pole „Miasto” zawiera „Kraków”
+
+Szablon scenariusza: Błędne dane blokują zapis adresu (3 wyniki × 3 przykłady)
+- Kod pocztowy `31001`
+  - [ ] 14. Komunikat „Popraw błędy w formularzu (1).”
+  - [ ] 15. Pod polem Kod pocztowy: „Kod pocztowy musi mieć format 00-000”
+  - [ ] 16. Adres zapisany na koncie się nie zmienił
+- Telefon `12345`
+  - [ ] 17. Komunikat „Popraw błędy w formularzu (1).”
+  - [ ] 18. Pod polem Telefon: „Telefon musi mieć 9 cyfr (opcjonalnie z +48)”
+  - [ ] 19. Adres zapisany na koncie się nie zmienił
+- Miasto puste
+  - [ ] 20. Komunikat „Popraw błędy w formularzu (1).”
+  - [ ] 21. Pod polem Miasto: „Podaj miasto”
+  - [ ] 22. Adres zapisany na koncie się nie zmienił
+
+**Razem: 22 oczekiwane wyniki** (11 w .md, 11 w .feature). Część się powtarza: wyniki 12 i 13 pokrywają się z 5 i 6, a wyniki 14–16 z 8, 9 i 11.
